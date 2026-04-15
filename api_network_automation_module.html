@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APIs for Network Automation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1117;color:#c9d1d9;display:flex;height:100vh;overflow:hidden;font-size:14px}
+.sidebar{width:280px;min-width:280px;background:#161b22;border-right:1px solid #30363d;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-header{padding:16px;border-bottom:1px solid #30363d;background:#0d1117}
+.sidebar-header h1{font-size:13px;font-weight:700;color:#58a6ff;letter-spacing:.5px;text-transform:uppercase}
+.sidebar-header p{font-size:11px;color:#8b949e;margin-top:3px}
+.module-item{padding:10px 16px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;display:flex;align-items:center;gap:10px}
+.module-item:hover{background:#1f2937;color:#e6edf3}
+.module-item.active{background:#1f2937;border-left-color:#58a6ff;color:#58a6ff}
+.module-item .num{font-size:11px;color:#6e7681;min-width:20px;font-weight:600}
+.module-item .title{font-size:12.5px;line-height:1.3}
+.level-badge{font-size:9px;padding:2px 6px;border-radius:3px;margin-left:auto;font-weight:700;text-transform:uppercase;white-space:nowrap}
+.level-basic{background:#0d3b2e;color:#3fb950}
+.level-intermediate{background:#2d1f0e;color:#e3b341}
+.level-advanced{background:#2d1225;color:#f778ba}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:12px 20px;border-bottom:1px solid #30363d;background:#161b22;display:flex;align-items:center;gap:12px}
+.topbar h2{font-size:16px;font-weight:600;color:#e6edf3}
+.topbar .level-badge{font-size:10px;padding:3px 8px}
+.tabs{display:flex;padding:0 20px;background:#0d1117;border-bottom:1px solid #30363d;gap:0}
+.tab{padding:10px 16px;cursor:pointer;font-size:12.5px;color:#8b949e;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
+.tab:hover{color:#c9d1d9}
+.tab.active{color:#58a6ff;border-bottom-color:#58a6ff}
+.tab-icon{font-size:13px}
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+.section{display:none}
+.section.active{display:block}
+h3{font-size:15px;font-weight:600;color:#e6edf3;margin-bottom:10px;margin-top:20px}
+h3:first-child{margin-top:0}
+h4{font-size:13px;font-weight:600;color:#58a6ff;margin:14px 0 6px}
+p{line-height:1.7;color:#c9d1d9;margin-bottom:10px}
+ul,ol{padding-left:20px;margin-bottom:10px}
+li{line-height:1.8;color:#c9d1d9}
+.callout{background:#161b22;border-left:3px solid #58a6ff;padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0}
+.callout.green{border-left-color:#3fb950}
+.callout.yellow{border-left-color:#e3b341}
+.callout.red{border-left-color:#f85149}
+.callout p{margin:0;font-size:13px}
+.code-block{background:#161b22;border:1px solid #30363d;border-radius:8px;margin:12px 0;overflow:hidden}
+.code-header{background:#1f2937;padding:6px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #30363d}
+.code-header span{font-size:11px;color:#8b949e;font-family:monospace}
+.code-header .lang{color:#58a6ff;font-weight:600}
+pre{padding:16px;overflow-x:auto;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:12.5px;line-height:1.8;color:#e6edf3}
+.kw{color:#ff7b72}
+.fn{color:#d2a8ff}
+.str{color:#a5d6ff}
+.cm{color:#8b949e;font-style:italic}
+.num{color:#79c0ff}
+.var{color:#ffa657}
+.table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+.table th{background:#1f2937;color:#8b949e;font-weight:600;text-align:left;padding:8px 12px;border:1px solid #30363d;font-size:11px;text-transform:uppercase}
+.table td{padding:8px 12px;border:1px solid #30363d;color:#c9d1d9;vertical-align:top}
+.table tr:nth-child(even) td{background:#161b22}
+.method{font-family:monospace;font-weight:700;padding:2px 6px;border-radius:4px;font-size:11px}
+.get{background:#0d3b2e;color:#3fb950}
+.post{background:#1f3a5f;color:#58a6ff}
+.put{background:#2d1f0e;color:#e3b341}
+.del{background:#2d1225;color:#f85149}
+.patch{background:#1c1c2e;color:#d2a8ff}
+.flow-box{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin:10px 0}
+.flow-row{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
+.flow-node{background:#1f2937;border:1px solid #30363d;border-radius:6px;padding:6px 12px;font-size:12px;color:#e6edf3;white-space:nowrap}
+.flow-node.blue{border-color:#388bfd;color:#58a6ff;background:#0d2038}
+.flow-node.green{border-color:#3fb950;color:#3fb950;background:#0d2d1a}
+.flow-node.yellow{border-color:#e3b341;color:#e3b341;background:#2d2008}
+.flow-node.red{border-color:#f85149;color:#f85149;background:#2d0f0f}
+.flow-arrow{color:#6e7681;font-size:16px}
+.practice-item{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px 16px;margin:10px 0}
+.practice-num{color:#58a6ff;font-weight:700;margin-bottom:6px;font-size:13px}
+.practice-desc{color:#c9d1d9;font-size:13px;line-height:1.6}
+.tag{display:inline-block;background:#1f3a5f;color:#58a6ff;font-size:10px;padding:2px 7px;border-radius:4px;margin:2px;font-weight:600}
+.tag.green{background:#0d2d1a;color:#3fb950}
+.tag.yellow{background:#2d2008;color:#e3b341}
+.tag.red{background:#2d0f0f;color:#f85149}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}.sidebar{width:220px;min-width:220px}}
+code{background:#1f2937;color:#ffa657;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+.progress{font-size:11px;color:#6e7681;padding:12px 16px;border-top:1px solid #30363d;margin-top:auto}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h1>Network Automation</h1>
+    <p>Module &mdash; APIs</p>
+  </div>
+  <div id="topic-list"></div>
+  <div class="progress" id="progress-text">Select a topic to begin</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h2 id="topic-title">Python for Network Automation &mdash; APIs Module</h2>
+    <span id="topic-level" class="level-badge" style="display:none"></span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('theory')"><span class="tab-icon">📖</span> Theory</div>
+    <div class="tab" onclick="switchTab('industry')"><span class="tab-icon">🏭</span> Industry Use</div>
+    <div class="tab" onclick="switchTab('practical')"><span class="tab-icon">💻</span> Practical</div>
+    <div class="tab" onclick="switchTab('flow')"><span class="tab-icon">🔄</span> Flow</div>
+    <div class="tab" onclick="switchTab('practice')"><span class="tab-icon">📝</span> Practice</div>
+  </div>
+  <div class="content">
+    <div id="theory" class="section active"></div>
+    <div id="industry" class="section"></div>
+    <div id="practical" class="section"></div>
+    <div id="flow" class="section"></div>
+    <div id="practice" class="section"></div>
+  </div>
+</div>
+
+<script>
+const modules = [
+  {
+    id:1, title:"What is an API?", level:"basic",
+    theory:`<h3>API &mdash; Application Programming Interface</h3>
+<p>An API is a defined contract between two software applications that allows them to communicate. It specifies <strong>what</strong> requests can be made, <strong>how</strong> to make them, and what <strong>responses</strong> to expect.</p>
+<h4>Types of APIs in Networking</h4>
+<table class="table"><thead><tr><th>Type</th><th>Protocol</th><th>Data Format</th><th>Use in Networking</th></tr></thead><tbody>
+<tr><td><strong>REST</strong></td><td>HTTP/S</td><td>JSON / XML</td><td>Cisco DNAC, Meraki, NSO</td></tr>
+<tr><td><strong>NETCONF</strong></td><td>SSH (830)</td><td>XML / YANG</td><td>IOS-XR, Junos, Nokia</td></tr>
+<tr><td><strong>RESTCONF</strong></td><td>HTTP/S</td><td>JSON / XML (YANG)</td><td>IOS-XE 16.6+, IOS-XR</td></tr>
+<tr><td><strong>gRPC</strong></td><td>HTTP/2</td><td>Protobuf</td><td>Model-Driven Telemetry</td></tr>
+<tr><td><strong>SOAP</strong></td><td>HTTP/S</td><td>XML</td><td>Legacy NMS systems</td></tr>
+</tbody></table>
+<h4>API vs Traditional Methods</h4>
+<div class="two-col">
+<div class="callout yellow"><p><strong>CLI / Screen Scraping:</strong> SSH into device, send command, parse unstructured text. Fragile, slow, vendor-specific output format changes break scripts.</p></div>
+<div class="callout green"><p><strong>API:</strong> Send structured HTTP request, receive structured JSON/XML. Vendor-independent, consistent, fast, supports bulk operations.</p></div>
+</div>
+<div class="callout"><p><strong>Key Insight:</strong> APIs give you <em>programmable access</em> to the control plane &mdash; same as the GUI, but automated, structured, and scriptable at scale.</p></div>`,
+    industry:`<h3>Why APIs Matter in Real Networks</h3>
+<p>The industry shift from CLI to API-driven management is being driven by the need for speed, scale, and consistency. Manually configuring 500 switches is not feasible &mdash; APIs make it possible.</p>
+<h4>Real-World Drivers</h4>
+<ul>
+<li><strong>SDN Controllers (Cisco DNAC, Juniper Apstra):</strong> All configuration is done via REST APIs. There is no CLI equivalent for many operations.</li>
+<li><strong>Cloud-Managed Networks (Meraki, Mist, Extreme):</strong> The cloud dashboard IS an API consumer. Everything the GUI does, you can do via API.</li>
+<li><strong>Network-as-Code:</strong> Enterprises are treating network config like software &mdash; stored in Git, deployed via CI/CD pipelines using APIs.</li>
+<li><strong>Compliance &amp; Auditing:</strong> APIs enable real-time config auditing across thousands of devices in minutes, not weeks.</li>
+</ul>
+<h4>Industry Statistics</h4>
+<div class="two-col">
+<div class="callout green"><p><strong>Cisco DevNet:</strong> Over 500,000 registered developers building on Cisco APIs. DNAC, Meraki, NSO, SD-WAN all API-first.</p></div>
+<div class="callout green"><p><strong>Juniper Apstra:</strong> 100% API-driven. No CLI config path in the controller &mdash; APIs are the only automation interface.</p></div>
+</div>
+<h4>Job Market Reality</h4>
+<div class="callout yellow"><p><strong>CCNP/CCIE now include automation:</strong> Cisco updated its certifications to require understanding of APIs, Python, and infrastructure-as-code. Network engineers who know APIs command 20-40% higher salaries.</p></div>`,
+    practical:`<h3>Your First API Call</h3>
+<div class="callout"><p>We'll use the public <strong>httpbin.org</strong> API &mdash; a free, no-auth testing API. Perfect for learning basics.</p></div>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>01_first_api_call.py</span></div><pre><span class="kw">import</span> requests
+
+<span class="cm"># 1. Basic GET request</span>
+url = <span class="str">"https://httpbin.org/get"</span>
+response = requests.<span class="fn">get</span>(url)
+
+<span class="cm"># 2. Check status</span>
+<span class="fn">print</span>(<span class="str">f"Status Code: {response.status_code}"</span>)   <span class="cm"># 200</span>
+<span class="fn">print</span>(<span class="str">f"Content-Type: {response.headers['Content-Type']}"</span>)
+
+<span class="cm"># 3. Parse response as JSON</span>
+data = response.<span class="fn">json</span>()
+<span class="fn">print</span>(<span class="str">f"My IP: {data['origin']}"</span>)
+
+<span class="cm"># 4. Check if successful</span>
+<span class="kw">if</span> response.status_code == <span class="num">200</span>:
+    <span class="fn">print</span>(<span class="str">"API call successful!"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">f"API call failed: {response.status_code}"</span>)</pre></div>
+<h4>Understanding the Response Object</h4>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>response_exploration.py</span></div><pre><span class="cm"># response object attributes you'll use constantly</span>
+response.status_code    <span class="cm"># 200, 404, 500 etc.</span>
+response.text           <span class="cm"># raw string response body</span>
+response.<span class="fn">json</span>()         <span class="cm"># parsed JSON as Python dict</span>
+response.headers        <span class="cm"># response headers dict</span>
+response.url            <span class="cm"># final URL after redirects</span>
+response.elapsed        <span class="cm"># how long the request took</span>
+response.ok             <span class="cm"># True if status_code &lt; 400</span></pre></div>`,
+    flow:`<h3>API Request-Response Flow</h3>
+<div class="flow-box">
+<p style="color:#8b949e;font-size:12px;margin-bottom:12px">How your Python script communicates with a network device API:</p>
+<div class="flow-row"><div class="flow-node blue">Python Script</div><div class="flow-arrow">→</div><div class="flow-node">Build HTTP Request<br><span style="font-size:10px;color:#8b949e">URL + Method + Headers + Body</span></div><div class="flow-arrow">→</div><div class="flow-node">Network / Internet</div></div>
+<div class="flow-row" style="margin:4px 0;padding-left:40px"><div style="color:#6e7681;font-size:11px">HTTPS (TLS encrypted) →</div></div>
+<div class="flow-row"><div class="flow-node green">API Server<br><span style="font-size:10px;color:#8b949e">Cisco DNAC / IOS-XE / etc</span></div><div class="flow-arrow">→</div><div class="flow-node">Auth Check<br><span style="font-size:10px;color:#8b949e">Valid token/key?</span></div><div class="flow-arrow">→</div><div class="flow-node">Process Request<br><span style="font-size:10px;color:#8b949e">Query device state</span></div></div>
+<div class="flow-row" style="margin:8px 0"><div class="flow-arrow">↓</div><div style="color:#6e7681;font-size:11px;margin-left:8px">JSON/XML Response sent back</div></div>
+<div class="flow-row"><div class="flow-node blue">Python Script</div><div class="flow-arrow">←</div><div class="flow-node">HTTP Response<br><span style="font-size:10px;color:#8b949e">Status + Headers + Body</span></div><div class="flow-arrow">←</div><div class="flow-node">API Server</div></div>
+</div>
+<h4>Components of Every API Call</h4>
+<table class="table"><thead><tr><th>Component</th><th>Example</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>URL / Endpoint</td><td><code>https://dnac.company.com/api/v1/network-device</code></td><td>What resource you want</td></tr>
+<tr><td>HTTP Method</td><td><code>GET</code></td><td>What action to perform</td></tr>
+<tr><td>Headers</td><td><code>X-Auth-Token: abc123</code></td><td>Auth, content-type, etc.</td></tr>
+<tr><td>Request Body</td><td><code>{"hostname": "R1"}</code></td><td>Data for POST/PUT (optional)</td></tr>
+<tr><td>Response</td><td><code>200 OK + JSON data</code></td><td>Result from server</td></tr>
+</tbody></table>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1 &mdash; Conceptual</div><div class="practice-desc">List 3 differences between CLI-based automation (paramiko/netmiko) and REST API-based automation. In which scenario would you prefer each approach?</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2 &mdash; Hands-On</div><div class="practice-desc">Using <code>requests</code>, make a GET call to <code>https://httpbin.org/get</code> and print:<br>1. The HTTP status code<br>2. The response time (elapsed)<br>3. Your public IP from the response JSON (<code>data['origin']</code>)</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Research</div><div class="practice-desc">Look up the Cisco Meraki API documentation online. Answer: What is the base URL for the Meraki API? What authentication header does it use? Name 3 API endpoints available.</div></div>
+<div class="practice-item"><div class="practice-num">Lab &mdash; DevNet Sandbox</div><div class="practice-desc">Open the Cisco DevNet Always-On IOS-XE sandbox (<code>sandbox-iosxe-latest-1.cisco.com</code>). Make a RESTCONF GET call to list all interfaces. Use credentials: <code>developer / C1sco12345</code>. URL: <code>/restconf/data/ietf-interfaces:interfaces</code></div></div>`
+  },
+  {
+    id:2, title:"REST API Fundamentals", level:"basic",
+    theory:`<h3>What is REST?</h3>
+<p><strong>REST (Representational State Transfer)</strong> is an architectural style for distributed systems, defined by Roy Fielding in 2000. It is NOT a protocol &mdash; it's a set of constraints that, when applied to HTTP, create a powerful API design pattern.</p>
+<h4>The 6 REST Constraints</h4>
+<ol>
+<li><strong>Client-Server:</strong> UI (client) is separated from data storage (server). Your Python script is the client; Cisco DNAC is the server.</li>
+<li><strong>Stateless:</strong> Each request must contain ALL information needed. Server stores no client session state between requests.</li>
+<li><strong>Cacheable:</strong> Responses must define themselves as cacheable or non-cacheable.</li>
+<li><strong>Uniform Interface:</strong> Consistent URLs, HTTP methods, and response formats across all resources.</li>
+<li><strong>Layered System:</strong> Client doesn't know if it's talking directly to the server or through a proxy/load balancer.</li>
+<li><strong>Code on Demand (optional):</strong> Server can send executable code (JavaScript) to client.</li>
+</ol>
+<h4>REST Resources &amp; URIs</h4>
+<p>In REST, everything is a <strong>resource</strong> (noun). Resources are identified by URIs.</p>
+<table class="table"><thead><tr><th>Resource</th><th>URI Pattern</th><th>Example</th></tr></thead><tbody>
+<tr><td>Collection</td><td><code>/resource</code></td><td><code>/api/v1/network-device</code></td></tr>
+<tr><td>Single Item</td><td><code>/resource/{id}</code></td><td><code>/api/v1/network-device/abc-123</code></td></tr>
+<tr><td>Sub-resource</td><td><code>/resource/{id}/sub</code></td><td><code>/api/v1/network-device/abc-123/interface</code></td></tr>
+</tbody></table>`,
+    industry:`<h3>REST in Production Networks</h3>
+<h4>Why Every Modern Platform Uses REST</h4>
+<p>REST won the API design wars because it maps naturally to HTTP (which network teams already understand) and uses JSON (which Python handles natively). Every major networking vendor now provides a RESTful API:</p>
+<table class="table"><thead><tr><th>Vendor Platform</th><th>REST API Name</th><th>Base URL Pattern</th></tr></thead><tbody>
+<tr><td>Cisco DNA Center</td><td>Intent API</td><td><code>/dna/intent/api/v1/</code></td></tr>
+<tr><td>Cisco Meraki</td><td>Dashboard API</td><td><code>/api/v1/organizations/</code></td></tr>
+<tr><td>Arista CloudVision</td><td>REST API</td><td><code>/cvpInfo/getCvpInfo.do</code></td></tr>
+<tr><td>Juniper Apstra</td><td>AOS REST API</td><td><code>/api/blueprints/</code></td></tr>
+<tr><td>Palo Alto Panorama</td><td>PAN-OS REST API</td><td><code>/restapi/v10.1/</code></td></tr>
+<tr><td>Fortinet FortiManager</td><td>JSON-RPC/REST</td><td><code>/jsonrpc</code></td></tr>
+</tbody></table>
+<div class="callout green"><p><strong>NSO (Network Services Orchestrator):</strong> Cisco NSO uses RESTCONF (REST + YANG). A single NSO instance can manage thousands of devices from different vendors via one consistent REST interface &mdash; the killer use case for network REST APIs.</p></div>`,
+    practical:`<h3>REST API with Cisco DevNet Sandbox</h3>
+<div class="callout yellow"><p><strong>Pre-requisite:</strong> Install requests &mdash; <code>pip install requests</code>. Disable SSL warnings for lab environments.</p></div>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>rest_fundamentals.py</span></div><pre><span class="kw">import</span> requests
+<span class="kw">import</span> json
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+<span class="cm"># ─── Connection Parameters ────────────────────────────</span>
+BASE_URL  = <span class="str">"https://sandbox-iosxe-latest-1.cisco.com"</span>
+USERNAME  = <span class="str">"developer"</span>
+PASSWORD  = <span class="str">"C1sco12345"</span>
+
+HEADERS = {
+    <span class="str">"Accept"</span>      : <span class="str">"application/yang-data+json"</span>,
+    <span class="str">"Content-Type"</span>: <span class="str">"application/yang-data+json"</span>
+}
+
+<span class="cm"># ─── GET: Read all interfaces ─────────────────────────</span>
+url = <span class="str">f"{BASE_URL}/restconf/data/ietf-interfaces:interfaces"</span>
+r = requests.<span class="fn">get</span>(url,
+    auth=(USERNAME, PASSWORD),
+    headers=HEADERS,
+    verify=<span class="kw">False</span>)
+
+<span class="fn">print</span>(<span class="str">f"Status: {r.status_code}"</span>)
+interfaces = r.<span class="fn">json</span>()
+
+<span class="kw">for</span> iface <span class="kw">in</span> interfaces[<span class="str">'ietf-interfaces:interfaces'</span>][<span class="str">'interface'</span>]:
+    <span class="fn">print</span>(<span class="str">f"  Interface: {iface['name']:20} Enabled: {iface.get('enabled', 'N/A')}"</span>)</pre></div>
+<div class="code-block"><div class="code-header"><span class="lang">Output</span><span>expected output</span></div><pre>Status: 200
+  Interface: GigabitEthernet1      Enabled: True
+  Interface: GigabitEthernet2      Enabled: False
+  Interface: Loopback0             Enabled: True</pre></div>`,
+    flow:`<h3>REST Resource Hierarchy</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node blue" style="width:100%">Base URL: https://dnac.company.com/dna/intent/api/v1</div></div>
+<div style="height:8px"></div>
+<div class="flow-row">
+<div class="flow-node green">network-device<br><span style="font-size:10px">Collection</span></div>
+<div class="flow-node green">site<br><span style="font-size:10px">Collection</span></div>
+<div class="flow-node green">topology<br><span style="font-size:10px">Collection</span></div>
+<div class="flow-node green">template-programmer<br><span style="font-size:10px">Collection</span></div>
+</div>
+<div style="height:8px"></div>
+<div class="flow-row">
+<div class="flow-node yellow">network-device/{id}<br><span style="font-size:10px">Single Resource</span></div>
+<div class="flow-node yellow">network-device/{id}/interface<br><span style="font-size:10px">Sub-resource</span></div>
+</div>
+</div>
+<h4>Stateless Nature Explained</h4>
+<div class="callout red"><p><strong>Wrong (Stateful thinking):</strong> "I already authenticated, so the next call should know who I am."</p></div>
+<div class="callout green"><p><strong>Correct (Stateless):</strong> Every single API call must include the auth token. The server has no memory of your previous request.</p></div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Given the URL <code>https://dnac.cisco.com/dna/intent/api/v1/network-device/abc-123/interface</code> &mdash; identify: the base URL, the API version, the collection, the resource ID, and the sub-resource.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Using the DevNet sandbox, make a GET call to <code>/restconf/data/ietf-interfaces:interfaces/interface=GigabitEthernet1</code> and print only the description and IP address of that interface.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Design</div><div class="practice-desc">You are designing a REST API for an IPAM (IP Address Management) system. Design the URI structure for: listing all subnets, viewing a specific subnet, listing IPs in a subnet, and viewing a specific IP assignment.</div></div>`
+  },
+  {
+    id:3, title:"HTTP Methods & Status Codes", level:"basic",
+    theory:`<h3>HTTP Methods (CRUD Mapping)</h3>
+<p>HTTP methods define the <strong>action</strong> you want to perform on a resource. In network automation, these map directly to network operations:</p>
+<table class="table"><thead><tr><th>Method</th><th>CRUD</th><th>Network Use Case</th><th>Body?</th></tr></thead><tbody>
+<tr><td><span class="method get">GET</span></td><td>Read</td><td>Get interface status, routing table, device inventory</td><td>No</td></tr>
+<tr><td><span class="method post">POST</span></td><td>Create</td><td>Deploy new VLAN, create a template, add a device</td><td>Yes</td></tr>
+<tr><td><span class="method put">PUT</span></td><td>Full Update</td><td>Replace entire interface config (all fields required)</td><td>Yes</td></tr>
+<tr><td><span class="method patch">PATCH</span></td><td>Partial Update</td><td>Change only interface description (other fields unchanged)</td><td>Yes</td></tr>
+<tr><td><span class="method del">DELETE</span></td><td>Delete</td><td>Remove a VLAN, delete a template, decommission a device</td><td>No</td></tr>
+</tbody></table>
+<h4>HTTP Status Codes</h4>
+<table class="table"><thead><tr><th>Range</th><th>Meaning</th><th>Common Codes</th></tr></thead><tbody>
+<tr><td>1xx</td><td>Informational</td><td>100 Continue</td></tr>
+<tr><td>2xx</td><td>Success</td><td>200 OK, 201 Created, 204 No Content</td></tr>
+<tr><td>3xx</td><td>Redirection</td><td>301 Moved, 304 Not Modified</td></tr>
+<tr><td>4xx</td><td>Client Error</td><td>400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 429 Too Many Requests</td></tr>
+<tr><td>5xx</td><td>Server Error</td><td>500 Internal Server Error, 503 Service Unavailable</td></tr>
+</tbody></table>`,
+    industry:`<h3>Status Codes in Network Automation</h3>
+<h4>What Each Code Means for Your Scripts</h4>
+<div class="two-col">
+<div class="callout green"><p><strong>200 OK:</strong> GET succeeded. Parse the response body.</p></div>
+<div class="callout green"><p><strong>201 Created:</strong> POST succeeded. Device/VLAN/template was created. Check Location header for new resource URL.</p></div>
+</div>
+<div class="two-col">
+<div class="callout green"><p><strong>204 No Content:</strong> DELETE succeeded. No body returned. Don't try to parse JSON.</p></div>
+<div class="callout yellow"><p><strong>400 Bad Request:</strong> Your JSON body is malformed or missing required fields. Check your payload structure.</p></div>
+</div>
+<div class="two-col">
+<div class="callout red"><p><strong>401 Unauthorized:</strong> Token expired or missing. Re-authenticate and retry.</p></div>
+<div class="callout red"><p><strong>403 Forbidden:</strong> Token valid but insufficient permissions. Your role doesn't allow this operation.</p></div>
+</div>
+<div class="callout yellow"><p><strong>429 Too Many Requests:</strong> Rate limit hit. Meraki limits 10 requests/second. Your script must slow down &mdash; add <code>time.sleep()</code> or use exponential backoff.</p></div>`,
+    practical:`<h3>Using Different HTTP Methods</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>http_methods_demo.py</span></div><pre><span class="kw">import</span> requests, json
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+BASE = <span class="str">"https://sandbox-iosxe-latest-1.cisco.com"</span>
+AUTH = (<span class="str">"developer"</span>, <span class="str">"C1sco12345"</span>)
+HDR  = {<span class="str">"Accept"</span>: <span class="str">"application/yang-data+json"</span>,
+        <span class="str">"Content-Type"</span>: <span class="str">"application/yang-data+json"</span>}
+
+<span class="cm"># ── GET: Read interface ───────────────────────────────</span>
+r = requests.<span class="fn">get</span>(
+    <span class="str">f"{BASE}/restconf/data/ietf-interfaces:interfaces/interface=Loopback0"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="str">"GET Status:"</span>, r.status_code)
+
+<span class="cm"># ── POST: Create a Loopback interface ─────────────────</span>
+payload = {
+    <span class="str">"ietf-interfaces:interface"</span>: {
+        <span class="str">"name"</span>: <span class="str">"Loopback99"</span>,
+        <span class="str">"type"</span>: <span class="str">"iana-if-type:softwareLoopback"</span>,
+        <span class="str">"enabled"</span>: <span class="kw">True</span>,
+        <span class="str">"description"</span>: <span class="str">"Created via Python API"</span>
+    }
+}
+r = requests.<span class="fn">post</span>(
+    <span class="str">f"{BASE}/restconf/data/ietf-interfaces:interfaces"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>,
+    data=json.<span class="fn">dumps</span>(payload))
+<span class="fn">print</span>(<span class="str">"POST Status:"</span>, r.status_code)  <span class="cm"># 201 Created</span>
+
+<span class="cm"># ── PATCH: Update description only ───────────────────</span>
+update = {<span class="str">"ietf-interfaces:interface"</span>: {
+    <span class="str">"name"</span>: <span class="str">"Loopback99"</span>,
+    <span class="str">"description"</span>: <span class="str">"Updated by patch"</span>
+}}
+r = requests.<span class="fn">patch</span>(
+    <span class="str">f"{BASE}/restconf/data/ietf-interfaces:interfaces/interface=Loopback99"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>,
+    data=json.<span class="fn">dumps</span>(update))
+<span class="fn">print</span>(<span class="str">"PATCH Status:"</span>, r.status_code)  <span class="cm"># 204 No Content</span>
+
+<span class="cm"># ── DELETE: Remove interface ─────────────────────────</span>
+r = requests.<span class="fn">delete</span>(
+    <span class="str">f"{BASE}/restconf/data/ietf-interfaces:interfaces/interface=Loopback99"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="str">"DELETE Status:"</span>, r.status_code)  <span class="cm"># 204 No Content</span></pre></div>`,
+    flow:`<h3>Method Selection Flow</h3>
+<div class="flow-box">
+<p style="color:#8b949e;font-size:12px;margin-bottom:12px">How to decide which HTTP method to use:</p>
+<div class="flow-row"><div class="flow-node blue">What do you want to do?</div></div>
+<div style="height:8px"></div>
+<div class="flow-row">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div class="flow-row"><div class="flow-node green">Read data → <strong>GET</strong></div></div>
+<div class="flow-row"><div class="flow-node">Create new resource → <strong>POST</strong></div></div>
+<div class="flow-row"><div class="flow-node yellow">Update: all fields? → <strong>PUT</strong></div></div>
+<div class="flow-row"><div class="flow-node yellow">Update: some fields? → <strong>PATCH</strong></div></div>
+<div class="flow-row"><div class="flow-node red">Remove resource → <strong>DELETE</strong></div></div>
+</div>
+</div>
+</div>
+<h4>Status Code Quick Reference for Scripts</h4>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>status_handler.py</span></div><pre><span class="kw">def</span> <span class="fn">handle_response</span>(response):
+    code = response.status_code
+    <span class="kw">if</span> code == <span class="num">200</span>: <span class="kw">return</span> response.<span class="fn">json</span>()
+    <span class="kw">elif</span> code == <span class="num">201</span>: <span class="fn">print</span>(<span class="str">"Resource created"</span>)
+    <span class="kw">elif</span> code == <span class="num">204</span>: <span class="fn">print</span>(<span class="str">"Success, no content"</span>)
+    <span class="kw">elif</span> code == <span class="num">401</span>: <span class="kw">raise</span> Exception(<span class="str">"Auth failed - re-authenticate"</span>)
+    <span class="kw">elif</span> code == <span class="num">404</span>: <span class="kw">raise</span> Exception(<span class="str">"Resource not found"</span>)
+    <span class="kw">elif</span> code == <span class="num">429</span>: <span class="kw">raise</span> Exception(<span class="str">"Rate limited - slow down"</span>)
+    <span class="kw">else</span>: <span class="kw">raise</span> Exception(<span class="str">f"Unexpected: {code}"</span>)</pre></div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1 &mdash; Match</div><div class="practice-desc">Match each network operation to the correct HTTP method:<br>• Get BGP neighbor table → ?<br>• Create a new VLAN → ?<br>• Rename an interface → ?<br>• Remove a static route → ?<br>• Replace entire ACL → ?</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2 &mdash; Hands-On</div><div class="practice-desc">Write a Python function <code>check_api(response)</code> that takes a requests response object and:<br>1. Prints a success message for 2xx<br>2. Raises a specific exception for 401, 403, 404, 429<br>3. Raises a generic exception for 5xx errors</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Lab</div><div class="practice-desc">On the DevNet sandbox: Create Loopback100 via POST, verify it exists via GET, update its description via PATCH, then delete it via DELETE. Capture and print the status code at each step.</div></div>`
+  },
+  {
+    id:4, title:"Authentication & Headers", level:"basic",
+    theory:`<h3>API Authentication Methods</h3>
+<p>Authentication tells the API server <em>who you are</em> and whether you have permission to perform an operation. Different network platforms use different auth methods.</p>
+<h4>Types of Authentication</h4>
+<table class="table"><thead><tr><th>Method</th><th>How It Works</th><th>Network Platform</th></tr></thead><tbody>
+<tr><td><strong>Basic Auth</strong></td><td>Base64(username:password) in Authorization header. Sent every request.</td><td>IOS-XE RESTCONF, NSO, older APIs</td></tr>
+<tr><td><strong>Token / Bearer</strong></td><td>POST credentials once → receive token → use token in X-Auth-Token header</td><td>Cisco DNA Center, Cisco FMC</td></tr>
+<tr><td><strong>API Key</strong></td><td>Static key in header or query parameter. Generated in dashboard.</td><td>Meraki, Mist, Infoblox</td></tr>
+<tr><td><strong>OAuth 2.0</strong></td><td>3-legged flow: auth server issues access_token. Complex but enterprise-grade.</td><td>Cisco Webex, some cloud platforms</td></tr>
+</tbody></table>
+<h4>Important HTTP Headers</h4>
+<table class="table"><thead><tr><th>Header</th><th>Purpose</th><th>Example Value</th></tr></thead><tbody>
+<tr><td>Authorization</td><td>Auth credentials</td><td><code>Bearer eyJhbGci...</code></td></tr>
+<tr><td>X-Auth-Token</td><td>Cisco DNAC token</td><td><code>eyJhbGciOiJSUzI...</code></td></tr>
+<tr><td>X-Cisco-Meraki-API-Key</td><td>Meraki API key</td><td><code>6bec40cf957de430...</code></td></tr>
+<tr><td>Content-Type</td><td>Format of request body</td><td><code>application/json</code></td></tr>
+<tr><td>Accept</td><td>Expected response format</td><td><code>application/json</code></td></tr>
+</tbody></table>`,
+    industry:`<h3>Auth in Real Deployments</h3>
+<h4>Cisco DNA Center &mdash; Token Auth (Most Common Pattern)</h4>
+<p>DNAC uses a two-step auth: first get a JWT token (valid 60 minutes), then include it in every subsequent call. This is the most common pattern in enterprise network APIs.</p>
+<div class="callout yellow"><p><strong>Token Expiry:</strong> In production scripts, you must handle token expiry gracefully. Build a token manager class that refreshes tokens automatically before they expire.</p></div>
+<h4>Meraki &mdash; API Key Auth</h4>
+<p>Meraki uses a static API key generated from the Dashboard. The key is passed in the <code>X-Cisco-Meraki-API-Key</code> header. Meraki enforces rate limiting (10 req/sec per org) &mdash; violations return 429.</p>
+<h4>Security Best Practices (Production)</h4>
+<ul>
+<li>Never hardcode credentials in scripts. Use environment variables or a secrets vault (HashiCorp Vault, AWS Secrets Manager).</li>
+<li>Use HTTPS always. Never use <code>verify=False</code> in production (only in labs).</li>
+<li>Use read-only API keys where possible for monitoring scripts.</li>
+<li>Rotate API keys regularly and log API usage for audit trails.</li>
+</ul>`,
+    practical:`<h3>Authentication Code Patterns</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>auth_patterns.py</span></div><pre><span class="kw">import</span> requests, os, json
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+<span class="cm"># ── Pattern 1: Basic Auth (IOS-XE RESTCONF) ──────────</span>
+r = requests.<span class="fn">get</span>(
+    <span class="str">"https://ios-xe-device/restconf/data/ietf-interfaces:interfaces"</span>,
+    auth=(<span class="str">"developer"</span>, <span class="str">"C1sco12345"</span>),     <span class="cm"># requests handles base64</span>
+    headers={<span class="str">"Accept"</span>: <span class="str">"application/yang-data+json"</span>},
+    verify=<span class="kw">False</span>)
+
+<span class="cm"># ── Pattern 2: Token Auth (Cisco DNA Center) ──────────</span>
+<span class="kw">def</span> <span class="fn">get_dnac_token</span>(host, user, pwd):
+    url = <span class="str">f"https://{host}/dna/system/api/v1/auth/token"</span>
+    r = requests.<span class="fn">post</span>(url, auth=(user, pwd), verify=<span class="kw">False</span>)
+    r.<span class="fn">raise_for_status</span>()
+    <span class="kw">return</span> r.<span class="fn">json</span>()[<span class="str">"Token"</span>]
+
+token = <span class="fn">get_dnac_token</span>(<span class="str">"dnac.company.com"</span>, <span class="str">"admin"</span>, <span class="str">"password"</span>)
+
+<span class="cm"># Use token in all subsequent calls</span>
+headers = {<span class="str">"X-Auth-Token"</span>: token, <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>}
+r = requests.<span class="fn">get</span>(
+    <span class="str">"https://dnac.company.com/dna/intent/api/v1/network-device"</span>,
+    headers=headers, verify=<span class="kw">False</span>)
+
+<span class="cm"># ── Pattern 3: API Key (Meraki) ───────────────────────</span>
+API_KEY = os.environ.<span class="fn">get</span>(<span class="str">"MERAKI_API_KEY"</span>)  <span class="cm"># from env var!</span>
+headers = {<span class="str">"X-Cisco-Meraki-API-Key"</span>: API_KEY}
+r = requests.<span class="fn">get</span>(
+    <span class="str">"https://api.meraki.com/api/v1/organizations"</span>,
+    headers=headers)
+
+<span class="cm"># ── Pattern 4: Using env vars (production best practice)</span>
+DNAC_HOST = os.environ.<span class="fn">get</span>(<span class="str">"DNAC_HOST"</span>)
+DNAC_USER = os.environ.<span class="fn">get</span>(<span class="str">"DNAC_USER"</span>)
+DNAC_PASS = os.environ.<span class="fn">get</span>(<span class="str">"DNAC_PASS"</span>)</pre></div>`,
+    flow:`<h3>Token Auth Flow (Cisco DNAC Pattern)</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node blue">Script starts</div><div class="flow-arrow">→</div><div class="flow-node">POST /auth/token<br><span style="font-size:10px">Basic Auth: user:pass</span></div><div class="flow-arrow">→</div><div class="flow-node green">DNAC returns JWT Token<br><span style="font-size:10px">Valid for 60 minutes</span></div></div>
+<div style="height:8px"></div>
+<div class="flow-row"><div class="flow-node blue">Script stores token</div><div class="flow-arrow">→</div><div class="flow-node">GET /network-device<br><span style="font-size:10px">X-Auth-Token: &lt;token&gt;</span></div><div class="flow-arrow">→</div><div class="flow-node green">200 OK + Device List</div></div>
+<div style="height:8px"></div>
+<div class="flow-row"><div class="flow-node yellow">Token expires (60 min)</div><div class="flow-arrow">→</div><div class="flow-node red">401 Unauthorized</div><div class="flow-arrow">→</div><div class="flow-node">Re-authenticate<br><span style="font-size:10px">Get new token</span></div></div>
+</div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Write a Python script that reads DNAC credentials from environment variables (<code>DNAC_HOST</code>, <code>DNAC_USER</code>, <code>DNAC_PASS</code>) and obtains a token. Print the first 20 characters of the token.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Build a <code>TokenManager</code> class that: stores the token and its expiry time, provides a <code>get_token()</code> method that automatically refreshes if the token is within 5 minutes of expiry.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Security Audit</div><div class="practice-desc">Review the following code and identify all security problems:<br><code>r = requests.get("http://dnac/api/v1/device", headers={"X-Auth-Token": "abc123"}, verify=False)</code></div></div>`
+  },
+  {
+    id:5, title:"Python requests Library", level:"basic",
+    theory:`<h3>The requests Library</h3>
+<p><code>requests</code> is the most-used Python library for HTTP &mdash; it abstracts raw HTTP into simple, Pythonic function calls. It handles connections, encoding, SSL, redirects, and cookies automatically.</p>
+<h4>Core Methods</h4>
+<table class="table"><thead><tr><th>Function</th><th>HTTP Method</th><th>Usage</th></tr></thead><tbody>
+<tr><td><code>requests.get(url, ...)</code></td><td>GET</td><td>Read data</td></tr>
+<tr><td><code>requests.post(url, ...)</code></td><td>POST</td><td>Create resource</td></tr>
+<tr><td><code>requests.put(url, ...)</code></td><td>PUT</td><td>Full update</td></tr>
+<tr><td><code>requests.patch(url, ...)</code></td><td>PATCH</td><td>Partial update</td></tr>
+<tr><td><code>requests.delete(url, ...)</code></td><td>DELETE</td><td>Delete resource</td></tr>
+</tbody></table>
+<h4>Key Parameters</h4>
+<table class="table"><thead><tr><th>Parameter</th><th>Type</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>auth</code></td><td>tuple</td><td>Basic Auth: <code>('user','pass')</code></td></tr>
+<tr><td><code>headers</code></td><td>dict</td><td>Request headers (token, content-type)</td></tr>
+<tr><td><code>params</code></td><td>dict</td><td>URL query string: <code>?key=val</code></td></tr>
+<tr><td><code>data</code></td><td>str</td><td>Raw request body (use with <code>json.dumps()</code>)</td></tr>
+<tr><td><code>json</code></td><td>dict</td><td>Auto-serializes dict to JSON body</td></tr>
+<tr><td><code>verify</code></td><td>bool/str</td><td>SSL verification (False=disable in labs)</td></tr>
+<tr><td><code>timeout</code></td><td>int/tuple</td><td>Connection and read timeout in seconds</td></tr>
+</tbody></table>`,
+    industry:`<h3>Session Objects in Production Scripts</h3>
+<p>For production network automation, always use <code>requests.Session()</code> instead of individual calls. A Session:</p>
+<ul>
+<li>Reuses the underlying TCP connection (significant performance gain for many calls)</li>
+<li>Stores headers, auth, and cookies automatically (set once, used everywhere)</li>
+<li>Enables consistent retry logic via <code>HTTPAdapter</code></li>
+<li>Proper resource management with context manager (<code>with</code> statement)</li>
+</ul>
+<div class="callout green"><p><strong>Real Impact:</strong> On a 500-device inventory script, using Sessions vs individual calls can reduce execution time by 40-60% due to TCP connection reuse.</p></div>
+<div class="callout yellow"><p><strong>Always set timeouts:</strong> Without a timeout, a hung device can cause your script to wait indefinitely. Use <code>timeout=(5, 30)</code> &mdash; 5 seconds to connect, 30 seconds to read.</p></div>`,
+    practical:`<h3>requests Session &mdash; Production Pattern</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>requests_session.py</span></div><pre><span class="kw">import</span> requests
+<span class="kw">from</span> requests.adapters <span class="kw">import</span> HTTPAdapter
+<span class="kw">from</span> urllib3.util.retry <span class="kw">import</span> Retry
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+<span class="kw">def</span> <span class="fn">build_session</span>(token):
+    <span class="str">"""Build a reusable session with retry logic."""</span>
+    session = requests.<span class="fn">Session</span>()
+    
+    <span class="cm"># Set headers once – apply to all requests</span>
+    session.headers.<span class="fn">update</span>({
+        <span class="str">"X-Auth-Token"</span>  : token,
+        <span class="str">"Content-Type"</span>  : <span class="str">"application/json"</span>,
+        <span class="str">"Accept"</span>        : <span class="str">"application/json"</span>
+    })
+    session.verify = <span class="kw">False</span>  <span class="cm"># lab only</span>
+    
+    <span class="cm"># Auto-retry on connection issues (not on 4xx/5xx)</span>
+    retry = <span class="fn">Retry</span>(total=<span class="num">3</span>, backoff_factor=<span class="num">1</span>,
+                  status_forcelist=[<span class="num">502</span>, <span class="num">503</span>, <span class="num">504</span>])
+    adapter = <span class="fn">HTTPAdapter</span>(max_retries=retry)
+    session.<span class="fn">mount</span>(<span class="str">"https://"</span>, adapter)
+    <span class="kw">return</span> session
+
+<span class="cm"># ── Usage ─────────────────────────────────────────────</span>
+BASE = <span class="str">"https://dnac.company.com/dna/intent/api/v1"</span>
+token = <span class="str">"your-auth-token"</span>
+
+<span class="kw">with</span> <span class="fn">build_session</span>(token) <span class="kw">as</span> s:
+    <span class="cm"># Timeout: (connect_timeout, read_timeout)</span>
+    devices = s.<span class="fn">get</span>(<span class="str">f"{BASE}/network-device"</span>, timeout=(<span class="num">5</span>, <span class="num">30</span>))
+    devices.<span class="fn">raise_for_status</span>()
+    
+    <span class="cm"># params → ?family=Routers&amp;platform=ASR1001-X</span>
+    routers = s.<span class="fn">get</span>(<span class="str">f"{BASE}/network-device"</span>,
+                    params={<span class="str">"family"</span>: <span class="str">"Routers"</span>},
+                    timeout=(<span class="num">5</span>, <span class="num">30</span>))
+    
+    <span class="kw">for</span> dev <span class="kw">in</span> devices.<span class="fn">json</span>()[<span class="str">"response"</span>]:
+        <span class="fn">print</span>(<span class="str">f"{dev['hostname']:20} {dev['managementIpAddress']}"</span>)</pre></div>`,
+    flow:`<h3>requests Workflow</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node">1. Create Session</div><div class="flow-arrow">→</div><div class="flow-node">2. Set base headers &amp; auth</div><div class="flow-arrow">→</div><div class="flow-node">3. Mount retry adapter</div></div>
+<div style="height:8px"></div>
+<div class="flow-row"><div class="flow-node blue">4. Make requests<br><span style="font-size:10px">get / post / patch / delete</span></div><div class="flow-arrow">→</div><div class="flow-node">5. Check status<br><span style="font-size:10px">raise_for_status() or check code</span></div></div>
+<div style="height:8px"></div>
+<div class="flow-row"><div class="flow-node">6. Parse response<br><span style="font-size:10px">r.json() → Python dict</span></div><div class="flow-arrow">→</div><div class="flow-node green">7. Process data<br><span style="font-size:10px">loop, filter, report</span></div></div>
+</div>
+<h4>params vs data vs json</h4>
+<table class="table"><thead><tr><th>Parameter</th><th>Where it goes</th><th>Use for</th></tr></thead><tbody>
+<tr><td><code>params={"limit":10}</code></td><td>URL: <code>?limit=10</code></td><td>Filtering GET results</td></tr>
+<tr><td><code>data=json.dumps(d)</code></td><td>Request body (string)</td><td>POST/PUT with manual JSON</td></tr>
+<tr><td><code>json=d</code></td><td>Request body (auto-serialized)</td><td>POST/PUT with dict (preferred)</td></tr>
+</tbody></table>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Build a <code>NetworkAPIClient</code> class using <code>requests.Session</code>. It should accept host, username, and password in <code>__init__</code>, authenticate on creation, and expose <code>get(path, **kwargs)</code> and <code>post(path, payload, **kwargs)</code> methods.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Make a GET request to the Cisco DevNet sandbox with a <code>timeout=(3, 15)</code>. Intentionally set the timeout to 0.001 seconds to see a <code>ConnectTimeout</code> exception. Write a try/except to handle it gracefully.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Params</div><div class="practice-desc">Using the DNAC API (or sandbox), make a GET to <code>/dna/intent/api/v1/network-device</code> with <code>params={"family": "Switches and Hubs"}</code>. Compare the result count with the same call without params.</div></div>`
+  },
+  {
+    id:6, title:"JSON & Data Parsing", level:"intermediate",
+    theory:`<h3>JSON in Network APIs</h3>
+<p><strong>JSON (JavaScript Object Notation)</strong> is the universal data exchange format for REST APIs. Python's <code>json</code> module and <code>requests.json()</code> make it trivial to work with.</p>
+<h4>JSON ↔ Python Type Mapping</h4>
+<table class="table"><thead><tr><th>JSON Type</th><th>Python Type</th><th>Example</th></tr></thead><tbody>
+<tr><td>object <code>{}</code></td><td>dict</td><td><code>{"name": "GigE1"}</code></td></tr>
+<tr><td>array <code>[]</code></td><td>list</td><td><code>["GigE1", "GigE2"]</code></td></tr>
+<tr><td>string</td><td>str</td><td><code>"192.168.1.1"</code></td></tr>
+<tr><td>number</td><td>int / float</td><td><code>100, 1500.5</code></td></tr>
+<tr><td>boolean</td><td>bool</td><td><code>true → True</code></td></tr>
+<tr><td>null</td><td>None</td><td><code>null → None</code></td></tr>
+</tbody></table>
+<h4>Common Parsing Techniques</h4>
+<ul>
+<li><strong>Nested access:</strong> <code>data["response"][0]["hostname"]</code></li>
+<li><strong>Safe access:</strong> <code>data.get("key", "default")</code></li>
+<li><strong>List comprehension:</strong> Filter/transform lists in one line</li>
+<li><strong>jmespath:</strong> XPath-like queries for deeply nested JSON</li>
+</ul>`,
+    industry:`<h3>JSON Parsing in Network Automation</h3>
+<p>Network APIs return complex nested JSON. Understanding how to navigate and extract data efficiently is critical for building useful automation scripts.</p>
+<h4>Typical DNAC Device Response Structure</h4>
+<div class="code-block"><div class="code-header"><span class="lang">JSON</span><span>typical_api_response.json</span></div><pre>{
+  <span class="str">"response"</span>: [
+    {
+      <span class="str">"id"</span>: <span class="str">"abc-123"</span>,
+      <span class="str">"hostname"</span>: <span class="str">"SW-CORE-01"</span>,
+      <span class="str">"managementIpAddress"</span>: <span class="str">"10.1.1.1"</span>,
+      <span class="str">"platformId"</span>: <span class="str">"C9300-24P"</span>,
+      <span class="str">"softwareVersion"</span>: <span class="str">"17.3.5"</span>,
+      <span class="str">"reachabilityStatus"</span>: <span class="str">"Reachable"</span>,
+      <span class="str">"upTime"</span>: <span class="str">"145 days, 3 hours"</span>
+    }
+  ],
+  <span class="str">"version"</span>: <span class="str">"1.0"</span>
+}</pre></div>`,
+    practical:`<h3>JSON Parsing Techniques</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>json_parsing.py</span></div><pre><span class="kw">import</span> requests, json, jmespath
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+<span class="cm"># Sample complex API response (nested JSON)</span>
+data = {
+    <span class="str">"response"</span>: [
+        {<span class="str">"hostname"</span>: <span class="str">"SW-01"</span>, <span class="str">"ip"</span>: <span class="str">"10.1.1.1"</span>, 
+         <span class="str">"reachabilityStatus"</span>: <span class="str">"Reachable"</span>, <span class="str">"type"</span>: <span class="str">"Switch"</span>},
+        {<span class="str">"hostname"</span>: <span class="str">"RT-01"</span>, <span class="str">"ip"</span>: <span class="str">"10.1.1.2"</span>,
+         <span class="str">"reachabilityStatus"</span>: <span class="str">"Unreachable"</span>, <span class="str">"type"</span>: <span class="str">"Router"</span>},
+        {<span class="str">"hostname"</span>: <span class="str">"SW-02"</span>, <span class="str">"ip"</span>: <span class="str">"10.1.1.3"</span>,
+         <span class="str">"reachabilityStatus"</span>: <span class="str">"Reachable"</span>, <span class="str">"type"</span>: <span class="str">"Switch"</span>}
+    ]
+}
+
+devices = data[<span class="str">"response"</span>]
+
+<span class="cm"># 1. Basic iteration</span>
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="fn">print</span>(<span class="str">f"{d['hostname']:10} {d['ip']:15} {d['reachabilityStatus']}"</span>)
+
+<span class="cm"># 2. List comprehension – only reachable switches</span>
+reachable = [d[<span class="str">'hostname'</span>] <span class="kw">for</span> d <span class="kw">in</span> devices
+             <span class="kw">if</span> d[<span class="str">'reachabilityStatus'</span>] == <span class="str">'Reachable'</span>
+             <span class="kw">and</span> d[<span class="str">'type'</span>] == <span class="str">'Switch'</span>]
+<span class="fn">print</span>(<span class="str">"Reachable switches:"</span>, reachable)
+
+<span class="cm"># 3. Safe access with .get()</span>
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    platform = d.<span class="fn">get</span>(<span class="str">'platformId'</span>, <span class="str">'Unknown'</span>)  <span class="cm"># won't crash if missing</span>
+
+<span class="cm"># 4. jmespath queries (install: pip install jmespath)</span>
+<span class="cm"># Get hostnames of unreachable devices</span>
+query = <span class="str">"response[?reachabilityStatus=='Unreachable'].hostname"</span>
+unreachable = jmespath.<span class="fn">search</span>(query, data)
+<span class="fn">print</span>(<span class="str">"Unreachable:"</span>, unreachable)  <span class="cm"># ['RT-01']</span>
+
+<span class="cm"># 5. Export to CSV</span>
+<span class="kw">import</span> csv
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'devices.csv'</span>, <span class="str">'w'</span>, newline=<span class="str">''</span>) <span class="kw">as</span> f:
+    w = csv.<span class="fn">DictWriter</span>(f, fieldnames=[<span class="str">'hostname'</span>,<span class="str">'ip'</span>,<span class="str">'reachabilityStatus'</span>])
+    w.<span class="fn">writeheader</span>()
+    w.<span class="fn">writerows</span>(devices)</pre></div>`,
+    flow:`<h3>JSON Data Parsing Workflow</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node blue">API Response (string)</div><div class="flow-arrow">→</div><div class="flow-node">r.json()<br><span style="font-size:10px">Parse to Python dict</span></div><div class="flow-arrow">→</div><div class="flow-node">Identify structure<br><span style="font-size:10px">data["response"]</span></div></div>
+<div style="height:8px"></div>
+<div class="flow-row"><div class="flow-node">Navigate nesting<br><span style="font-size:10px">data["a"]["b"][0]["c"]</span></div><div class="flow-arrow">→</div><div class="flow-node">Filter / Transform<br><span style="font-size:10px">list comprehension</span></div><div class="flow-arrow">→</div><div class="flow-node green">Output<br><span style="font-size:10px">print / CSV / report</span></div></div>
+</div>
+<h4>Debugging Unknown JSON Structure</h4>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>json_debug.py</span></div><pre><span class="kw">import</span> json
+
+<span class="cm"># Pretty-print to understand structure</span>
+<span class="fn">print</span>(json.<span class="fn">dumps</span>(response.<span class="fn">json</span>(), indent=<span class="num">2</span>))
+
+<span class="cm"># Check top-level keys</span>
+<span class="fn">print</span>(response.<span class="fn">json</span>().<span class="fn">keys</span>())
+
+<span class="cm"># Check type of a value</span>
+<span class="fn">print</span>(<span class="fn">type</span>(response.<span class="fn">json</span>()[<span class="str">"response"</span>]))  <span class="cm"># &lt;class 'list'&gt;</span></pre></div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Given the DNAC API response structure, write a script that: lists all devices, counts how many are reachable vs unreachable, and prints a summary report.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Write a function that takes a list of device dicts and exports them to a CSV file with columns: hostname, IP, platform, software version, status.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; jmespath</div><div class="practice-desc">Install <code>jmespath</code> and write queries to: (1) find all switches running version 17.x, (2) get all IPs of unreachable routers, (3) count devices by type.</div></div>`
+  },
+  {
+    id:7, title:"RESTCONF & YANG Models", level:"intermediate",
+    theory:`<h3>RESTCONF Overview</h3>
+<p><strong>RESTCONF (RFC 8040)</strong> is a REST-based protocol that uses YANG data models to manage network device configuration. Think of it as REST with a YANG schema enforcement layer.</p>
+<h4>RESTCONF vs REST</h4>
+<table class="table"><thead><tr><th>Aspect</th><th>REST API (DNAC)</th><th>RESTCONF (IOS-XE)</th></tr></thead><tbody>
+<tr><td>Standard</td><td>Vendor-proprietary</td><td>IETF RFC 8040</td></tr>
+<tr><td>Data Model</td><td>Vendor-defined JSON</td><td>YANG-defined (ietf-*, Cisco-IOS-XE-*)</td></tr>
+<tr><td>URL Structure</td><td>Vendor-specific</td><td><code>/restconf/data/{module}:{container}</code></td></tr>
+<tr><td>Content-Type</td><td>application/json</td><td>application/yang-data+json</td></tr>
+<tr><td>Port</td><td>443</td><td>443 (HTTP 443 on device)</td></tr>
+</tbody></table>
+<h4>RESTCONF URL Structure</h4>
+<div class="callout"><p><code>https://device/restconf/data/{module}:{container}/{list}={key}</code><br><br>
+Example: <code>/restconf/data/ietf-interfaces:interfaces/interface=GigabitEthernet1</code><br><br>
+<strong>Module:</strong> ietf-interfaces | <strong>Container:</strong> interfaces | <strong>List:</strong> interface | <strong>Key:</strong> GigabitEthernet1</p></div>
+<h4>Common YANG Modules</h4>
+<ul>
+<li><code>ietf-interfaces</code> &mdash; Standard interface model (all vendors)</li>
+<li><code>ietf-routing</code> &mdash; Standard routing model</li>
+<li><code>Cisco-IOS-XE-native</code> &mdash; Full IOS-XE native config model</li>
+<li><code>Cisco-IOS-XE-bgp</code> &mdash; BGP configuration model</li>
+</ul>`,
+    industry:`<h3>RESTCONF in Enterprise Networks</h3>
+<p>RESTCONF is critical for device-level automation on Cisco IOS-XE (16.6+) and IOS-XR devices. Unlike DNAC (controller API), RESTCONF goes directly to the device.</p>
+<h4>Use Cases</h4>
+<ul>
+<li><strong>Config compliance:</strong> Pull running config via RESTCONF and compare against golden config</li>
+<li><strong>Interface management:</strong> Bulk enable/disable, description updates across campus switches</li>
+<li><strong>BGP monitoring:</strong> Pull BGP neighbor state from all routers in one script</li>
+<li><strong>VLAN management:</strong> Add/remove VLANs across trunk ports programmatically</li>
+</ul>
+<div class="callout yellow"><p><strong>YANG Explorer:</strong> Use the Cisco YANG Suite or YANG Explorer tool to browse YANG models and auto-generate RESTCONF URLs. Available at <code>/restconf/yang-library-version</code> on the device.</p></div>`,
+    practical:`<h3>RESTCONF Operations on IOS-XE</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>restconf_iosxe.py</span></div><pre><span class="kw">import</span> requests, json
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+DEVICE = <span class="str">"sandbox-iosxe-latest-1.cisco.com"</span>
+AUTH   = (<span class="str">"developer"</span>, <span class="str">"C1sco12345"</span>)
+HDR    = {<span class="str">"Accept"</span>: <span class="str">"application/yang-data+json"</span>,
+          <span class="str">"Content-Type"</span>: <span class="str">"application/yang-data+json"</span>}
+BASE   = <span class="str">f"https://{DEVICE}/restconf/data"</span>
+
+<span class="cm"># ── GET: All interfaces ───────────────────────────────</span>
+r = requests.<span class="fn">get</span>(<span class="str">f"{BASE}/ietf-interfaces:interfaces"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>)
+ifaces = r.<span class="fn">json</span>()[<span class="str">"ietf-interfaces:interfaces"</span>][<span class="str">"interface"</span>]
+<span class="kw">for</span> i <span class="kw">in</span> ifaces:
+    <span class="fn">print</span>(<span class="str">f"  {i['name']:25} enabled={i.get('enabled','N/A')}"</span>)
+
+<span class="cm"># ── GET: Specific interface ───────────────────────────</span>
+r = requests.<span class="fn">get</span>(
+    <span class="str">f"{BASE}/ietf-interfaces:interfaces/interface=GigabitEthernet1"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>)
+<span class="fn">print</span>(json.<span class="fn">dumps</span>(r.<span class="fn">json</span>(), indent=<span class="num">2</span>))
+
+<span class="cm"># ── PATCH: Update interface description ───────────────</span>
+payload = {
+    <span class="str">"ietf-interfaces:interface"</span>: {
+        <span class="str">"name"</span>: <span class="str">"GigabitEthernet1"</span>,
+        <span class="str">"description"</span>: <span class="str">"WAN Link - Updated via RESTCONF"</span>
+    }
+}
+r = requests.<span class="fn">patch</span>(
+    <span class="str">f"{BASE}/ietf-interfaces:interfaces/interface=GigabitEthernet1"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>,
+    data=json.<span class="fn">dumps</span>(payload))
+<span class="fn">print</span>(<span class="str">f"Description update: {r.status_code}"</span>)  <span class="cm"># 204</span>
+
+<span class="cm"># ── GET: Hostname from native model ───────────────────</span>
+r = requests.<span class="fn">get</span>(
+    <span class="str">f"{BASE}/Cisco-IOS-XE-native:native/hostname"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="str">f"Hostname: {r.json()}"</span>)</pre></div>`,
+    flow:`<h3>RESTCONF URL Construction</h3>
+<div class="flow-box">
+<p style="color:#8b949e;font-size:12px;margin-bottom:12px">Building a RESTCONF URL step by step:</p>
+<div class="flow-row"><div class="flow-node blue">https://device</div><div class="flow-arrow">+</div><div class="flow-node">/restconf/data</div><div class="flow-arrow">+</div><div class="flow-node yellow">/ietf-interfaces:interfaces</div><div class="flow-arrow">+</div><div class="flow-node green">/interface=GigE1</div></div>
+<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+<div><span class="tag">Base URL</span></div>
+<div><span class="tag">RESTCONF root</span></div>
+<div><span class="tag yellow">module:container</span></div>
+<div><span class="tag green">list=key</span></div>
+</div>
+</div>
+<h4>RESTCONF Capabilities Discovery</h4>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>discover_yang.py</span></div><pre><span class="cm"># Discover what YANG modules the device supports</span>
+r = requests.<span class="fn">get</span>(
+    <span class="str">f"https://{DEVICE}/restconf/data/ietf-yang-library:modules-state"</span>,
+    auth=AUTH, headers=HDR, verify=<span class="kw">False</span>)
+modules = r.<span class="fn">json</span>()[<span class="str">"ietf-yang-library:modules-state"</span>][<span class="str">"module"</span>]
+<span class="kw">for</span> m <span class="kw">in</span> modules[:10]:
+    <span class="fn">print</span>(<span class="str">f"  {m['name']} ({m['revision']})"</span>)</pre></div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Using RESTCONF on the DevNet sandbox, retrieve and print all interface names and their admin status (enabled true/false).</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Create a Loopback200 interface with IP address 2.2.2.2/32 using RESTCONF PATCH. Use the <code>ietf-interfaces</code> and <code>ietf-ip</code> models.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Compliance</div><div class="practice-desc">Write a script that retrieves all interface descriptions via RESTCONF and flags any interface whose description is empty or contains "CHANGE_ME".</div></div>`
+  },
+  {
+    id:8, title:"NETCONF & ncclient", level:"intermediate",
+    theory:`<h3>NETCONF Protocol</h3>
+<p><strong>NETCONF (RFC 6241)</strong> is a network management protocol that runs over SSH (port 830) and uses XML/YANG for data modeling. It provides explicit operations for configuration management.</p>
+<h4>NETCONF vs RESTCONF</h4>
+<table class="table"><thead><tr><th>Aspect</th><th>NETCONF</th><th>RESTCONF</th></tr></thead><tbody>
+<tr><td>Transport</td><td>SSH (port 830)</td><td>HTTPS (port 443)</td></tr>
+<tr><td>Data Format</td><td>XML only</td><td>JSON or XML</td></tr>
+<tr><td>Operations</td><td>Explicit (get, edit-config, lock)</td><td>HTTP methods</td></tr>
+<tr><td>Datastores</td><td>running, candidate, startup</td><td>running only (mostly)</td></tr>
+<tr><td>Transactions</td><td>Yes (candidate + commit)</td><td>Limited</td></tr>
+<tr><td>Best for</td><td>Complex config transactions</td><td>Simple read/write operations</td></tr>
+</tbody></table>
+<h4>NETCONF Operations (RPCs)</h4>
+<ul>
+<li><code>&lt;get&gt;</code> &mdash; Get operational data (interface counters, routing table)</li>
+<li><code>&lt;get-config&gt;</code> &mdash; Get configuration from a datastore</li>
+<li><code>&lt;edit-config&gt;</code> &mdash; Modify configuration (merge, replace, delete)</li>
+<li><code>&lt;commit&gt;</code> &mdash; Commit candidate config to running</li>
+<li><code>&lt;lock&gt; / &lt;unlock&gt;</code> &mdash; Lock config to prevent concurrent edits</li>
+<li><code>&lt;copy-config&gt;</code> &mdash; Copy datastore (backup config)</li>
+</ul>`,
+    industry:`<h3>NETCONF in Enterprise &amp; SP Networks</h3>
+<p>NETCONF is widely used in Service Provider environments and for complex configuration changes that require transaction support (lock → edit → commit → unlock).</p>
+<h4>Who Uses NETCONF</h4>
+<ul>
+<li><strong>Cisco IOS-XR:</strong> Primary automation interface for ASR 9000, NCS series</li>
+<li><strong>Juniper Junos:</strong> NETCONF is native, well-documented, widely used</li>
+<li><strong>Nokia SR OS:</strong> Full NETCONF support for service provider routing</li>
+<li><strong>Arista EOS:</strong> NETCONF support alongside eAPI</li>
+</ul>
+<div class="callout green"><p><strong>Cisco NSO uses NETCONF:</strong> NSO connects to devices using NETCONF/YANG as its southbound interface. Understanding NETCONF is prerequisite to understanding how NSO works.</p></div>
+<div class="callout yellow"><p><strong>ncclient:</strong> The Python library for NETCONF. Install with <code>pip install ncclient</code>.</p></div>`,
+    practical:`<h3>NETCONF with ncclient</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>netconf_ncclient.py</span></div><pre><span class="kw">from</span> ncclient <span class="kw">import</span> manager
+<span class="kw">from</span> lxml <span class="kw">import</span> etree
+<span class="kw">import</span> xmltodict, json
+
+<span class="cm"># ── Connect to device ─────────────────────────────────</span>
+<span class="kw">with</span> manager.<span class="fn">connect</span>(
+        host=<span class="str">"sandbox-iosxe-latest-1.cisco.com"</span>,
+        port=<span class="num">830</span>,
+        username=<span class="str">"developer"</span>,
+        password=<span class="str">"C1sco12345"</span>,
+        hostkey_verify=<span class="kw">False</span>) <span class="kw">as</span> m:
+
+    <span class="cm"># ── GET-CONFIG: Get running config ────────────────</span>
+    running = m.<span class="fn">get_config</span>(source=<span class="str">"running"</span>)
+    <span class="fn">print</span>(<span class="str">"Config retrieved, length:"</span>, <span class="fn">len</span>(running.xml))
+
+    <span class="cm"># ── GET: Interfaces with filter ───────────────────</span>
+    iface_filter = <span class="str">"""
+    &lt;filter&gt;
+      &lt;interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"&gt;
+        &lt;interface/&gt;
+      &lt;/interfaces&gt;
+    &lt;/filter&gt;"""</span>
+    result = m.<span class="fn">get</span>(filter=(<span class="str">"subtree"</span>, iface_filter))
+    
+    <span class="cm"># Parse XML to dict for easier handling</span>
+    data = xmltodict.<span class="fn">parse</span>(result.xml)[<span class="str">"rpc-reply"</span>][<span class="str">"data"</span>]
+    ifaces = data[<span class="str">"interfaces"</span>][<span class="str">"interface"</span>]
+    <span class="kw">for</span> i <span class="kw">in</span> ifaces:
+        <span class="fn">print</span>(<span class="str">f"  {i['name']:25} {i.get('description','')}"</span>)
+
+    <span class="cm"># ── EDIT-CONFIG: Add interface description ────────</span>
+    config_xml = <span class="str">"""
+    &lt;config&gt;
+      &lt;interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"&gt;
+        &lt;interface&gt;
+          &lt;name&gt;GigabitEthernet1&lt;/name&gt;
+          &lt;description&gt;WAN - Updated via NETCONF&lt;/description&gt;
+        &lt;/interface&gt;
+      &lt;/interfaces&gt;
+    &lt;/config&gt;"""</span>
+    reply = m.<span class="fn">edit_config</span>(target=<span class="str">"running"</span>, config=config_xml)
+    <span class="fn">print</span>(<span class="str">"Edit-config:"</span>, reply.ok)</pre></div>`,
+    flow:`<h3>NETCONF Session Flow</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node blue">Python (ncclient)</div><div class="flow-arrow">→</div><div class="flow-node">SSH to port 830</div><div class="flow-arrow">→</div><div class="flow-node green">Device accepts</div></div>
+<div style="height:6px"></div>
+<div class="flow-row"><div class="flow-node green">Hello &amp; Capabilities</div><div class="flow-arrow">↔</div><div class="flow-node yellow">Exchange supported YANG modules</div></div>
+<div style="height:6px"></div>
+<div class="flow-row"><div class="flow-node">lock(candidate)</div><div class="flow-arrow">→</div><div class="flow-node">edit-config(candidate)</div><div class="flow-arrow">→</div><div class="flow-node">commit</div></div>
+<div style="height:6px"></div>
+<div class="flow-row"><div class="flow-node">unlock(candidate)</div><div class="flow-arrow">→</div><div class="flow-node red">close-session</div></div>
+</div>
+<h4>NETCONF Datastores</h4>
+<table class="table"><thead><tr><th>Datastore</th><th>Description</th><th>When to use</th></tr></thead><tbody>
+<tr><td><code>running</code></td><td>Currently active config</td><td>Read or direct write (risky)</td></tr>
+<tr><td><code>candidate</code></td><td>Staging area for changes</td><td>Write here, then commit</td></tr>
+<tr><td><code>startup</code></td><td>Config loaded at boot</td><td>Backup / persistence</td></tr>
+</tbody></table>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Using ncclient, connect to the DevNet sandbox and retrieve the capabilities list. How many YANG modules does the device support?</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Use NETCONF get with a subtree filter to retrieve only the hostname from the native YANG model. Parse the XML response to extract just the hostname string.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Config</div><div class="practice-desc">Write a script that uses NETCONF edit-config to create a new Loopback interface (Loopback300) with description "NETCONF Created". Verify the change with a subsequent get-config call.</div></div>`
+  },
+  {
+    id:9, title:"Vendor APIs (DNAC, Meraki, Arista)", level:"intermediate",
+    theory:`<h3>Major Vendor API Platforms</h3>
+<p>Each vendor has its own API with different authentication, URL patterns, and data models. Understanding the differences is key for multi-vendor automation.</p>
+<h4>Platform Comparison</h4>
+<table class="table"><thead><tr><th>Platform</th><th>Auth Type</th><th>Rate Limit</th><th>Base URL</th><th>Sandbox</th></tr></thead><tbody>
+<tr><td>Cisco DNA Center</td><td>Token (JWT)</td><td>5 req/s</td><td><code>/dna/intent/api/v1/</code></td><td>Yes (DevNet)</td></tr>
+<tr><td>Cisco Meraki</td><td>API Key</td><td>10 req/s</td><td><code>/api/v1/</code></td><td>Yes (DevNet)</td></tr>
+<tr><td>Arista eAPI</td><td>Basic Auth</td><td>No limit</td><td><code>/command-api</code></td><td>Yes (DevNet)</td></tr>
+<tr><td>Juniper Apstra</td><td>Token</td><td>No limit</td><td><code>/api/</code></td><td>Limited</td></tr>
+<tr><td>Palo Alto Panorama</td><td>API Key / JWT</td><td>No limit</td><td><code>/restapi/v10.1/</code></td><td>Limited</td></tr>
+</tbody></table>`,
+    industry:`<h3>Real-World Vendor API Use Cases</h3>
+<h4>Cisco DNA Center (Campus Network Automation)</h4>
+<ul>
+<li>Device onboarding via PnP (Plug and Play) API</li>
+<li>Site and floor plan management</li>
+<li>Template deployment for day-0 configuration</li>
+<li>Assurance: pull client health, device health scores</li>
+<li>Command Runner: execute CLI commands via API and get output</li>
+</ul>
+<h4>Cisco Meraki (Cloud-Managed Networks)</h4>
+<ul>
+<li>Bulk SSID configuration across all sites</li>
+<li>Real-time client visibility and location tracking</li>
+<li>Webhook integration for network events → Slack/Teams alerts</li>
+<li>MX firewall rule management at scale</li>
+</ul>
+<h4>Arista eAPI</h4>
+<ul>
+<li>JSON-RPC based: send EOS CLI commands, get structured JSON back</li>
+<li>Used in data center automation for BGP, VXLAN, port configuration</li>
+<li>Integrates with tools like Ansible (arista.eos collection uses eAPI)</li>
+</ul>`,
+    practical:`<h3>Vendor API Code Examples</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>dnac_api.py</span></div><pre><span class="kw">import</span> requests
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+DNAC = <span class="str">"sandboxdnac.cisco.com"</span>
+BASE = <span class="str">f"https://{DNAC}/dna/intent/api/v1"</span>
+
+<span class="cm"># Step 1: Authenticate – get token</span>
+auth_r = requests.<span class="fn">post</span>(
+    <span class="str">f"https://{DNAC}/dna/system/api/v1/auth/token"</span>,
+    auth=(<span class="str">"devnetuser"</span>, <span class="str">"Cisco123!"</span>),
+    verify=<span class="kw">False</span>)
+token = auth_r.<span class="fn">json</span>()[<span class="str">"Token"</span>]
+hdrs = {<span class="str">"X-Auth-Token"</span>: token, <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>}
+
+<span class="cm"># Step 2: Get device inventory</span>
+r = requests.<span class="fn">get</span>(<span class="str">f"{BASE}/network-device"</span>, headers=hdrs, verify=<span class="kw">False</span>)
+<span class="kw">for</span> d <span class="kw">in</span> r.<span class="fn">json</span>()[<span class="str">"response"</span>]:
+    <span class="fn">print</span>(<span class="str">f"{d['hostname']:20} {d['managementIpAddress']:16} {d['platformId']}"</span>)
+
+<span class="cm"># Step 3: Run a CLI command via Command Runner API</span>
+cmd_payload = {<span class="str">"commands"</span>: [<span class="str">"show version"</span>],
+               <span class="str">"deviceUuids"</span>: [<span class="str">"device-id-here"</span>]}
+r = requests.<span class="fn">post</span>(<span class="str">f"{BASE}/network-device-poller/cli/read-request"</span>,
+                   headers=hdrs, json=cmd_payload, verify=<span class="kw">False</span>)</pre></div>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>arista_eapi.py</span></div><pre><span class="kw">import</span> requests
+
+<span class="cm"># Arista eAPI – JSON-RPC style</span>
+url = <span class="str">"https://arista-device/command-api"</span>
+payload = {
+    <span class="str">"jsonrpc"</span>: <span class="str">"2.0"</span>,
+    <span class="str">"method"</span>: <span class="str">"runCmds"</span>,
+    <span class="str">"id"</span>: <span class="num">1</span>,
+    <span class="str">"params"</span>: {
+        <span class="str">"version"</span>: <span class="num">1</span>,
+        <span class="str">"cmds"</span>: [<span class="str">"show version"</span>, <span class="str">"show interfaces status"</span>],
+        <span class="str">"format"</span>: <span class="str">"json"</span>
+    }
+}
+r = requests.<span class="fn">post</span>(url, json=payload,
+    auth=(<span class="str">"admin"</span>, <span class="str">"password"</span>), verify=<span class="kw">False</span>)
+result = r.<span class="fn">json</span>()[<span class="str">"result"</span>]
+<span class="fn">print</span>(<span class="str">f"EOS Version: {result[0]['version']}"</span>)
+<span class="fn">print</span>(<span class="str">f"Interfaces: {list(result[1]['interfaceStatuses'].keys())}"</span>)</pre></div>`,
+    flow:`<h3>Vendor API Selection Flow</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node blue">What are you managing?</div></div>
+<div style="height:8px"></div>
+<div class="flow-row">
+<div style="display:flex;flex-direction:column;gap:6px;width:100%">
+<div class="flow-row"><div class="flow-node green">Campus Cisco network → DNAC Intent API</div></div>
+<div class="flow-row"><div class="flow-node green">Meraki cloud-managed → Meraki Dashboard API</div></div>
+<div class="flow-row"><div class="flow-node yellow">Device-level config → RESTCONF / NETCONF</div></div>
+<div class="flow-row"><div class="flow-node yellow">Arista data center → eAPI (JSON-RPC)</div></div>
+<div class="flow-row"><div class="flow-node">Multi-vendor → NSO REST/RESTCONF</div></div>
+</div>
+</div>
+</div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1 &mdash; DNAC</div><div class="practice-desc">Connect to the Cisco DevNet DNAC sandbox, authenticate, and print a table of all network devices showing: hostname, IP, platform, and reachability status.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2 &mdash; Meraki</div><div class="practice-desc">Using the Meraki sandbox API key, list all organizations, then for each org, list all networks. Print a tree view: Organization → Networks.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Multi-Vendor</div><div class="practice-desc">Write a script that collects interface data from both a RESTCONF-enabled IOS-XE device and an Arista eAPI device, normalizes the data into a common structure, and prints a unified interface table.</div></div>`
+  },
+  {
+    id:10, title:"Error Handling & Best Practices", level:"intermediate",
+    theory:`<h3>Why Error Handling Matters</h3>
+<p>Network automation scripts run against live infrastructure. A script that crashes halfway through a config push can leave the network in an inconsistent state. Proper error handling is <strong>not optional</strong> in production.</p>
+<h4>Types of Errors in API Automation</h4>
+<table class="table"><thead><tr><th>Error Type</th><th>Exception</th><th>Cause</th></tr></thead><tbody>
+<tr><td>Connection refused</td><td><code>ConnectionError</code></td><td>Device unreachable, port closed</td></tr>
+<tr><td>Timeout</td><td><code>Timeout</code></td><td>Device too slow to respond</td></tr>
+<tr><td>SSL error</td><td><code>SSLError</code></td><td>Certificate invalid/expired</td></tr>
+<tr><td>HTTP 401</td><td><code>HTTPError</code></td><td>Token expired, wrong credentials</td></tr>
+<tr><td>HTTP 429</td><td><code>HTTPError</code></td><td>Rate limit exceeded</td></tr>
+<tr><td>JSON decode</td><td><code>JSONDecodeError</code></td><td>Response is not valid JSON</td></tr>
+<tr><td>Key missing</td><td><code>KeyError</code></td><td>Expected JSON key not in response</td></tr>
+</tbody></table>
+<h4>Best Practices Summary</h4>
+<ul>
+<li>Always use <code>timeout</code> parameter &mdash; never let scripts hang forever</li>
+<li>Use <code>raise_for_status()</code> to auto-raise on 4xx/5xx</li>
+<li>Implement retry with exponential backoff for transient errors</li>
+<li>Log all API calls and responses (with redacted credentials)</li>
+<li>Use environment variables for credentials, never hardcode</li>
+</ul>`,
+    industry:`<h3>Production Error Handling Patterns</h3>
+<h4>Rate Limiting (Common with Meraki)</h4>
+<p>Meraki limits 10 requests/second per organization. If you exceed this, you get 429 Too Many Requests. The 429 response includes a <code>Retry-After</code> header telling you how many seconds to wait.</p>
+<h4>Token Expiry (Common with DNAC)</h4>
+<p>DNAC tokens expire after 60 minutes. Production scripts must detect 401 responses, re-authenticate, and retry the failed request transparently.</p>
+<h4>Network Unreachability</h4>
+<p>In large-scale scripts (500+ devices), some devices will always be unreachable. Use <code>continue</code> to skip failed devices and log them for follow-up, rather than letting one failure crash the entire script.</p>`,
+    practical:`<h3>Production Error Handling Code</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>error_handling.py</span></div><pre><span class="kw">import</span> requests, time, logging
+<span class="kw">from</span> requests.exceptions <span class="kw">import</span> (ConnectionError, Timeout, 
+                                    HTTPError, SSLError)
+
+logging.<span class="fn">basicConfig</span>(level=logging.INFO,
+    <span class="fn">format</span>=<span class="str">'%(asctime)s - %(levelname)s - %(message)s'</span>)
+log = logging.<span class="fn">getLogger</span>(<span class="str">__name__</span>)
+
+<span class="kw">def</span> <span class="fn">api_call_with_retry</span>(session, url, retries=<span class="num">3</span>, backoff=<span class="num">2</span>):
+    <span class="str">"""Make API call with exponential backoff retry."""</span>
+    <span class="kw">for</span> attempt <span class="kw">in</span> <span class="fn">range</span>(retries):
+        <span class="kw">try</span>:
+            r = session.<span class="fn">get</span>(url, timeout=(<span class="num">5</span>, <span class="num">30</span>))
+            
+            <span class="cm"># Handle rate limiting</span>
+            <span class="kw">if</span> r.status_code == <span class="num">429</span>:
+                wait = <span class="fn">int</span>(r.headers.<span class="fn">get</span>(<span class="str">"Retry-After"</span>, <span class="num">5</span>))
+                log.<span class="fn">warning</span>(<span class="str">f"Rate limited, waiting {wait}s"</span>)
+                time.<span class="fn">sleep</span>(wait)
+                <span class="kw">continue</span>
+            
+            r.<span class="fn">raise_for_status</span>()  <span class="cm"># raises HTTPError on 4xx/5xx</span>
+            <span class="kw">return</span> r.<span class="fn">json</span>()
+
+        <span class="kw">except</span> Timeout:
+            log.<span class="fn">warning</span>(<span class="str">f"Timeout on attempt {attempt+1}/{retries}: {url}"</span>)
+        <span class="kw">except</span> ConnectionError <span class="kw">as</span> e:
+            log.<span class="fn">error</span>(<span class="str">f"Cannot connect to {url}: {e}"</span>)
+            <span class="kw">return</span> <span class="kw">None</span>   <span class="cm"># unrecoverable</span>
+        <span class="kw">except</span> HTTPError <span class="kw">as</span> e:
+            <span class="kw">if</span> e.response.status_code == <span class="num">401</span>:
+                log.<span class="fn">error</span>(<span class="str">"Token expired! Re-authenticate needed."</span>)
+                <span class="kw">return</span> <span class="kw">None</span>
+            log.<span class="fn">error</span>(<span class="str">f"HTTP error: {e}"</span>)
+            <span class="kw">return</span> <span class="kw">None</span>
+        
+        <span class="cm"># Exponential backoff: 2s, 4s, 8s</span>
+        wait = backoff ** attempt
+        log.<span class="fn">info</span>(<span class="str">f"Retrying in {wait}s..."</span>)
+        time.<span class="fn">sleep</span>(wait)
+    
+    log.<span class="fn">error</span>(<span class="str">f"All {retries} attempts failed for {url}"</span>)
+    <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="cm"># ── Bulk device script with graceful error handling ───</span>
+devices = [<span class="str">"10.1.1.1"</span>, <span class="str">"10.1.1.2"</span>, <span class="str">"10.1.1.3"</span>]
+failed  = []
+results = []
+
+<span class="kw">for</span> ip <span class="kw">in</span> devices:
+    data = <span class="fn">api_call_with_retry</span>(session, <span class="str">f"https://{ip}/restconf/..."</span>)
+    <span class="kw">if</span> data:
+        results.<span class="fn">append</span>(data)
+    <span class="kw">else</span>:
+        failed.<span class="fn">append</span>(ip)
+
+<span class="fn">print</span>(<span class="str">f"Success: {len(results)}, Failed: {len(failed)}"</span>)
+<span class="fn">print</span>(<span class="str">f"Failed devices: {failed}"</span>)</pre></div>`,
+    flow:`<h3>Error Decision Tree</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node blue">Make API call</div></div>
+<div style="height:6px"></div>
+<div class="flow-row"><div class="flow-node red">Exception raised?</div><div class="flow-arrow">No →</div><div class="flow-node">Check status_code</div></div>
+<div style="height:6px"></div>
+<div class="flow-row">
+<div style="display:flex;flex-direction:column;gap:4px">
+<div class="flow-row"><div class="flow-node yellow">Timeout → retry with backoff</div></div>
+<div class="flow-row"><div class="flow-node red">ConnectionError → log &amp; skip device</div></div>
+<div class="flow-row"><div class="flow-node yellow">429 → sleep(Retry-After) &amp; retry</div></div>
+<div class="flow-row"><div class="flow-node red">401 → re-authenticate &amp; retry once</div></div>
+<div class="flow-row"><div class="flow-node green">2xx → parse JSON &amp; continue</div></div>
+</div>
+</div>
+</div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Write a decorator <code>@retry_on_failure(retries=3, delay=2)</code> that wraps any API function and automatically retries on Timeout and ConnectionError exceptions with exponential backoff.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Add structured logging to your API client: log every request (URL, method), every response (status, time), every error, and every retry attempt. Use Python's <code>logging</code> module with file and console handlers.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Bulk Script</div><div class="practice-desc">Take a list of 5 device IPs and query each one via RESTCONF. Handle: unreachable devices (timeout), SSL errors, auth failures. At the end, print a summary showing success count, failure count, and list of failed devices.</div></div>`
+  },
+  {
+    id:11, title:"Async API Calls (Advanced)", level:"advanced",
+    theory:`<h3>Synchronous vs Asynchronous API Calls</h3>
+<p>By default, Python's <code>requests</code> library is <strong>synchronous</strong> &mdash; your script waits for each response before making the next call. When querying 100+ devices, this is a bottleneck.</p>
+<div class="two-col">
+<div class="callout yellow"><p><strong>Synchronous (requests):</strong><br>Query 100 devices × 2 seconds each = <strong>200 seconds</strong> total. Script waits idle most of the time.</p></div>
+<div class="callout green"><p><strong>Asynchronous (httpx/aiohttp):</strong><br>Query 100 devices concurrently = <strong>~2-5 seconds</strong> total. All requests in-flight simultaneously.</p></div>
+</div>
+<h4>Python Async Concepts</h4>
+<ul>
+<li><code>async def</code> &mdash; Defines a coroutine (async function)</li>
+<li><code>await</code> &mdash; Pause execution here until this coroutine completes</li>
+<li><code>asyncio.run()</code> &mdash; Entry point to run async code</li>
+<li><code>asyncio.gather()</code> &mdash; Run multiple coroutines concurrently</li>
+<li><code>httpx.AsyncClient</code> &mdash; Async HTTP client (drop-in replacement for requests)</li>
+</ul>`,
+    industry:`<h3>Where Async APIs are Used</h3>
+<h4>Real-World Use Cases</h4>
+<ul>
+<li><strong>Network-wide polling:</strong> Collect BGP neighbor status from 200 routers every minute. Async brings this from 400 seconds to under 5 seconds.</li>
+<li><strong>Compliance scanning:</strong> Check config compliance on all 500 campus switches simultaneously instead of one by one.</li>
+<li><strong>Multi-site DNAC:</strong> Query multiple DNAC clusters in parallel to build a unified global device inventory.</li>
+<li><strong>Real-time dashboards:</strong> Continuously poll device health APIs asynchronously to keep a live dashboard current.</li>
+</ul>
+<div class="callout green"><p><strong>Semaphore:</strong> Don't fire 1000 simultaneous requests &mdash; you'll overwhelm the API or hit rate limits. Use <code>asyncio.Semaphore(20)</code> to limit concurrency to 20 requests at a time.</p></div>`,
+    practical:`<h3>Async API Calls with httpx</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>async_api.py  (pip install httpx)</span></div><pre><span class="kw">import</span> asyncio, httpx, json
+
+DEVICES = [<span class="str">"10.1.1.1"</span>, <span class="str">"10.1.1.2"</span>, <span class="str">"10.1.1.3"</span>, <span class="str">"10.1.1.4"</span>]
+AUTH    = (<span class="str">"developer"</span>, <span class="str">"C1sco12345"</span>)
+HDR     = {<span class="str">"Accept"</span>: <span class="str">"application/yang-data+json"</span>}
+
+<span class="cm"># Limit concurrent requests to avoid overload</span>
+sem = asyncio.<span class="fn">Semaphore</span>(<span class="num">10</span>)
+
+<span class="kw">async def</span> <span class="fn">get_interfaces</span>(client, host):
+    <span class="str">"""Async: get interfaces from one device."""</span>
+    url = <span class="str">f"https://{host}/restconf/data/ietf-interfaces:interfaces"</span>
+    <span class="kw">async with</span> sem:
+        <span class="kw">try</span>:
+            r = <span class="kw">await</span> client.<span class="fn">get</span>(url, timeout=<span class="num">10</span>)
+            r.<span class="fn">raise_for_status</span>()
+            ifaces = r.<span class="fn">json</span>()[<span class="str">"ietf-interfaces:interfaces"</span>][<span class="str">"interface"</span>]
+            <span class="kw">return</span> {<span class="str">"host"</span>: host, <span class="str">"interfaces"</span>: ifaces, <span class="str">"error"</span>: <span class="kw">None</span>}
+        <span class="kw">except</span> Exception <span class="kw">as</span> e:
+            <span class="kw">return</span> {<span class="str">"host"</span>: host, <span class="str">"interfaces"</span>: [], <span class="str">"error"</span>: <span class="fn">str</span>(e)}
+
+<span class="kw">async def</span> <span class="fn">poll_all_devices</span>(devices):
+    <span class="str">"""Poll all devices concurrently."""</span>
+    <span class="kw">async with</span> httpx.<span class="fn">AsyncClient</span>(
+            auth=AUTH, headers=HDR, verify=<span class="kw">False</span>) <span class="kw">as</span> client:
+        
+        tasks = [<span class="fn">get_interfaces</span>(client, host) <span class="kw">for</span> host <span class="kw">in</span> devices]
+        results = <span class="kw">await</span> asyncio.<span class="fn">gather</span>(*tasks)
+    <span class="kw">return</span> results
+
+<span class="cm"># Run the async event loop</span>
+results = asyncio.<span class="fn">run</span>(<span class="fn">poll_all_devices</span>(DEVICES))
+
+<span class="kw">for</span> r <span class="kw">in</span> results:
+    <span class="kw">if</span> r[<span class="str">"error"</span>]:
+        <span class="fn">print</span>(<span class="str">f"FAIL {r['host']}: {r['error']}"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">f"OK   {r['host']}: {len(r['interfaces'])} interfaces"</span>)</pre></div>`,
+    flow:`<h3>Sync vs Async Timeline</h3>
+<div class="flow-box">
+<p style="color:#8b949e;font-size:12px;margin-bottom:8px"><strong>Synchronous</strong> (one at a time):</p>
+<div class="flow-row"><div class="flow-node blue">Device 1 → wait 2s</div><div class="flow-arrow">→</div><div class="flow-node blue">Device 2 → wait 2s</div><div class="flow-arrow">→</div><div class="flow-node blue">Device 3 → wait 2s</div><div style="color:#8b949e;font-size:12px;margin-left:8px">Total: 6s</div></div>
+<p style="color:#8b949e;font-size:12px;margin:12px 0 8px"><strong>Asynchronous</strong> (concurrent):</p>
+<div style="display:flex;flex-direction:column;gap:2px">
+<div class="flow-row"><div class="flow-node green">Device 1 ──────────── response</div></div>
+<div class="flow-row"><div class="flow-node green">Device 2 ──────────── response</div></div>
+<div class="flow-row"><div class="flow-node green">Device 3 ──────────── response</div><div style="color:#8b949e;font-size:12px;margin-left:8px">Total: ~2s</div></div>
+</div>
+</div>
+<h4>When to Use Async</h4>
+<table class="table"><thead><tr><th>Scenario</th><th>Use Sync?</th><th>Use Async?</th></tr></thead><tbody>
+<tr><td>1-5 devices</td><td>Yes</td><td>Overkill</td></tr>
+<tr><td>10-50 devices</td><td>Acceptable</td><td>Recommended</td></tr>
+<tr><td>50+ devices</td><td>Too slow</td><td>Essential</td></tr>
+<tr><td>Real-time polling</td><td>No</td><td>Yes</td></tr>
+</tbody></table>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Write an async script that queries 10 different URLs concurrently using <code>httpx.AsyncClient</code> and <code>asyncio.gather()</code>. Measure and print the total execution time compared to a synchronous version.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Add a <code>asyncio.Semaphore(5)</code> to limit concurrency to 5 requests at a time. Test with 20 requests and compare: without semaphore, with semaphore(5), with semaphore(1) (effectively sync).</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Real Scenario</div><div class="practice-desc">Convert your synchronous RESTCONF interface polling script to async. Poll 10 device IPs concurrently, collect all interface data, and generate a unified report sorted by device name.</div></div>`
+  },
+  {
+    id:12, title:"Building API Wrappers & SDKs", level:"advanced",
+    theory:`<h3>Why Build API Wrappers?</h3>
+<p>An API wrapper is a Python class that abstracts low-level HTTP details, providing a clean, reusable interface. Instead of every script knowing about URLs, headers, and auth &mdash; they just call methods on an object.</p>
+<h4>Benefits of Wrappers</h4>
+<ul>
+<li><strong>Reusability:</strong> Write auth, retry, and error handling once. Reuse across all scripts.</li>
+<li><strong>Readability:</strong> <code>dnac.get_devices()</code> is clearer than a raw requests.get() call</li>
+<li><strong>Maintainability:</strong> When the API changes, fix it in one place</li>
+<li><strong>Testability:</strong> Easier to mock a class method than an HTTP call in unit tests</li>
+<li><strong>Abstraction:</strong> Hide vendor-specific quirks behind a uniform interface</li>
+</ul>
+<h4>Design Patterns</h4>
+<ul>
+<li><strong>Resource-based:</strong> Separate class per API resource (DevicesAPI, SitesAPI, TemplatesAPI)</li>
+<li><strong>Single client class:</strong> One class with all methods (simpler for small APIs)</li>
+<li><strong>Facade pattern:</strong> Combine multiple vendor APIs behind one interface</li>
+</ul>`,
+    industry:`<h3>SDK Design in Network Automation</h3>
+<p>Cisco, Meraki, and others publish official Python SDKs built on these same wrapper principles. Understanding how to build your own gives you the skills to extend or contribute to these SDKs.</p>
+<div class="callout green"><p><strong>Cisco dnacentersdk:</strong> The official Cisco DNAC Python SDK is open-source on GitHub. It wraps the DNAC API with a clean class-based interface &mdash; exactly what you'll build in this topic. Study it for real-world patterns.</p></div>
+<div class="callout green"><p><strong>meraki (Python library):</strong> Cisco's official Meraki SDK auto-generates from the OpenAPI spec. It handles auth, pagination, rate limiting, and retries transparently.</p></div>
+<div class="callout yellow"><p><strong>Internal SDKs:</strong> Many large enterprises build internal "network SDK" libraries shared across their automation teams &mdash; wrapping their specific environment's NMS, IPAM, CMDB, and device APIs behind a unified Python interface.</p></div>`,
+    practical:`<h3>Build a Network API Wrapper</h3>
+<div class="code-block"><div class="code-header"><span class="lang">Python</span><span>network_sdk.py</span></div><pre><span class="kw">import</span> requests, time, logging
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> typing <span class="kw">import</span> Optional, List, Dict
+
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+log = logging.<span class="fn">getLogger</span>(<span class="str">__name__</span>)
+
+<span class="kw">class</span> <span class="fn">DNACClient</span>:
+    <span class="str">"""Cisco DNA Center API wrapper."""</span>
+    
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, host: str, username: str, password: str):
+        self.base = <span class="str">f"https://{host}/dna/intent/api/v1"</span>
+        self._auth = (username, password)
+        self._auth_url = <span class="str">f"https://{host}/dna/system/api/v1/auth/token"</span>
+        self._session = <span class="kw">None</span>
+        self._token_expiry = <span class="num">0</span>
+        self.<span class="fn">_setup_session</span>()
+
+    <span class="kw">def</span> <span class="fn">_setup_session</span>(self):
+        self._session = requests.<span class="fn">Session</span>()
+        self._session.verify = <span class="kw">False</span>
+        self.<span class="fn">_refresh_token</span>()
+
+    <span class="kw">def</span> <span class="fn">_refresh_token</span>(self):
+        r = requests.<span class="fn">post</span>(self._auth_url, auth=self._auth, verify=<span class="kw">False</span>)
+        r.<span class="fn">raise_for_status</span>()
+        token = r.<span class="fn">json</span>()[<span class="str">"Token"</span>]
+        self._session.headers.<span class="fn">update</span>({
+            <span class="str">"X-Auth-Token"</span>: token,
+            <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>
+        })
+        self._token_expiry = time.<span class="fn">time</span>() + <span class="num">3300</span>  <span class="cm"># 55 min</span>
+        log.<span class="fn">info</span>(<span class="str">"Token refreshed"</span>)
+
+    <span class="kw">def</span> <span class="fn">_get</span>(self, path: str, params: dict = <span class="kw">None</span>) -> dict:
+        <span class="kw">if</span> time.<span class="fn">time</span>() > self._token_expiry:
+            self.<span class="fn">_refresh_token</span>()
+        r = self._session.<span class="fn">get</span>(<span class="str">f"{self.base}{path}"</span>,
+                              params=params, timeout=(<span class="num">5</span>, <span class="num">30</span>))
+        r.<span class="fn">raise_for_status</span>()
+        <span class="kw">return</span> r.<span class="fn">json</span>()
+
+    <span class="cm"># ── Public API methods ────────────────────────────</span>
+    <span class="kw">def</span> <span class="fn">get_devices</span>(self, family: str = <span class="kw">None</span>) -> List[Dict]:
+        params = {<span class="str">"family"</span>: family} <span class="kw">if</span> family <span class="kw">else</span> {}
+        <span class="kw">return</span> self.<span class="fn">_get</span>(<span class="str">"/network-device"</span>, params).<span class="fn">get</span>(<span class="str">"response"</span>, [])
+
+    <span class="kw">def</span> <span class="fn">get_device_by_ip</span>(self, ip: str) -> Optional[Dict]:
+        devices = self.<span class="fn">get_devices</span>()
+        <span class="kw">return</span> <span class="fn">next</span>((d <span class="kw">for</span> d <span class="kw">in</span> devices 
+                      <span class="kw">if</span> d.<span class="fn">get</span>(<span class="str">"managementIpAddress"</span>) == ip), <span class="kw">None</span>)
+
+    <span class="kw">def</span> <span class="fn">get_sites</span>(self) -> List[Dict]:
+        <span class="kw">return</span> self.<span class="fn">_get</span>(<span class="str">"/site"</span>).<span class="fn">get</span>(<span class="str">"response"</span>, [])
+
+    <span class="kw">def</span> <span class="fn">__enter__</span>(self): <span class="kw">return</span> self
+    <span class="kw">def</span> <span class="fn">__exit__</span>(self, *args): self._session.<span class="fn">close</span>()
+
+<span class="cm"># ── Usage ─────────────────────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">DNACClient</span>(<span class="str">"sandboxdnac.cisco.com"</span>, <span class="str">"devnetuser"</span>, <span class="str">"Cisco123!"</span>) <span class="kw">as</span> dnac:
+    switches = dnac.<span class="fn">get_devices</span>(family=<span class="str">"Switches and Hubs"</span>)
+    <span class="kw">for</span> sw <span class="kw">in</span> switches:
+        <span class="fn">print</span>(<span class="str">f"{sw['hostname']:20} {sw['managementIpAddress']}"</span>)
+    
+    device = dnac.<span class="fn">get_device_by_ip</span>(<span class="str">"10.10.22.70"</span>)
+    <span class="fn">print</span>(<span class="str">f"Found: {device['hostname']}"</span>)</pre></div>`,
+    flow:`<h3>Wrapper Architecture</h3>
+<div class="flow-box">
+<div class="flow-row"><div class="flow-node blue">Your Automation Script</div></div>
+<div style="height:4px"></div>
+<div class="flow-row"><div class="flow-arrow" style="transform:rotate(90deg)">↓</div><div style="color:#6e7681;font-size:12px;margin-left:8px">calls clean methods</div></div>
+<div class="flow-row"><div class="flow-node yellow">DNACClient Wrapper<br><span style="font-size:10px">get_devices() / get_sites() / deploy_template()</span></div></div>
+<div style="height:4px"></div>
+<div class="flow-row"><div class="flow-arrow" style="transform:rotate(90deg)">↓</div><div style="color:#6e7681;font-size:12px;margin-left:8px">handles auth, retry, logging</div></div>
+<div class="flow-row"><div class="flow-node">requests.Session<br><span style="font-size:10px">HTTP, headers, SSL, timeout</span></div></div>
+<div style="height:4px"></div>
+<div class="flow-row"><div class="flow-arrow" style="transform:rotate(90deg)">↓</div></div>
+<div class="flow-row"><div class="flow-node green">DNAC REST API</div></div>
+</div>`,
+    practice:`<h3>Practice Exercises</h3>
+<div class="practice-item"><div class="practice-num">Exercise 1</div><div class="practice-desc">Extend the <code>DNACClient</code> class with a <code>get_client_health()</code> method that calls <code>/dna/intent/api/v1/client-health</code> and returns the overall health score as an integer.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 2</div><div class="practice-desc">Build a <code>MerakiClient</code> wrapper class (similar pattern to DNACClient) that accepts an API key, implements <code>get_organizations()</code>, <code>get_networks(org_id)</code>, and <code>get_devices(network_id)</code> methods.</div></div>
+<div class="practice-item"><div class="practice-num">Exercise 3 &mdash; Capstone</div><div class="practice-desc">Create a <code>NetworkInventory</code> facade class that wraps both <code>DNACClient</code> and <code>MerakiClient</code>. Implement a <code>get_all_devices()</code> method that queries both platforms and returns a unified list of devices with normalized fields: hostname, ip, platform, vendor, status.</div></div>
+<div class="practice-item"><div class="practice-num">Capstone Lab</div><div class="practice-desc">Build a complete network inventory script that: (1) Uses your wrapper classes to query DNAC + Meraki, (2) Merges results into a pandas DataFrame, (3) Exports to Excel with separate sheets per vendor, (4) Sends a summary Slack webhook with device count by vendor.</div></div>`
+  }
+];
+
+let currentModule = 0;
+let currentTab = 'theory';
+
+function renderSidebar(){
+  const list = document.getElementById('topic-list');
+  list.innerHTML = modules.map((m,i) => `
+    <div class="module-item ${i===currentModule?'active':''}" onclick="selectModule(${i})">
+      <span class="num">${String(m.id).padStart(2,'0')}</span>
+      <span class="title">${m.title}</span>
+      <span class="level-badge level-${m.level}">${m.level}</span>
+    </div>`).join('');
+}
+
+function renderContent(){
+  const m = modules[currentModule];
+  document.getElementById('topic-title').textContent = m.title;
+  const lb = document.getElementById('topic-level');
+  lb.textContent = m.level; lb.className = `level-badge level-${m.level}`; lb.style.display='inline-block';
+  document.getElementById('theory').innerHTML = m.theory;
+  document.getElementById('industry').innerHTML = m.industry;
+  document.getElementById('practical').innerHTML = m.practical;
+  document.getElementById('flow').innerHTML = m.flow;
+  document.getElementById('practice').innerHTML = m.practice;
+  document.getElementById('progress-text').textContent = `Topic ${m.id} of ${modules.length}  ·  ${m.level}`;
+}
+
+function selectModule(i){
+  currentModule = i;
+  renderSidebar();
+  renderContent();
+  switchTab('theory');
+  document.querySelector('.content').scrollTop = 0;
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  const tabs = ['theory','industry','practical','flow','practice'];
+  document.querySelectorAll('.tab')[tabs.indexOf(tab)].classList.add('active');
+}
+
+renderSidebar();
+renderContent();
+</script>
+</body>
+</html>
