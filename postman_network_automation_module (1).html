@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postman for Network Automation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--sb:#161b22;--sur:#1f2937;--bdr:#30363d;
+  --txt:#c9d1d9;--mut:#8b949e;--brt:#e6edf3;
+  --blu:#58a6ff;--grn:#3fb950;--yel:#e3b341;--red:#f85149;--pur:#d2a8ff;
+  --org:#ffa657;--pm:#ff6c37;--sw:270px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+.topnav{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--sb);border-bottom:1px solid var(--bdr);min-height:50px;flex-shrink:0}
+.hbg{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;border:none;background:none;flex-shrink:0}
+.hbg span{display:block;width:20px;height:2px;background:var(--txt);border-radius:2px}
+.topnav h1{font-size:13px;font-weight:700;color:var(--pm);letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.topnav .sep{color:var(--bdr)}
+.topnav h2{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layout{display:flex;flex:1;overflow:hidden;position:relative}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--sb);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:transform .25s,box-shadow .25s;flex-shrink:0}
+.sb-inner{flex:1;overflow-y:auto}
+.sb-head{padding:12px 14px;border-bottom:1px solid var(--bdr);background:var(--bg)}
+.sb-head p{font-size:11px;color:var(--mut);margin-top:2px}
+.sb-head strong{color:var(--pm)}
+.ti{padding:9px 14px;cursor:pointer;border-left:3px solid transparent;display:flex;align-items:flex-start;gap:8px;transition:all .15s}
+.ti:hover{background:var(--sur);color:var(--brt)}
+.ti.active{background:var(--sur);border-left-color:var(--pm);color:var(--pm)}
+.ti .tn{font-size:10px;color:var(--mut);min-width:18px;font-weight:700;padding-top:1px}
+.ti .tt{font-size:12px;line-height:1.4;flex:1}
+.lbg{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.lb-basic{background:#0d3b2e;color:#3fb950}
+.lb-intermediate{background:#2d1f0e;color:#e3b341}
+.lb-advanced{background:#2d1225;color:#f778ba}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bdr);font-size:11px;color:var(--mut)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tabs{display:flex;padding:0 4px;background:var(--bg);border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 12px;cursor:pointer;font-size:12px;color:var(--mut);border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--pm);border-bottom-color:var(--pm)}
+.content{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
+.sec{display:none}.sec.active{display:block}
+h3{font-size:15px;font-weight:600;color:var(--brt);margin-bottom:10px;margin-top:22px}
+h3:first-child{margin-top:0}
+h4{font-size:12.5px;font-weight:600;color:var(--blu);margin:14px 0 6px}
+p{line-height:1.7;color:var(--txt);margin-bottom:10px}
+ul,ol{padding-left:18px;margin-bottom:10px}
+li{line-height:1.8}
+code{background:var(--sur);color:var(--org);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+strong{color:var(--brt);font-weight:600}
+.note{background:var(--sb);border-left:3px solid var(--blu);padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0}
+.note.g{border-left-color:var(--grn)}.note.y{border-left-color:var(--yel)}.note.r{border-left-color:var(--red)}.note.o{border-left-color:var(--pm)}
+.note p{margin:0;font-size:13px}
+.cb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ch{background:var(--sur);padding:6px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.ch .lg{font-size:11px;color:var(--blu);font-weight:700;font-family:monospace}
+.ch .fn{font-size:10px;color:var(--mut)}
+pre{padding:14px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;line-height:1.8;color:var(--brt)}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.cm{color:#8b949e;font-style:italic}.nm{color:#79c0ff}.vr{color:#ffa657}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+.tbl th{background:var(--sur);color:var(--mut);font-weight:600;text-align:left;padding:7px 10px;border:1px solid var(--bdr);font-size:11px;text-transform:uppercase}
+.tbl td{padding:7px 10px;border:1px solid var(--bdr);vertical-align:top;line-height:1.5}
+.tbl tr:nth-child(even) td{background:var(--sb)}
+.fb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin:10px 0}
+.fr{display:flex;align-items:flex-start;gap:6px;margin:5px 0;flex-wrap:wrap}
+.fn2{background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--brt);line-height:1.4}
+.fn2.b{border-color:#388bfd;color:var(--blu);background:#0d2038}
+.fn2.g{border-color:var(--grn);color:var(--grn);background:#0d2d1a}
+.fn2.y{border-color:var(--yel);color:var(--yel);background:#2d2008}
+.fn2.r{border-color:var(--red);color:var(--red);background:#2d0f0f}
+.fn2.o{border-color:var(--pm);color:var(--pm);background:#2d1a10}
+.fn2.p{border-color:var(--pur);color:var(--pur);background:#1c1628}
+.fa{color:var(--mut);font-size:14px;padding-top:5px;flex-shrink:0}
+.fl{font-size:10px;color:var(--mut);margin-top:2px}
+.pi{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ph{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.ph:hover{background:var(--sur)}
+.pn{color:var(--pm);font-weight:700;font-size:12.5px}
+.pt{font-size:10px;color:var(--mut);margin-top:2px}
+.pb{padding:0 14px 14px;border-top:1px solid var(--bdr)}
+.pb p{margin:8px 0 0;font-size:13px;line-height:1.6}
+.stb{background:none;border:1px solid var(--bdr);color:var(--mut);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px;margin-top:10px;transition:all .15s}
+.stb:hover{border-color:var(--grn);color:var(--grn)}
+.sb2{display:none;margin-top:10px;background:var(--bg);border:1px solid var(--grn);border-radius:6px;padding:10px 12px}
+.sb2 p{margin:0;font-size:12.5px;color:var(--txt)}
+.chv{font-size:10px;color:var(--mut);transition:transform .2s}
+.chv.op{transform:rotate(180deg)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.mtd{font-family:monospace;font-weight:700;padding:2px 6px;border-radius:3px;font-size:11px}
+.get{background:#0d3b2e;color:#3fb950}.post{background:#1f3a5f;color:#58a6ff}
+.put{background:#2d1f0e;color:#e3b341}.del{background:#2d1225;color:#f85149}
+.patch{background:#1c1c2e;color:#d2a8ff}
+.umock{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin:10px 0;font-size:12px}
+.umock .mb{background:var(--bg);border-radius:5px;padding:6px 10px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.umock .mm{background:#0d3b2e;color:#3fb950;border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;font-family:monospace}
+.umock .mu{color:var(--mut);font-size:12px;flex:1}
+.umock .ms{background:var(--pm);color:#fff;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:700}
+.umock .mt{display:flex;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:8px}
+.umock .mta{padding:5px 10px;font-size:11px;color:var(--mut)}
+.umock .mta.a{color:var(--pm);border-bottom:2px solid var(--pm)}
+.umock .mk{color:var(--blu);font-family:monospace;font-size:11px}
+.umock .mv{color:var(--grn);font-family:monospace;font-size:11px}
+.umock .mr{display:flex;gap:12px;padding:3px 0;border-bottom:1px solid #ffffff08}
+@media(max-width:768px){
+  .hbg{display:flex}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:10;transform:translateX(-100%);width:min(var(--sw),85vw);min-width:0}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.5)}
+  .overlay.open{display:block}
+  .g2{grid-template-columns:1fr}
+  .content{padding:14px}
+  .tbl{font-size:11.5px}
+  .tbl th,.tbl td{padding:5px 7px}
+  pre{font-size:11px;padding:12px}
+  .tabs .tab{font-size:11px;padding:8px 9px}
+  .topnav h2{font-size:12px}
+}
+@media(max-width:380px){.topnav h1{font-size:11px}.topnav h2{display:none}}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+  <h1>Postman</h1><span class="sep">·</span>
+  <h2 id="ttl">Network Automation Module</h2>
+  <span class="lbg lb-basic" id="tlvl" style="display:none"></span>
+</div>
+<div class="layout">
+  <div class="overlay" id="ovl"></div>
+  <div class="sidebar" id="sb">
+    <div class="sb-inner">
+      <div class="sb-head">
+        <p><strong>Python for Network Automation</strong></p>
+        <p style="margin-top:4px">Module &mdash; Postman Tool</p>
+      </div>
+      <div id="tlist"></div>
+    </div>
+    <div class="sb-foot" id="sft">Select a topic</div>
+  </div>
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" data-tab="theory">📖 Theory</div>
+      <div class="tab" data-tab="industry">🏭 Industry</div>
+      <div class="tab" data-tab="practical">💻 Practical</div>
+      <div class="tab" data-tab="flow">🔄 Flow</div>
+      <div class="tab" data-tab="practice">📝 Practice</div>
+    </div>
+    <div class="content" id="ct">
+      <div id="theory" class="sec active"></div>
+      <div id="industry" class="sec"></div>
+      <div id="practical" class="sec"></div>
+      <div id="flow" class="sec"></div>
+      <div id="practice" class="sec"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     TOPIC CONTENT — stored as inert templates, no JS escaping needed
+══════════════════════════════════════════════════════════ -->
+
+<!-- ── TOPIC 1 ── -->
+<script type="text/x-tmpl" id="m1-theory">
+<h3>What is Postman?</h3>
+<p>Postman is a <strong>collaborative API platform</strong> used to design, build, test, and document APIs. For network engineers, it is the GUI equivalent of writing Python <code>requests</code> code — but visual, fast, and shareable with the team.</p>
+<h4>Why Postman for Network Automation?</h4>
+<ul>
+<li><strong>Explore APIs visually</strong> before writing Python scripts</li>
+<li><strong>Test API responses</strong> with built-in assertions (JavaScript)</li>
+<li><strong>Share collections</strong> — Cisco DevNet publishes ready-made Postman collections</li>
+<li><strong>Document APIs</strong> automatically from your request history</li>
+<li><strong>Run automated tests</strong> via Newman (CLI) inside CI/CD pipelines</li>
+</ul>
+<h4>Postman vs Python requests</h4>
+<table class="tbl"><thead><tr><th>Feature</th><th>Postman</th><th>Python requests</th></tr></thead><tbody>
+<tr><td>Auth setup</td><td>GUI dropdown</td><td>Code manually</td></tr>
+<tr><td>Response view</td><td>Formatted, colour-coded JSON</td><td>print(r.json())</td></tr>
+<tr><td>Variable management</td><td>Environments UI</td><td>os.environ / dict</td></tr>
+<tr><td>Test assertions</td><td>JavaScript UI</td><td>assert / pytest</td></tr>
+<tr><td>Team sharing</td><td>Built-in workspaces</td><td>Git repo</td></tr>
+<tr><td>CI/CD automation</td><td>Newman CLI</td><td>Script directly</td></tr>
+<tr><td>Learning curve</td><td>Low</td><td>Medium</td></tr>
+</tbody></table>
+<div class="note o"><p><strong>Key insight:</strong> Most network engineers use Postman to <em>explore and prototype</em> API calls, then translate them into Python scripts for production automation. The two tools complement each other perfectly.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-industry">
+<h3>Postman in the Network Industry</h3>
+<h4>Cisco DevNet Postman Collections</h4>
+<p>Cisco publishes official Postman collections for every major platform — DNAC, Meraki, NSO, SD-WAN, FMC — on GitHub and the DevNet portal. These collections have all endpoints pre-built with variables. A network engineer can import them and start testing in minutes.</p>
+<div class="note g"><p><strong>Cisco DevNet GitHub:</strong> Search "cisco devnet postman collection" to find ready-made collections for DNAC, Meraki, IOS-XE RESTCONF, FTD, SD-WAN, and more. All free and open-source.</p></div>
+<h4>How Teams Use Postman</h4>
+<ul>
+<li><strong>Network architects</strong> — explore new vendor APIs before writing automation scripts</li>
+<li><strong>Automation engineers</strong> — share tested collections with junior engineers as runbooks</li>
+<li><strong>NOC teams</strong> — use Collection Runner as a quick API runbook for common tasks</li>
+<li><strong>Documentation teams</strong> — publish Postman docs as API reference portals</li>
+</ul>
+<h4>CCNP / DevNet Certification Relevance</h4>
+<div class="note y"><p><strong>Cisco DevNet Associate &amp; Professional</strong> exams explicitly test Postman knowledge: building requests, using environments, writing tests, and running Newman. It is a must-know tool for any network automation certification.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-practical">
+<h3>Installing &amp; Setting Up Postman</h3>
+<h4>Installation Options</h4>
+<ul>
+<li><strong>Desktop App:</strong> Download from <code>postman.com/downloads</code> (Windows, Mac, Linux)</li>
+<li><strong>Web App:</strong> <code>go.postman.co</code> — no install, runs in the browser</li>
+<li><strong>VS Code Extension:</strong> Postman has a VS Code plugin for inline API testing</li>
+</ul>
+<h4>First Launch — Your First Request</h4>
+<ol>
+<li>Create a free Postman account (required for sync and workspaces)</li>
+<li>Create a new <strong>Workspace</strong>: <em>"Network Automation Training"</em></li>
+<li>Click <strong>New → HTTP Request</strong></li>
+<li>Method: GET, URL: <code>https://httpbin.org/get</code></li>
+<li>Click <strong>Send</strong></li>
+</ol>
+<div class="umock">
+  <div class="mb"><span class="mm">GET</span><span class="mu">https://httpbin.org/get</span><span class="ms">Send</span></div>
+  <div class="mt"><span class="mta">Params</span><span class="mta">Auth</span><span class="mta">Headers</span><span class="mta a">Body</span><span class="mta">Tests</span></div>
+  <p style="color:var(--mut);font-size:11px;margin:0">Status: <span style="color:var(--grn)">200 OK</span> &nbsp;·&nbsp; Time: 312 ms &nbsp;·&nbsp; Size: 528 B</p>
+</div>
+<h4>Import Official Cisco DevNet Collections</h4>
+<ol>
+<li>In Postman: click <strong>Import</strong> → Link or search Postman Explore for "Cisco DevNet"</li>
+<li>Find e.g. "Cisco IOS XE RESTCONF" collection → click <strong>Fork</strong></li>
+<li>It appears in your workspace immediately, ready to use</li>
+</ol>
+</script>
+
+<script type="text/x-tmpl" id="m1-flow">
+<h3>Postman Ecosystem Overview</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 o" style="width:100%;text-align:center">Postman Platform</div></div>
+  <div style="height:8px"></div>
+  <div class="fr">
+    <div class="fn2 b">Collections<br><span class="fl">Grouped API requests</span></div>
+    <div class="fn2">Environments<br><span class="fl">Variables (host, token)</span></div>
+    <div class="fn2 g">Tests<br><span class="fl">JS assertions</span></div>
+    <div class="fn2 y">Runner<br><span class="fl">Batch execute</span></div>
+  </div>
+  <div style="height:8px"></div>
+  <div class="fr">
+    <div class="fn2 p">Newman CLI<br><span class="fl">CI/CD automation</span></div>
+    <div class="fn2">Mock Servers<br><span class="fl">Simulate APIs</span></div>
+    <div class="fn2">Docs<br><span class="fl">Auto-generated</span></div>
+  </div>
+</div>
+<h4>Typical Network Engineer Workflow</h4>
+<div class="fb">
+  <div class="fr"><div class="fn2 o">1. Explore API<br><span class="fl">One-off requests</span></div><div class="fa">→</div><div class="fn2">2. Save to Collection<br><span class="fl">Organise by platform</span></div><div class="fa">→</div><div class="fn2 b">3. Add Variables<br><span class="fl">Environments</span></div></div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 g">4. Write Tests<br><span class="fl">Assert status &amp; data</span></div><div class="fa">→</div><div class="fn2 y">5. Run Collection<br><span class="fl">Full test suite</span></div><div class="fa">→</div><div class="fn2 p">6. Newman in CI/CD<br><span class="fl">Automated pipeline</span></div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m1-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Setup &amp; First Request</div><div class="pt">Installation</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Install Postman (desktop or web). Create a workspace called <em>"Network Automation"</em>. Make a GET request to <code>https://httpbin.org/get</code>. Identify the status code, response time, and your public IP in the JSON response body.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Open Postman → New → HTTP Request<br>2. Select <strong>GET</strong>, enter <code>https://httpbin.org/get</code>, click <strong>Send</strong><br>3. Status = <strong>200 OK</strong> (shown in green next to the response)<br>4. Response time is displayed in ms right next to the status<br>5. In the response JSON, the <code>"origin"</code> field shows your public IP address<br>6. Save the request → name it "Test GET" → save to a new collection called "Sandbox Tests"</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Import DevNet Collection</div><div class="pt">Official Collections</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Import the Cisco DevNet IOS-XE RESTCONF Postman collection. Make one GET request from the collection and verify it returns 200. Note: the auth method, the URL pattern, and the Content-Type header required.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Postman → Import → search "Cisco IOS XE RESTCONF" in Postman Explore → Fork<br>2. URL: <code>https://sandbox-iosxe-latest-1.cisco.com/restconf/data/ietf-interfaces:interfaces</code><br>3. Auth method: <strong>Basic Auth</strong> — Username: <code>developer</code> / Password: <code>C1sco12345</code><br>4. Content-Type / Accept: <code>application/yang-data+json</code><br>5. Expected result: <strong>200 OK</strong> with a JSON list of device interfaces</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Postman vs Python</div><div class="pt">Compare Tools</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Make a POST request to <code>https://httpbin.org/post</code> with JSON body <code>{"device": "R1", "ip": "10.1.1.1"}</code> first in Postman, then replicate it exactly in Python using <code>requests</code>. The response <code>"json"</code> field should be identical in both.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Postman:</strong> Method=POST, URL=https://httpbin.org/post, Body tab → raw → JSON type → paste <code>{"device":"R1","ip":"10.1.1.1"}</code> → Send<br><br><strong>Python equivalent:</strong><br><code>import requests</code><br><code>r = requests.post("https://httpbin.org/post", json={"device":"R1","ip":"10.1.1.1"})</code><br><code>print(r.json()["json"])  # {"device":"R1","ip":"10.1.1.1"}</code><br><br>Both show <code>"json": {"device": "R1", "ip": "10.1.1.1"}</code> in the response — the calls are identical.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 2 ── -->
+<script type="text/x-tmpl" id="m2-theory">
+<h3>Postman UI Components</h3>
+<p>Understanding the Postman interface before building network API tests is essential. Every panel serves a specific purpose in your workflow.</p>
+<h4>Main UI Areas</h4>
+<table class="tbl"><thead><tr><th>Area</th><th>Location</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><strong>Sidebar</strong></td><td>Left panel</td><td>Collections, Environments, History navigation</td></tr>
+<tr><td><strong>Request Builder</strong></td><td>Centre top</td><td>Method, URL, Params, Auth, Headers, Body, Tests</td></tr>
+<tr><td><strong>Response Viewer</strong></td><td>Centre bottom</td><td>Status, Time, Size, Body, Headers, Test Results</td></tr>
+<tr><td><strong>Environment Selector</strong></td><td>Top right dropdown</td><td>Switch between Dev / Staging / Prod environments</td></tr>
+<tr><td><strong>Console</strong></td><td>View → Show Console</td><td>Debug scripts, see raw HTTP traffic</td></tr>
+</tbody></table>
+<h4>Request Builder Tabs</h4>
+<table class="tbl"><thead><tr><th>Tab</th><th>Used For</th></tr></thead><tbody>
+<tr><td><strong>Params</strong></td><td>URL query parameters: <code>?key=value</code></td></tr>
+<tr><td><strong>Auth</strong></td><td>Basic, Bearer Token, API Key, OAuth 2.0</td></tr>
+<tr><td><strong>Headers</strong></td><td>Content-Type, Accept, X-Auth-Token etc.</td></tr>
+<tr><td><strong>Body</strong></td><td>Raw JSON, form-data, binary (for POST/PUT)</td></tr>
+<tr><td><strong>Pre-req. Script</strong></td><td>JavaScript that runs <em>before</em> the request is sent</td></tr>
+<tr><td><strong>Tests</strong></td><td>JavaScript assertions that run <em>after</em> the response arrives</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m2-industry">
+<h3>Interface Features Used by Network Teams</h3>
+<h4>Postman Console (Hidden Gem)</h4>
+<p>The Postman Console (<strong>View → Show Postman Console</strong>) shows raw HTTP traffic exactly like Wireshark for API calls. It displays full request headers, body, SSL handshake details, and raw response. It is critical for debugging authentication issues.</p>
+<div class="note g"><p><strong>Network Engineer Tip:</strong> Enable the console when troubleshooting why an API call works in Postman but fails in your Python script. The console shows you the exact headers being sent — so you can replicate them in code.</p></div>
+<h4>Response View Modes</h4>
+<ul>
+<li><strong>Pretty:</strong> Formatted JSON with syntax highlighting and collapsible nodes — best for reading API data</li>
+<li><strong>Raw:</strong> Exact response string — useful when debugging encoding or whitespace issues</li>
+<li><strong>Preview:</strong> Renders HTML responses as a browser would — only useful for HTML APIs</li>
+<li><strong>Visualize:</strong> Custom charts and tables rendered from response data using JavaScript</li>
+</ul>
+<h4>History Tab</h4>
+<p>Every request you send is saved in History. You can replay any past request, recover a forgotten test, or compare responses from different points in time.</p>
+</script>
+
+<script type="text/x-tmpl" id="m2-practical">
+<h3>Hands-On Interface Exploration</h3>
+<h4>Setting Up Your First Network Request Step by Step</h4>
+<div class="umock">
+  <div style="font-size:11px;color:var(--mut);margin-bottom:8px">Request Builder — IOS-XE RESTCONF</div>
+  <div class="mb"><span class="mm">GET</span><span class="mu">{{base_url}}/restconf/data/ietf-interfaces:interfaces</span><span class="ms">Send</span></div>
+  <div class="mt"><span class="mta">Params</span><span class="mta a">Auth</span><span class="mta">Headers</span><span class="mta">Body</span><span class="mta">Tests</span></div>
+  <div style="padding:8px 0;font-size:12px">
+    <div style="color:var(--mut);margin-bottom:6px">Auth Type: <span style="color:var(--blu)">Basic Auth</span></div>
+    <div class="mr"><span class="mk">Username</span><span class="mv" style="margin-left:auto">developer</span></div>
+    <div class="mr"><span class="mk">Password</span><span class="mv" style="margin-left:auto">C1sco12345</span></div>
+  </div>
+</div>
+<div class="cb"><div class="ch"><span class="lg">Step-by-Step</span><span class="fn">IOS-XE RESTCONF Setup</span></div><pre>1. Click <span class="st">+ New Tab</span> in the request builder
+2. Select method <span class="kw">GET</span> from the dropdown
+3. Enter URL:
+   https://sandbox-iosxe-latest-1.cisco.com
+   /restconf/data/ietf-interfaces:interfaces
+4. <span class="st">Auth tab</span> → Basic Auth
+   Username: developer   Password: C1sco12345
+5. <span class="st">Headers tab</span> → Add:
+   Accept = application/yang-data+json
+6. Click <span class="kw">Send</span> → verify 200 OK
+7. <span class="st">Save</span> → Collection: "IOS-XE Sandbox"</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-flow">
+<h3>Request Builder Workflow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 o">1. Choose Method<br><span class="fl">GET/POST/PUT/PATCH/DELETE</span></div><div class="fa">→</div><div class="fn2">2. Enter URL<br><span class="fl">With {{variables}}</span></div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 b">3. Set Auth<br><span class="fl">Basic/Token/APIKey</span></div><div class="fa">→</div><div class="fn2">4. Set Headers<br><span class="fl">Content-Type / Accept</span></div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 y">5. Add Body<br><span class="fl">For POST/PUT/PATCH only</span></div><div class="fa">→</div><div class="fn2 o">6. Send</div><div class="fa">→</div><div class="fn2 g">7. Inspect Response<br><span class="fl">Status + Body + Time</span></div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 p">8. Save to Collection (Ctrl+S)</div></div>
+</div>
+<h4>Params vs Headers vs Body</h4>
+<table class="tbl"><thead><tr><th>Tab</th><th>Where it goes</th><th>Example use</th></tr></thead><tbody>
+<tr><td>Params</td><td>URL query string: <code>?limit=10</code></td><td>Filter GET results</td></tr>
+<tr><td>Headers</td><td>Request header</td><td>Content-Type, Accept, Auth tokens</td></tr>
+<tr><td>Body → raw JSON</td><td>Request body</td><td>POST/PUT payloads to create/update</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m2-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Postman Console</div><div class="pt">Auto Headers</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Open Postman Console (View → Show Postman Console). Make a GET to <code>https://httpbin.org/headers</code>. Find and write down all headers Postman sends automatically (User-Agent, Accept, etc.).</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. View → Show Postman Console (Ctrl+Alt+C on Windows)<br>2. Make GET to <code>https://httpbin.org/headers</code><br>3. Console → expand request → auto-sent headers include:<br>&nbsp;&nbsp;• <code>User-Agent: PostmanRuntime/7.x.x</code><br>&nbsp;&nbsp;• <code>Accept: */*</code><br>&nbsp;&nbsp;• <code>Accept-Encoding: gzip, deflate, br</code><br>&nbsp;&nbsp;• <code>Connection: keep-alive</code><br>4. The response <code>"headers"</code> object also lists all received headers<br><br>Tip: This is exactly what you replicate in Python's <code>requests</code> headers dict.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Response View Modes</div><div class="pt">Pretty vs Raw</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Make a GET to <code>https://httpbin.org/json</code>. Explore all 4 response view modes (Pretty, Raw, Preview, Visualize). Which is most useful for network API responses and why?</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Pretty:</strong> Colour-coded, formatted, expand/collapse → best for reading API data<br><strong>Raw:</strong> Exact bytes returned → use this to check encoding issues or BOM characters<br><strong>Preview:</strong> Renders as HTML → only useful if API returns HTML content<br><strong>Visualize:</strong> Custom JS-rendered charts → requires code in the Tests/Visualize tab<br><br><strong>For network APIs → Pretty mode</strong> is most useful. It lets you clearly read device data, navigate nested JSON, and copy specific values quickly.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Organise Collections</div><div class="pt">Folders &amp; Requests</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create a Collection "RESTCONF Lab" with two folders: "GET Requests" and "Config Changes". Save the IOS-XE GET interfaces request into GET folder. Duplicate it and change the URL to fetch only GigabitEthernet1.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Collections → + New Collection → Name: "RESTCONF Lab"<br>2. Right-click collection → Add Folder → "GET Requests"<br>3. Right-click collection → Add Folder → "Config Changes"<br>4. Save your GET interfaces request → choose "GET Requests" folder<br>5. Right-click the saved request → Duplicate<br>6. On the duplicate, change the URL ending to: <code>/interface=GigabitEthernet1</code><br>7. Rename it "GET Single Interface" → Send → verify 200 OK with only GigabitEthernet1 data</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 3 ── -->
+<script type="text/x-tmpl" id="m3-theory">
+<h3>HTTP Methods in Postman</h3>
+<p>Postman's method dropdown covers all HTTP verbs. Each maps to a CRUD operation on a network resource.</p>
+<table class="tbl"><thead><tr><th>Method</th><th>CRUD</th><th>Network Use Case</th><th>Body?</th></tr></thead><tbody>
+<tr><td><span class="mtd get">GET</span></td><td>Read</td><td>Get interface status, device inventory, routing table</td><td>No</td></tr>
+<tr><td><span class="mtd post">POST</span></td><td>Create</td><td>Deploy VLAN, create template, add device to DNAC</td><td>Yes</td></tr>
+<tr><td><span class="mtd put">PUT</span></td><td>Full Update</td><td>Replace entire interface config (all fields required)</td><td>Yes</td></tr>
+<tr><td><span class="mtd patch">PATCH</span></td><td>Partial Update</td><td>Change only interface description</td><td>Yes</td></tr>
+<tr><td><span class="mtd del">DELETE</span></td><td>Delete</td><td>Remove VLAN, delete template, decommission device</td><td>No</td></tr>
+</tbody></table>
+<h4>Body Tab Formats</h4>
+<table class="tbl"><thead><tr><th>Format</th><th>Content-Type</th><th>Network Use Case</th></tr></thead><tbody>
+<tr><td><strong>raw → JSON</strong></td><td>application/json</td><td>DNAC, Meraki payloads</td></tr>
+<tr><td><strong>raw → XML</strong></td><td>application/xml</td><td>NETCONF-style payloads</td></tr>
+<tr><td><strong>raw → JSON (YANG)</strong></td><td>application/yang-data+json</td><td>RESTCONF payloads</td></tr>
+<tr><td><strong>none</strong></td><td>—</td><td>GET and DELETE (no body)</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m3-industry">
+<h3>Real Network API Requests</h3>
+<h4>RESTCONF Content-Type Matters</h4>
+<p>IOS-XE RESTCONF requires a specific Content-Type: <code>application/yang-data+json</code> — NOT the usual <code>application/json</code>. Using the wrong Content-Type results in a <strong>415 Unsupported Media Type</strong> error. Postman makes it easy to set this correctly in the Headers tab.</p>
+<div class="note o"><p><strong>Important for DNAC:</strong> DNAC requires the <code>X-Auth-Token</code> header (not Basic Auth) for all calls except the initial token request. After getting your token from <code>/dna/system/api/v1/auth/token</code>, paste it into a custom header. We will automate this with Pre-request Scripts in Topic 6.</p></div>
+<h4>Meraki Paginated Responses</h4>
+<p>Meraki limits responses to 1000 items per page. The next page URL is provided in the <code>Link</code> response header. Postman's response header tab makes it easy to spot and follow pagination links during API exploration.</p>
+<h4>DNAC Query Parameters</h4>
+<p>The DNAC device inventory endpoint supports multiple query parameters to filter results. Using Postman's Params tab, you can toggle filters like <code>family=Switches+and+Hubs</code> and <code>limit=10</code> without editing the URL string manually.</p>
+</script>
+
+<script type="text/x-tmpl" id="m3-practical">
+<h3>Network API Request Examples</h3>
+<div class="cb"><div class="ch"><span class="lg">Postman Config</span><span class="fn">DNAC Device Inventory</span></div><pre>Method  : <span class="kw">GET</span>
+URL     : https://sandboxdnac.cisco.com/dna/intent/api/v1/network-device
+
+Params tab:
+  family  = Switches and Hubs
+  limit   = 5
+
+Auth    : No Auth (use Headers instead)
+Headers:
+  X-Auth-Token  = &lt;paste token from auth endpoint&gt;
+  Content-Type  = application/json
+  Accept        = application/json
+
+Expected: <span class="nm">200 OK</span> with list of switch devices</pre></div>
+<div class="cb"><div class="ch"><span class="lg">Postman Config</span><span class="fn">RESTCONF — Create Loopback</span></div><pre>Method  : <span class="kw">POST</span>
+URL     : https://sandbox-iosxe-latest-1.cisco.com
+          /restconf/data/ietf-interfaces:interfaces
+Auth    : Basic Auth (developer / C1sco12345)
+Headers:
+  Content-Type = application/yang-data+json
+  Accept       = application/yang-data+json
+
+Body → raw → JSON:
+{
+  "ietf-interfaces:interface": {
+    "name"        : "Loopback99",
+    "type"        : "iana-if-type:softwareLoopback",
+    "enabled"     : true,
+    "description" : "Created via Postman"
+  }
+}
+Expected: <span class="nm">201 Created</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-flow">
+<h3>Method Selection Decision Tree</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 o">What do you need to do?</div></div>
+  <div style="height:8px"></div>
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <div class="fr"><div class="fn2 g">Read data → GET (no body, no Content-Type needed)</div></div>
+    <div class="fr"><div class="fn2">Create new resource → POST + JSON body</div></div>
+    <div class="fr"><div class="fn2 y">Full replacement → PUT + complete JSON payload</div></div>
+    <div class="fr"><div class="fn2 y">Change some fields → PATCH + only changed fields</div></div>
+    <div class="fr"><div class="fn2 r">Remove resource → DELETE (no body)</div></div>
+  </div>
+</div>
+<h4>Status Code Quick Reference</h4>
+<table class="tbl"><thead><tr><th>Code</th><th>Meaning</th><th>What to do in Postman</th></tr></thead><tbody>
+<tr><td><strong>200</strong></td><td>OK — Read success</td><td>Parse response body normally</td></tr>
+<tr><td><strong>201</strong></td><td>Created — POST success</td><td>Resource was created; check Location header</td></tr>
+<tr><td><strong>204</strong></td><td>No Content — Update/Delete success</td><td>Success; response body is empty</td></tr>
+<tr><td><strong>400</strong></td><td>Bad Request</td><td>Check your JSON body for syntax errors</td></tr>
+<tr><td><strong>401</strong></td><td>Unauthorized</td><td>Token expired or wrong credentials</td></tr>
+<tr><td><strong>415</strong></td><td>Unsupported Media Type</td><td>Wrong Content-Type — fix in Headers tab</td></tr>
+<tr><td><strong>429</strong></td><td>Rate Limited</td><td>Slow down; set delay in Collection Runner</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m3-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Params Tab</div><div class="pt">Query Parameters</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Make a GET to <code>https://httpbin.org/get</code> with query params: <code>device=R1</code>, <code>site=HQ</code>, <code>status=active</code>. Verify the response <code>args</code> object contains all three. Then disable the <code>status</code> param and resend — confirm it disappears.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. GET <code>https://httpbin.org/get</code><br>2. Params tab → add rows: <code>device=R1</code>, <code>site=HQ</code>, <code>status=active</code><br>3. URL auto-becomes: <code>?device=R1&amp;site=HQ&amp;status=active</code><br>4. Send → response <code>"args"</code> = <code>{"device":"R1","site":"HQ","status":"active"}</code><br>5. Uncheck (disable) the status row checkbox<br>6. Resend → <code>"args"</code> = <code>{"device":"R1","site":"HQ"}</code> — status is gone<br><br>Key insight: You can toggle params on/off without editing the URL — great for testing optional API filters.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — POST/GET/DELETE Lifecycle</div><div class="pt">CRUD Sequence</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>On the IOS-XE sandbox: POST to create Loopback99 → GET to verify it exists → DELETE to remove it. Capture and print the status code at each step (expected: 201, 200, 204).</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>POST (Create):</strong><br>URL: <code>https://sandbox-iosxe-latest-1.cisco.com/restconf/data/ietf-interfaces:interfaces</code><br>Auth: Basic (developer/C1sco12345), Content-Type: <code>application/yang-data+json</code><br>Body: <code>{"ietf-interfaces:interface":{"name":"Loopback99","type":"iana-if-type:softwareLoopback","enabled":true}}</code><br>→ <strong>201 Created</strong><br><br><strong>GET (Verify):</strong><br>URL: <code>.../interfaces/interface=Loopback99</code><br>→ <strong>200 OK</strong> with interface data<br><br><strong>DELETE:</strong><br>URL: <code>.../interfaces/interface=Loopback99</code><br>→ <strong>204 No Content</strong> (success, empty body)</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Wrong Content-Type Error</div><div class="pt">Error Scenario</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Intentionally set Content-Type to <code>application/json</code> (wrong) on a RESTCONF POST. Note the error code and message. Then fix it to <code>application/yang-data+json</code> and verify success.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Make RESTCONF POST with <code>Content-Type: application/json</code><br>2. Expected error: <strong>415 Unsupported Media Type</strong><br>3. Response body indicates the server cannot process this media format<br>4. Fix: change Content-Type to <code>application/yang-data+json</code><br>5. Resend → <strong>201 Created</strong><br><br><strong>Lesson:</strong> RESTCONF is strict about Content-Type. Always use <code>application/yang-data+json</code>. This is a very common mistake when switching from DNAC (JSON) to RESTCONF.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 4 ── -->
+<script type="text/x-tmpl" id="m4-theory">
+<h3>Authentication Types in Postman</h3>
+<p>Postman's Auth tab provides a GUI for all major authentication methods. Instead of manually building Authorization headers, you select the type and fill in the fields — Postman handles encoding and header injection automatically.</p>
+<table class="tbl"><thead><tr><th>Auth Type</th><th>Postman Fields</th><th>Network Platform</th></tr></thead><tbody>
+<tr><td><strong>No Auth</strong></td><td>None</td><td>Public APIs, custom header auth</td></tr>
+<tr><td><strong>Basic Auth</strong></td><td>Username, Password</td><td>IOS-XE RESTCONF, IOS-XR</td></tr>
+<tr><td><strong>Bearer Token</strong></td><td>Token value</td><td>Cisco DNAC, FMC, Juniper Apstra</td></tr>
+<tr><td><strong>API Key</strong></td><td>Key, Value, Add to (Header/Query)</td><td>Cisco Meraki, Mist AI</td></tr>
+<tr><td><strong>OAuth 2.0</strong></td><td>Client ID, Secret, Token URL</td><td>Webex, SD-WAN, cloud platforms</td></tr>
+</tbody></table>
+<h4>Inherit Auth from Parent (Key Feature)</h4>
+<p>Collections and folders can have a <strong>default auth setting</strong>. Individual requests set to <em>"Inherit auth from parent"</em> automatically use the collection-level auth — no need to repeat auth config in every single request. Change it once at the top, all requests are updated.</p>
+</script>
+
+<script type="text/x-tmpl" id="m4-industry">
+<h3>Auth Patterns for Real Network Platforms</h3>
+<h4>Cisco DNAC — Token Auth Pattern</h4>
+<p>DNAC requires a two-step process: POST credentials once to get a JWT token, then use that token in every subsequent call via the <code>X-Auth-Token</code> header. Tokens expire after 60 minutes.</p>
+<h4>Cisco Meraki — API Key Pattern</h4>
+<p>Meraki uses a static API key generated from the Dashboard. The key is passed in the <code>X-Cisco-Meraki-API-Key</code> header. Meraki enforces rate limiting at 10 requests/second per organisation — exceeding this returns 429.</p>
+<div class="note o"><p><strong>Collection-Level Auth Strategy:</strong> Set auth at Collection level. All requests inherit it automatically. For DNAC, put the Bearer Token at collection level — when the token changes (expires), update it in ONE place and all 50 requests in the collection update instantly.</p></div>
+<h4>Security Best Practices</h4>
+<ul>
+<li>Always use the <strong>Current Value</strong> column for real credentials — Current Value is never synced to Postman cloud</li>
+<li>Put placeholder text like <code>ENTER_TOKEN_HERE</code> in Initial Value (shared with team)</li>
+<li>Never put production passwords in Initial Value — teammates can see it</li>
+</ul>
+</script>
+
+<script type="text/x-tmpl" id="m4-practical">
+<h3>Auth Configuration Examples</h3>
+<div class="cb"><div class="ch"><span class="lg">Postman Auth Setup</span><span class="fn">Each platform</span></div><pre><span class="cm">── IOS-XE RESTCONF (Basic Auth) ─────────────────</span>
+Auth Tab → Type: Basic Auth
+  Username : developer
+  Password : C1sco12345
+
+<span class="cm">── Cisco DNAC (Bearer Token) ─────────────────────</span>
+Auth Tab → Type: Bearer Token
+  Token : &lt;paste value from POST /auth/token response&gt;
+
+<span class="cm">── Cisco Meraki (API Key) ────────────────────────</span>
+Auth Tab → Type: API Key
+  Key    : X-Cisco-Meraki-API-Key
+  Value  : 6bec40cf957de430a6f1f2baa056b99a4fac9ea0
+  Add to : Header
+
+<span class="cm">── Collection-Level Auth (Best Practice) ─────────</span>
+1. Click collection name → Edit → Auth tab
+2. Set auth type (e.g., Bearer Token, Basic Auth)
+3. In each request → Auth tab → select:
+   <span class="st">"Inherit auth from parent"</span></pre></div>
+<div class="cb"><div class="ch"><span class="lg">Postman Config</span><span class="fn">Getting a DNAC Token Manually</span></div><pre>Method   : <span class="kw">POST</span>
+URL      : https://sandboxdnac.cisco.com/dna/system/api/v1/auth/token
+Auth     : Basic Auth → devnetuser / Cisco123!
+Body     : none (leave empty)
+Expected : { "Token": "eyJhbGci..." }
+
+→ Copy the Token value
+→ Paste into your collection's Bearer Token field
+→ All child requests now use this token automatically</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-flow">
+<h3>Auth Selection Flow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 o">Which platform?</div></div>
+  <div style="height:8px"></div>
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <div class="fr"><div class="fn2 b">IOS-XE RESTCONF → Basic Auth (username/password on every call)</div></div>
+    <div class="fr"><div class="fn2 g">Cisco DNAC → Bearer Token (POST once, get token, reuse 60 min)</div></div>
+    <div class="fr"><div class="fn2 y">Cisco Meraki → API Key header (X-Cisco-Meraki-API-Key)</div></div>
+    <div class="fr"><div class="fn2 p">Webex / Cloud → OAuth 2.0 (Postman manages the full flow)</div></div>
+  </div>
+</div>
+<h4>DNAC Token Auth Flow</h4>
+<div class="fb">
+  <div class="fr"><div class="fn2 b">POST /auth/token + Basic Auth</div><div class="fa">→</div><div class="fn2 g">Receive JWT Token (60 min)</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2">Store token → set as Bearer Token in collection</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 g">All child requests → inherit → send X-Auth-Token automatically</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 r">60 min later → 401 Unauthorized</div><div class="fa">→</div><div class="fn2 y">Re-run token request → update collection token</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m4-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Collection-Level Basic Auth</div><div class="pt">IOS-XE RESTCONF</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Set up Basic Auth at the collection level for the IOS-XE sandbox. Create 3 requests all using "Inherit auth from parent": GET interfaces, GET hostname (native model), GET version. Verify all return 200 OK without individual auth config.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Collection → Edit → Auth tab → Basic Auth → developer / C1sco12345<br>2. Request 1: GET <code>.../restconf/data/ietf-interfaces:interfaces</code> → Auth: Inherit from parent<br>3. Request 2: GET <code>.../restconf/data/Cisco-IOS-XE-native:native/hostname</code> → Auth: Inherit<br>4. Request 3: GET <code>.../restconf/data/Cisco-IOS-XE-native:native/version</code> → Auth: Inherit<br>5. All 3 return 200 OK without any individual auth setup<br><br>Benefit: Change password once at collection level → all 3 requests update automatically.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — DNAC Token Auth</div><div class="pt">Bearer Token Setup</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Get a DNAC token via the POST auth endpoint. Create a new Collection "DNAC Sandbox" with Bearer Token auth at collection level (paste the token). Add a GET devices request that inherits auth. Verify it returns a device list.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. New request: POST <code>https://sandboxdnac.cisco.com/dna/system/api/v1/auth/token</code><br>2. Auth: Basic → devnetuser / Cisco123! → Send → copy the <code>"Token"</code> value<br>3. New Collection "DNAC Sandbox" → Edit → Auth → Bearer Token → paste token<br>4. New request: GET <code>https://sandboxdnac.cisco.com/dna/intent/api/v1/network-device</code><br>5. Auth: Inherit from parent<br>6. Headers: Content-Type=application/json, Accept=application/json<br>7. Send → 200 OK with <code>"response"</code> array of devices</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Auth Failure Scenarios</div><div class="pt">Error Testing</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Intentionally test 3 failure scenarios: (1) wrong password with Basic Auth, (2) expired/invalid Bearer token, (3) missing API key header. Note the exact status code and response body for each case.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Scenario 1 — Wrong Basic Auth password:</strong><br>Status: <strong>401 Unauthorized</strong><br>Body: authentication error message from device<br><br><strong>Scenario 2 — Invalid/expired Bearer Token:</strong><br>Status: <strong>401 Unauthorized</strong><br>Body: token validation failed / expired message<br><br><strong>Scenario 3 — Missing API Key (Meraki):</strong><br>Status: <strong>401 Unauthorized</strong><br>Body: <code>{"errors":["Authorization error"]}</code><br><br>All three return 401. In production Python scripts, always catch 401 to trigger re-authentication logic.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 5 ── -->
+<script type="text/x-tmpl" id="m5-theory">
+<h3>Environments &amp; Variables</h3>
+<p>Variables allow you to write requests once and run them against different targets by simply switching the active environment. This is the most powerful workflow feature in Postman for network teams.</p>
+<h4>Variable Scopes (Highest to Lowest Priority)</h4>
+<table class="tbl"><thead><tr><th>Scope</th><th>Set In</th><th>Use Case</th></tr></thead><tbody>
+<tr><td><strong>Local</strong></td><td>Pre-request script</td><td>Computed values for current request only</td></tr>
+<tr><td><strong>Environment</strong></td><td>Environment panel</td><td>Host, credentials per environment</td></tr>
+<tr><td><strong>Collection</strong></td><td>Collection → Variables</td><td>Base URLs, shared config for the collection</td></tr>
+<tr><td><strong>Global</strong></td><td>Globals panel</td><td>Rarely used — too broad scope</td></tr>
+<tr><td><strong>Data</strong></td><td>CSV/JSON file</td><td>Bulk testing in Collection Runner only</td></tr>
+</tbody></table>
+<h4>Variable Syntax</h4>
+<ul>
+<li>Reference a variable anywhere: <code>{{variable_name}}</code></li>
+<li>In URL: <code>{{base_url}}/restconf/data/ietf-interfaces:interfaces</code></li>
+<li>In headers: <code>{{content_type}}</code></li>
+<li>In scripts: <code>pm.environment.get("base_url")</code></li>
+<li>Set from script: <code>pm.environment.set("token", value)</code></li>
+</ul>
+</script>
+
+<script type="text/x-tmpl" id="m5-industry">
+<h3>Environments for Network Teams</h3>
+<h4>Environment-per-Platform Strategy</h4>
+<p>Create a separate Postman environment for each network platform or lab target. Switch environments to run the same collection against different devices or controllers:</p>
+<div class="note g"><p><strong>Recommended environments for a network team:</strong><br>
+• <em>DNAC-Lab</em> — DevNet sandbox credentials<br>
+• <em>DNAC-Staging</em> — pre-production controller<br>
+• <em>DNAC-Production</em> — read-only token<br>
+• <em>IOS-XE-Sandbox</em> — DevNet always-on sandbox<br>
+• <em>Meraki-DevNet</em> — sandbox API key</p></div>
+<h4>Initial Value vs Current Value — Critical Security Rule</h4>
+<p>Postman environments have two value columns. Understanding the difference prevents credential leakage:</p>
+<div class="note y"><p><strong>Security Rule:</strong> <em>Initial Value</em> is synced to Postman cloud and shared with team members. <em>Current Value</em> is local only and never synced. Always put real passwords and API keys in <strong>Current Value only</strong>. Put placeholder text like <code>ENTER_TOKEN_HERE</code> in Initial Value.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-practical">
+<h3>Environment Setup for Network Labs</h3>
+<div class="cb"><div class="ch"><span class="lg">Postman Environment</span><span class="fn">IOS-XE-Sandbox setup</span></div><pre>Environment Name: IOS-XE Sandbox (DevNet)
+
+Variable        | Initial Value              | Current Value
+----------------+----------------------------+------------------------
+base_url        | https://sandbox-iosxe...   | https://sandbox-iosxe-latest-1.cisco.com
+username        | developer                  | developer
+password        | ENTER_PASSWORD_HERE        | C1sco12345
+content_type    | application/yang-data+json | application/yang-data+json
+restconf_path   | /restconf/data             | /restconf/data</pre></div>
+<div class="cb"><div class="ch"><span class="lg">Request using variables</span><span class="fn">After environment setup</span></div><pre><span class="cm">Before (hardcoded — bad):</span>
+https://sandbox-iosxe-latest-1.cisco.com/restconf/data/ietf-interfaces:interfaces
+
+<span class="cm">After (using variables — good):</span>
+{{base_url}}{{restconf_path}}/ietf-interfaces:interfaces
+
+<span class="cm">Headers:</span>
+Accept       : {{content_type}}
+Content-Type : {{content_type}}
+
+<span class="cm">Auth Basic:</span>
+Username : {{username}}
+Password : {{password}}</pre></div>
+<div class="cb"><div class="ch"><span class="lg">JavaScript</span><span class="fn">Tests tab — saving response data to env var</span></div><pre><span class="cm">// After GET /network-device response, save first device ID</span>
+<span class="kw">const</span> devices = pm.response.<span class="fn">json</span>().response;
+<span class="kw">if</span> (devices &amp;&amp; devices.length &gt; 0) {
+    pm.environment.<span class="fn">set</span>(<span class="st">"device_id"</span>, devices[0].id);
+    pm.environment.<span class="fn">set</span>(<span class="st">"device_ip"</span>, devices[0].managementIpAddress);
+    console.<span class="fn">log</span>(<span class="st">"Saved device ID:"</span>, devices[0].id);
+}</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-flow">
+<h3>Variable Resolution Order</h3>
+<div class="fb">
+  <p style="color:var(--mut);font-size:12px;margin-bottom:8px">When Postman sees <code>{{token}}</code>, it checks in this order:</p>
+  <div class="fr"><div class="fn2 r">1. Local scope (pre-request set)</div><div class="fa">→ not found →</div></div>
+  <div class="fr"><div class="fn2 y">2. Environment (active env vars)</div><div class="fa">→ not found →</div></div>
+  <div class="fr"><div class="fn2">3. Collection (collection variables)</div><div class="fa">→ not found →</div></div>
+  <div class="fr"><div class="fn2 b">4. Global (global variables)</div><div class="fa">→ not found →</div><div class="fn2 r">Unresolved! (shown in red)</div></div>
+</div>
+<h4>Chaining Variables Between Requests</h4>
+<div class="fb">
+  <div class="fr"><div class="fn2 b">Request 1: GET all devices</div><div class="fa">→</div><div class="fn2">Tests: save first device.id to env var "device_id"</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 g">Request 2: GET /network-device/{{device_id}}</div><div class="fa">→</div><div class="fn2">Uses the saved ID automatically</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m5-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Create Environment</div><div class="pt">IOS-XE Variables</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create a Postman environment "IOS-XE Sandbox" with variables: <code>base_url</code>, <code>username</code>, <code>password</code>, <code>content_type</code>. Update your RESTCONF requests to use these variables. Test by changing username to "wronguser" — verify you get 401.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Environments → + → Name: "IOS-XE Sandbox"<br>2. Add variables:<br>&nbsp;&nbsp;• base_url = https://sandbox-iosxe-latest-1.cisco.com<br>&nbsp;&nbsp;• username = developer (current value only)<br>&nbsp;&nbsp;• password = C1sco12345 (current value only)<br>&nbsp;&nbsp;• content_type = application/yang-data+json<br>3. Update request URL to: <code>{{base_url}}/restconf/data/ietf-interfaces:interfaces</code><br>4. Auth Basic → <code>{{username}}</code> / <code>{{password}}</code><br>5. Select env from top-right dropdown → Send → 200 OK<br>6. Change username current value to "wronguser" → Send → 401 Unauthorized</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Multi-Environment Switching</div><div class="pt">Dev vs Prod</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create two environments: "Sandbox" (DevNet URL) and "Prod-Sim" (https://httpbin.org). Use the same collection with <code>{{base_url}}</code> in URLs. Switch environments and observe how the requests target different servers with zero code changes.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Environment "Sandbox": base_url = https://sandbox-iosxe-latest-1.cisco.com<br>2. Environment "Prod-Sim": base_url = https://httpbin.org<br>3. Request URL: <code>{{base_url}}/get</code><br>4. Select "Sandbox" → URL resolves to sandbox URL → Send (needs RESTCONF endpoint)<br>5. Select "Prod-Sim" → URL resolves to httpbin.org/get → Send → 200 OK<br><br>Key insight: same collection, same requests, different targets by switching environment — this is exactly how network teams manage dev/staging/prod with the same runbook.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Request Chaining</div><div class="pt">Variable Passing Between Requests</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Chain two requests: (1) GET all interfaces → save the first interface name to env var <code>iface_name</code>. (2) GET that specific interface using <code>{{iface_name}}</code> in the URL. Run both in sequence and verify request 2 uses the name saved by request 1.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Request 1 — GET all interfaces, Tests tab:</strong><br><code>const data = pm.response.json();</code><br><code>const ifaces = data["ietf-interfaces:interfaces"]["interface"];</code><br><code>pm.environment.set("iface_name", ifaces[0].name);</code><br><code>console.log("Saved interface:", ifaces[0].name);</code><br><br><strong>Request 2 — GET specific interface:</strong><br>URL: <code>{{base_url}}/restconf/data/ietf-interfaces:interfaces/interface={{iface_name}}</code><br><br>Send Request 1 first → check env vars panel → iface_name is populated → Send Request 2 → it fetches that exact interface. This is request chaining — foundational for automated workflows.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 6 ── -->
+<script type="text/x-tmpl" id="m6-theory">
+<h3>JavaScript in Postman</h3>
+<p>Postman provides two JS execution hooks per request: <strong>Pre-request Script</strong> runs before the request is sent, and <strong>Tests</strong> runs after the response arrives. Both use the <code>pm</code> (Postman) API object.</p>
+<h4>Pre-request Script Use Cases</h4>
+<ul>
+<li>Auto-generate auth tokens before each request</li>
+<li>Set timestamps or computed values as variables</li>
+<li>Generate dynamic payloads (unique interface names, random IPs)</li>
+<li>Conditionally skip requests based on environment state</li>
+</ul>
+<h4>Tests (Assertions) Use Cases</h4>
+<ul>
+<li>Assert status code is 200 / 201 / 204</li>
+<li>Assert response body contains expected fields or values</li>
+<li>Assert response time is under a threshold (SLA)</li>
+<li>Extract and save data to environment variables for chaining</li>
+</ul>
+<h4>pm API Quick Reference</h4>
+<table class="tbl"><thead><tr><th>Method</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>pm.response.json()</code></td><td>Parse response body as JSON</td></tr>
+<tr><td><code>pm.response.code</code></td><td>HTTP status code (number)</td></tr>
+<tr><td><code>pm.response.responseTime</code></td><td>Response time in milliseconds</td></tr>
+<tr><td><code>pm.environment.set(k, v)</code></td><td>Set an environment variable</td></tr>
+<tr><td><code>pm.environment.get(k)</code></td><td>Read an environment variable</td></tr>
+<tr><td><code>pm.test(name, fn)</code></td><td>Define a named test assertion</td></tr>
+<tr><td><code>pm.expect(value)</code></td><td>Chai.js BDD assertion chain</td></tr>
+<tr><td><code>pm.sendRequest(opts, cb)</code></td><td>Make a sub-request from a script</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m6-industry">
+<h3>Scripts in Network Automation Workflows</h3>
+<h4>Auto Token Refresh — Most Valuable Pattern</h4>
+<p>The most useful pre-request script for network engineers: automatically fetch a fresh DNAC/FMC token before each API call. This eliminates manual copy-paste of tokens and handles expiry transparently.</p>
+<div class="note o"><p><strong>Industry Pattern:</strong> Cisco DevNet's official DNAC Postman collection uses this exact pattern — a pre-request script at the <em>collection level</em> that auto-authenticates before every request. Once set up, you never manually manage tokens again.</p></div>
+<h4>Test Assertions in Network Context</h4>
+<p>Writing Postman tests for network APIs lets you validate that:</p>
+<ul>
+<li>All expected devices are present in the inventory response</li>
+<li>Interface status matches what was configured (enabled = true after PATCH)</li>
+<li>Controller response time is within SLA (under 2 seconds)</li>
+<li>Config changes were applied correctly — check returned body</li>
+</ul>
+</script>
+
+<script type="text/x-tmpl" id="m6-practical">
+<h3>Pre-request Scripts &amp; Tests Code</h3>
+<div class="cb"><div class="ch"><span class="lg">JavaScript</span><span class="fn">Collection Pre-request Script — Auto DNAC Token</span></div><pre><span class="cm">// Runs BEFORE every request in the collection
+// Fetches a new DNAC token if missing or expired</span>
+
+<span class="kw">const</span> tokenExpiry = pm.environment.<span class="fn">get</span>(<span class="st">"token_expiry"</span>);
+<span class="kw">const</span> now         = Date.<span class="fn">now</span>();
+<span class="kw">const</span> needsToken  = !pm.environment.<span class="fn">get</span>(<span class="st">"dnac_token"</span>)
+                   || now &gt; parseInt(tokenExpiry || 0);
+
+<span class="kw">if</span> (needsToken) {
+    <span class="kw">const</span> baseUrl  = pm.environment.<span class="fn">get</span>(<span class="st">"base_url"</span>);
+    <span class="kw">const</span> username = pm.environment.<span class="fn">get</span>(<span class="st">"username"</span>);
+    <span class="kw">const</span> password = pm.environment.<span class="fn">get</span>(<span class="st">"password"</span>);
+    <span class="kw">const</span> creds    = <span class="fn">btoa</span>(username + <span class="st">":"</span> + password);
+
+    pm.<span class="fn">sendRequest</span>({
+        url    : baseUrl + <span class="st">"/dna/system/api/v1/auth/token"</span>,
+        method : <span class="st">"POST"</span>,
+        header : { <span class="st">"Authorization"</span>: <span class="st">"Basic "</span> + creds }
+    }, <span class="kw">function</span>(err, res) {
+        <span class="kw">if</span> (!err) {
+            <span class="kw">const</span> token = res.<span class="fn">json</span>().Token;
+            pm.environment.<span class="fn">set</span>(<span class="st">"dnac_token"</span>, token);
+            pm.environment.<span class="fn">set</span>(<span class="st">"token_expiry"</span>, Date.<span class="fn">now</span>() + 3300000);
+            console.<span class="fn">log</span>(<span class="st">"Token refreshed OK"</span>);
+        }
+    });
+}</pre></div>
+<div class="cb"><div class="ch"><span class="lg">JavaScript</span><span class="fn">Tests Tab — Network API Assertions</span></div><pre><span class="cm">// Test 1: Status code is 200</span>
+pm.<span class="fn">test</span>(<span class="st">"Status is 200 OK"</span>, <span class="kw">function</span>() {
+    pm.response.to.have.<span class="fn">status</span>(200);
+});
+
+<span class="cm">// Test 2: Response time under 2 seconds (SLA)</span>
+pm.<span class="fn">test</span>(<span class="st">"Response under 2s SLA"</span>, <span class="kw">function</span>() {
+    pm.<span class="fn">expect</span>(pm.response.responseTime).to.be.<span class="fn">below</span>(2000);
+});
+
+<span class="cm">// Test 3: Response body has expected keys</span>
+pm.<span class="fn">test</span>(<span class="st">"Response has device list"</span>, <span class="kw">function</span>() {
+    <span class="kw">const</span> json = pm.response.<span class="fn">json</span>();
+    pm.<span class="fn">expect</span>(json).to.have.<span class="fn">property</span>(<span class="st">"response"</span>);
+    pm.<span class="fn">expect</span>(json.response).to.be.<span class="fn">an</span>(<span class="st">"array"</span>);
+    pm.<span class="fn">expect</span>(json.response.length).to.be.<span class="fn">above</span>(0);
+});
+
+<span class="cm">// Test 4: Save first device ID to environment</span>
+<span class="kw">const</span> devices = pm.response.<span class="fn">json</span>().response;
+<span class="kw">if</span> (devices &amp;&amp; devices.length &gt; 0) {
+    pm.environment.<span class="fn">set</span>(<span class="st">"first_device_id"</span>, devices[0].id);
+    pm.<span class="fn">test</span>(<span class="st">"First device reachable"</span>, <span class="kw">function</span>() {
+        pm.<span class="fn">expect</span>(devices[0].reachabilityStatus).to.<span class="fn">equal</span>(<span class="st">"Reachable"</span>);
+    });
+}</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-flow">
+<h3>Script Execution Timeline</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 b">Collection Pre-request Script (runs for ALL requests)</div></div>
+  <div style="height:4px"></div>
+  <div class="fr" style="padding-left:16px"><div class="fn2">Folder Pre-request Script (runs for folder's requests)</div></div>
+  <div style="height:4px"></div>
+  <div class="fr" style="padding-left:32px"><div class="fn2 o">Request Pre-request Script (this request only)</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 g" style="width:100%">HTTP Request is Sent ──────────── Response arrives</div></div>
+  <div style="height:6px"></div>
+  <div class="fr" style="padding-left:32px"><div class="fn2 p">Request Tests (this request)</div></div>
+  <div style="height:4px"></div>
+  <div class="fr" style="padding-left:16px"><div class="fn2">Folder Tests</div></div>
+  <div style="height:4px"></div>
+  <div class="fr"><div class="fn2 b">Collection Tests (runs for ALL requests)</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m6-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Write Basic Tests</div><div class="pt">Status &amp; SLA</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Add 4 tests to your IOS-XE GET interfaces request: (1) status is 200, (2) response time under 3000ms, (3) response JSON has key <code>ietf-interfaces:interfaces</code>, (4) interface list has at least one item.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>In the Tests tab of GET interfaces request:<br><code>pm.test("Status 200", function() {</code><br>&nbsp;&nbsp;<code>pm.response.to.have.status(200);</code><br><code>});</code><br><code>pm.test("Fast response", function() {</code><br>&nbsp;&nbsp;<code>pm.expect(pm.response.responseTime).to.be.below(3000);</code><br><code>});</code><br><code>pm.test("Has interfaces key", function() {</code><br>&nbsp;&nbsp;<code>pm.expect(pm.response.json()).to.have.property("ietf-interfaces:interfaces");</code><br><code>});</code><br><code>pm.test("At least one interface", function() {</code><br>&nbsp;&nbsp;<code>const ifaces = pm.response.json()["ietf-interfaces:interfaces"]["interface"];</code><br>&nbsp;&nbsp;<code>pm.expect(ifaces.length).to.be.above(0);</code><br><code>});</code><br><br>Run → Tests tab in response → all 4 show green checkmarks ✓</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Pre-request Script</div><div class="pt">Dynamic Interface Name</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Write a pre-request script that generates a unique loopback name using the last 3 digits of the current timestamp (e.g. <code>Loopback847</code>). Save it as <code>loopback_name</code> environment variable. Use it in a RESTCONF POST body to create a uniquely named interface each time.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Pre-request Script:</strong><br><code>var ts = Date.now().toString();</code><br><code>var suffix = ts.slice(-3);</code><br><code>pm.environment.set("loopback_name", "Loopback" + suffix);</code><br><code>console.log("Will create: Loopback" + suffix);</code><br><br><strong>Body (raw JSON):</strong><br><code>{"ietf-interfaces:interface":{"name":"{{loopback_name}}","type":"iana-if-type:softwareLoopback","enabled":true}}</code><br><br>Each time you send, a different Loopback number is created. Check the env vars panel to see what name was generated.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Auto Token Script</div><div class="pt">DNAC Collection Script</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Set up the auto-token pre-request script at Collection level for DNAC. Verify by: (1) deleting the <code>dnac_token</code> env var current value, (2) sending any DNAC request, (3) checking console shows "Token refreshed OK" and the request succeeds with 200.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. DNAC Collection → Edit → Pre-request Scripts → paste the auto-token script from Practical tab<br>2. Environment: base_url=https://sandboxdnac.cisco.com, username=devnetuser, password=Cisco123!<br>3. Collection Header: X-Auth-Token = {{dnac_token}}<br>4. Clear token: env var dnac_token → delete current value<br>5. Open Console (View → Postman Console)<br>6. Send any DNAC GET request<br>7. Console shows: "Token refreshed OK" then request shows 200 OK<br>8. Check env vars: dnac_token is now populated automatically<br><br>From this point on, you never manually paste tokens again!</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 7 ── -->
+<script type="text/x-tmpl" id="m7-theory">
+<h3>Collections as Executable Runbooks</h3>
+<p>A Postman Collection is an ordered group of requests that can be run sequentially as an automated workflow. For network teams, collections serve as executable runbooks — repeatable procedures for common network operations.</p>
+<h4>Collection Structure</h4>
+<ul>
+<li><strong>Collection</strong> (top level) — the full runbook (e.g., "Network Health Check")</li>
+<li><strong>Folders</strong> — logical phases (e.g., "Authentication", "Inventory", "Compliance")</li>
+<li><strong>Requests</strong> — individual API calls in execution order</li>
+</ul>
+<h4>Collection Runner Features</h4>
+<table class="tbl"><thead><tr><th>Feature</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Sequence control</td><td>Run all requests in order, or select specific ones</td></tr>
+<tr><td>Iterations</td><td>Run the collection N times (e.g., for N devices)</td></tr>
+<tr><td>Data files</td><td>Inject CSV/JSON to parametrise each iteration</td></tr>
+<tr><td>Delay</td><td>Wait N ms between requests (for rate limiting)</td></tr>
+<tr><td>Test results</td><td>Pass/Fail summary report for all assertions</td></tr>
+<tr><td>Export</td><td>JSON/HTML report of full run results</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m7-industry">
+<h3>Collections as Network Runbooks</h3>
+<h4>Real-World Collection Examples</h4>
+<div class="note g"><p><strong>"Day 0 Device Onboarding" Collection:</strong><br>1. Authenticate → get token<br>2. Add device to DNAC inventory<br>3. Assign site and building<br>4. Deploy Day-0 configuration template<br>5. Verify device reachability<br>6. Run compliance check and assert pass</p></div>
+<div class="note g"><p><strong>"Nightly Network Health Check" Collection:</strong><br>1. Get all devices → assert count matches expected<br>2. Check each device reachability status<br>3. Check client health score → assert above 80<br>4. Check interface error counters → assert zero errors<br>5. Export pass/fail report</p></div>
+<h4>Data-Driven Testing with CSV</h4>
+<p>The Collection Runner consumes a CSV file where each row is one iteration. For network use: a CSV with device hostnames, then the collection runs the same check for every row. Test 50 devices with a single collection run.</p>
+</script>
+
+<script type="text/x-tmpl" id="m7-practical">
+<h3>Building a Network Health Check Collection</h3>
+<div class="cb"><div class="ch"><span class="lg">Collection Structure</span><span class="fn">Network Health Check</span></div><pre>📁 Network Health Check
+  📁 01 - Authentication
+      🔹 POST Get DNAC Token      (Tests: save token to env var)
+  📁 02 - Inventory
+      🔹 GET All Devices          (Tests: count &gt; 0)
+      🔹 GET Unreachable Devices  (Tests: assert count = 0)
+  📁 03 - Health Scores
+      🔹 GET Client Health        (Tests: score &gt; 80)
+      🔹 GET Network Health       (Tests: score &gt; 90)
+  📁 04 - Interface Audit
+      🔹 GET Interface Status     (Tests: no errored interfaces)</pre></div>
+<div class="cb"><div class="ch"><span class="lg">CSV</span><span class="fn">devices.csv — Data file for Collection Runner</span></div><pre>hostname,ip,expected_status
+SW-CORE-01,10.1.1.1,Reachable
+SW-ACCESS-01,10.1.1.2,Reachable
+RT-WAN-01,10.1.1.3,Reachable</pre></div>
+<div class="cb"><div class="ch"><span class="lg">JavaScript</span><span class="fn">Tests — Using CSV data variables</span></div><pre><span class="cm">// pm.iterationData = current CSV row data</span>
+<span class="kw">const</span> expectedHost   = pm.iterationData.<span class="fn">get</span>(<span class="st">"hostname"</span>);
+<span class="kw">const</span> expectedStatus = pm.iterationData.<span class="fn">get</span>(<span class="st">"expected_status"</span>);
+
+pm.<span class="fn">test</span>(<span class="st">"Device reachability check"</span>, <span class="kw">function</span>() {
+    <span class="kw">const</span> devices = pm.response.<span class="fn">json</span>().response;
+    <span class="kw">const</span> device  = devices.<span class="fn">find</span>(<span class="kw">function</span>(d) {
+        <span class="kw">return</span> d.hostname === expectedHost;
+    });
+    pm.<span class="fn">expect</span>(device, <span class="st">"Device not found"</span>).to.exist;
+    pm.<span class="fn">expect</span>(device.reachabilityStatus).to.<span class="fn">equal</span>(expectedStatus);
+});</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-flow">
+<h3>Collection Runner Workflow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 o">Open Collection Runner (click ▶ Run on collection)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">Configure: Environment, Iterations, Delay, Data file (CSV)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 b">Request 1: Auth → get token → save to env var</div></div>
+  <div style="height:4px"></div>
+  <div class="fr"><div class="fn2">Request 2: Get Devices → run tests → pass / fail logged</div></div>
+  <div style="height:4px"></div>
+  <div class="fr"><div class="fn2">Request 3: Health Check → run tests → pass / fail logged</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g">Results: N passed / N failed — exportable HTML/JSON report</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m7-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — 3-Request Runbook</div><div class="pt">Workflow Chain</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Build a 3-request collection: (1) GET all interfaces → save first interface name to env var, (2) GET that specific interface → verify 200, (3) PATCH its description → verify 204. Run via Collection Runner and verify all tests pass.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Request 1 — GET all interfaces, Tests:</strong><br><code>var ifaces = pm.response.json()["ietf-interfaces:interfaces"]["interface"];</code><br><code>pm.environment.set("target_iface", ifaces[0].name);</code><br><code>pm.test("Got interfaces", function() { pm.expect(ifaces.length).to.be.above(0); });</code><br><br><strong>Request 2 — GET specific:</strong><br>URL: <code>{{base_url}}/restconf/data/ietf-interfaces:interfaces/interface={{target_iface}}</code><br>Test: <code>pm.test("Found", function() { pm.response.to.have.status(200); });</code><br><br><strong>Request 3 — PATCH description:</strong><br>Body: <code>{"ietf-interfaces:interface":{"name":"{{target_iface}}","description":"Updated by Runner"}}</code><br>Test: <code>pm.test("Updated", function() { pm.response.to.have.status(204); });</code><br><br>Runner: select all 3, env=IOS-XE Sandbox, Run → all green ✓</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — CSV Data File</div><div class="pt">Data-Driven Testing</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create a CSV with 3 rows of interface names. Write a collection request that uses <code>{{interface_name}}</code> from the data file to GET each interface. Run via Collection Runner with the CSV, 3 iterations. Verify each iteration fetches a different interface.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>CSV file (interfaces.csv):</strong><br><code>interface_name</code><br><code>GigabitEthernet1</code><br><code>GigabitEthernet2</code><br><code>Loopback0</code><br><br><strong>Request URL:</strong><br><code>{{base_url}}/restconf/data/ietf-interfaces:interfaces/interface={{interface_name}}</code><br><br><strong>Tests tab:</strong><br><code>var name = pm.iterationData.get("interface_name");</code><br><code>pm.test(name + " returns 200", function() { pm.response.to.have.status(200); });</code><br><br><strong>Runner config:</strong> Data → select interfaces.csv → Iterations auto-set to 3, Delay: 300ms → Run → 3 iterations, different interface each time.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 8 ── -->
+<script type="text/x-tmpl" id="m8-theory">
+<h3>Newman — Postman CLI Runner</h3>
+<p>Newman is the official Postman command-line runner. It executes Postman collections from the terminal — no GUI required. This enables integration with CI/CD pipelines, scheduled cron jobs, and full automation workflows.</p>
+<h4>Why Newman for Network Automation?</h4>
+<ul>
+<li>Run API test suites automatically after network changes</li>
+<li>Integrate with Jenkins, GitLab CI, GitHub Actions pipelines</li>
+<li>Schedule nightly network health checks via Linux cron</li>
+<li>Generate HTML and JUnit reports for compliance evidence</li>
+<li>Run headlessly on automation servers — no desktop required</li>
+</ul>
+<div class="cb"><div class="ch"><span class="lg">Shell</span><span class="fn">Newman install &amp; basic usage</span></div><pre><span class="cm"># Install Newman globally via npm</span>
+npm install -g newman
+npm install -g newman-reporter-htmlextra
+
+<span class="cm"># Basic run</span>
+newman run my_collection.json
+
+<span class="cm"># Run with environment file</span>
+newman run my_collection.json -e ios_xe_sandbox.json
+
+<span class="cm"># Run with CSV data file</span>
+newman run my_collection.json -d devices.csv
+
+<span class="cm"># Full run with HTML report</span>
+newman run my_collection.json \
+  -e sandbox.json \
+  --reporters htmlextra \
+  --reporter-htmlextra-export report.html</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-industry">
+<h3>Newman in Network CI/CD Pipelines</h3>
+<h4>Post-Change Validation Pipeline</h4>
+<p>After every network change (VLAN add, route update, ACL push), Newman automatically runs a Postman collection that verifies the change was applied correctly and no unintended side effects occurred. This is Network-as-Code validation.</p>
+<div class="note o"><p><strong>Pipeline flow:</strong> Git push → Ansible/Terraform applies change → Newman runs Postman collection → Tests pass → Merge approved. Tests fail → Alert sent to NOC → Rollback triggered automatically.</p></div>
+<h4>CI/CD Tool Integrations</h4>
+<table class="tbl"><thead><tr><th>CI/CD Tool</th><th>Integration Method</th></tr></thead><tbody>
+<tr><td>Jenkins</td><td>Execute Shell step: <code>newman run ...</code></td></tr>
+<tr><td>GitLab CI</td><td>Job using node:alpine image + newman install</td></tr>
+<tr><td>GitHub Actions</td><td>postman/newman action in workflow YAML</td></tr>
+<tr><td>Cron (Linux)</td><td>Scheduled <code>newman run ...</code> + email on failure</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m8-practical">
+<h3>Newman in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Shell</span><span class="fn">Full Newman run with all options</span></div><pre><span class="cm"># Export from Postman: Collection → ⋯ → Export → v2.1
+# Export environment: Environments → ⋯ → Export</span>
+
+newman run NetworkHealthCheck.postman_collection.json \
+  --environment IOS_XE_Sandbox.postman_environment.json \
+  --iteration-data devices.csv \
+  --delay-request 200 \
+  --timeout-request 10000 \
+  --reporters cli,htmlextra,junit \
+  --reporter-htmlextra-export reports/health.html \
+  --reporter-junit-export reports/results.xml</pre></div>
+<div class="cb"><div class="ch"><span class="lg">YAML</span><span class="fn">GitLab CI — .gitlab-ci.yml</span></div><pre>network-health-test:
+  stage: validate
+  image: node:18-alpine
+  before_script:
+    - npm install -g newman newman-reporter-htmlextra
+  script:
+    - newman run collections/NetworkHealth.json
+        --environment envs/sandbox.json
+        --reporters cli,htmlextra
+        --reporter-htmlextra-export report.html
+  artifacts:
+    paths: [report.html]
+    expire_in: 7 days
+  only:
+    - main</pre></div>
+<div class="cb"><div class="ch"><span class="lg">Shell</span><span class="fn">Cron — Nightly health check at 2am</span></div><pre><span class="cm"># Runs every night at 2am, emails NOC if tests fail</span>
+0 2 * * * /usr/local/bin/newman run /opt/postman/Health.json \
+  -e /opt/postman/production.json \
+  --reporters htmlextra \
+  --reporter-htmlextra-export /var/www/reports/$(date +\%Y\%m\%d).html \
+  || mail -s "Network Health FAILED" noc@company.com &lt; /dev/null</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-flow">
+<h3>Newman CI/CD Integration Flow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 b">Developer commits network config change to Git</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">CI pipeline triggers (GitLab CI / GitHub Actions)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 y">Ansible / Terraform applies change to network devices</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 o">Newman runs Postman collection against live environment</div></div>
+  <div style="height:5px"></div>
+  <div class="fr">
+    <div class="fn2 g">All tests PASS → deploy approved ✓</div>
+    <div class="fa">&nbsp;or&nbsp;</div>
+    <div class="fn2 r">Tests FAIL → alert NOC, trigger rollback ✗</div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m8-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — First Newman Run</div><div class="pt">CLI Execution</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Export your RESTCONF collection and IOS-XE environment from Postman. Run the collection via Newman from the terminal. Verify the output shows pass/fail results with test names.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Collection → ⋯ → Export → Collection v2.1 → save as <code>restconf.json</code><br>2. Environments → IOS-XE Sandbox → ⋯ → Export → save as <code>iosxe.json</code><br>3. Terminal: <code>npm install -g newman</code><br>4. Run: <code>newman run restconf.json -e iosxe.json</code><br>5. CLI output shows:<br>&nbsp;&nbsp;• Each request name with status code<br>&nbsp;&nbsp;• Test results: ✓ pass / ✗ fail per assertion<br>&nbsp;&nbsp;• Summary: N requests, N tests, N failures<br>6. Exit code 0 = all pass, exit code 1 = failures (use in shell scripts for conditional logic)</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — HTML Report</div><div class="pt">htmlextra Reporter</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Install <code>newman-reporter-htmlextra</code>. Run your collection with HTML reporting. Open the generated report in a browser. Identify: total requests, pass/fail count, response times, and any failed assertions.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. <code>npm install -g newman-reporter-htmlextra</code><br>2. <code>newman run restconf.json -e iosxe.json --reporters htmlextra --reporter-htmlextra-export report.html</code><br>3. <code>open report.html</code> (Mac) or <code>start report.html</code> (Windows)<br>4. Report contains:<br>&nbsp;&nbsp;• Summary card: total requests, total tests, pass count, fail count, total duration<br>&nbsp;&nbsp;• Per-request detail: status code, response time, body, test assertion results<br>&nbsp;&nbsp;• Failures section: full details of any failed assertions<br>&nbsp;&nbsp;• Timeline chart: visual response time graph across requests<br><br>The HTML report is suitable for sharing with management or attaching to change management tickets.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 9 ── -->
+<script type="text/x-tmpl" id="m9-theory">
+<h3>Postman for Major Network Platforms</h3>
+<p>Each vendor API has its own authentication flow, URL patterns, and content-type requirements. This topic covers practical Postman setup for the most common network platforms encountered in enterprise environments.</p>
+<table class="tbl"><thead><tr><th>Platform</th><th>Auth in Postman</th><th>Key Header</th><th>DevNet Sandbox</th></tr></thead><tbody>
+<tr><td>IOS-XE RESTCONF</td><td>Basic Auth</td><td>Accept: yang+json</td><td>sandbox-iosxe-latest-1.cisco.com</td></tr>
+<tr><td>Cisco DNAC</td><td>Bearer Token (auto via pre-req script)</td><td>X-Auth-Token</td><td>sandboxdnac.cisco.com</td></tr>
+<tr><td>Cisco Meraki</td><td>API Key in Header</td><td>X-Cisco-Meraki-API-Key</td><td>api.meraki.com (sandbox key)</td></tr>
+<tr><td>Arista eAPI</td><td>Basic Auth + JSON-RPC body</td><td>Content-Type: json</td><td>DevNet sandbox</td></tr>
+<tr><td>Palo Alto PAN-OS</td><td>API Key query param</td><td>?key=APIKEY</td><td>—</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m9-industry">
+<h3>Cisco DevNet Official Postman Collections</h3>
+<p>Cisco publishes official, maintained Postman collections for every major platform. These have all endpoints documented, variables configured, and tests pre-written. They are the fastest way to start learning any Cisco API.</p>
+<h4>Where to Find Official Collections</h4>
+<ul>
+<li><strong>Postman Explore:</strong> Search "Cisco" — hundreds of official collections available free</li>
+<li><strong>developer.cisco.com:</strong> API docs include "Run in Postman" buttons</li>
+<li><strong>github.com/CiscoDevNet:</strong> Raw collection JSON files for all platforms</li>
+<li><strong>DevNet Learning Labs:</strong> Collections provided alongside each interactive lab</li>
+</ul>
+<div class="note o"><p><strong>Key Collections to Fork Right Now:</strong><br>
+• Cisco DNA Center API v2<br>
+• Cisco Meraki Dashboard API v1<br>
+• Cisco IOS XE RESTCONF<br>
+• Cisco NSO RESTCONF/NETCONF<br>
+• Cisco FTD / Firepower REST API</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practical">
+<h3>Platform Setup Examples</h3>
+<div class="cb"><div class="ch"><span class="lg">Postman Environment</span><span class="fn">DNAC Complete Setup</span></div><pre>Environment: DNAC-Sandbox
+  base_url     = https://sandboxdnac.cisco.com
+  username     = devnetuser
+  password     = Cisco123!
+  dnac_token   = (empty — auto-populated by pre-req script)
+  token_expiry = (empty — auto-set by pre-req script)
+
+Collection Auth   : No Auth (token goes in header)
+Collection Header : X-Auth-Token: {{dnac_token}}
+Collection Pre-req: Auto-token script (from Topic 6)
+
+Key requests to build:
+  GET /dna/intent/api/v1/network-device
+  GET /dna/intent/api/v1/site
+  GET /dna/intent/api/v1/client-health
+  GET /dna/intent/api/v1/topology/physical-topology</pre></div>
+<div class="cb"><div class="ch"><span class="lg">Postman Environment</span><span class="fn">Meraki Complete Setup</span></div><pre>Environment: Meraki-DevNet
+  base_url   = https://api.meraki.com/api/v1
+  api_key    = 6bec40cf957de430a6f1f2baa056b99a4fac9ea0
+  org_id     = (populated after GET /organizations)
+  network_id = (populated after GET /networks)
+
+Collection Auth: API Key
+  Key    = X-Cisco-Meraki-API-Key
+  Value  = {{api_key}}
+  Add to = Header
+
+Key requests:
+  GET {{base_url}}/organizations
+  GET {{base_url}}/organizations/{{org_id}}/networks
+  GET {{base_url}}/networks/{{network_id}}/devices
+  GET {{base_url}}/networks/{{network_id}}/appliance/vlans</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-flow">
+<h3>New Platform Onboarding Flow</h3>
+<div class="fb">
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <div class="fr"><div class="fn2 g">Step 1: Search DevNet/GitHub for official Postman collection → Fork it</div></div>
+    <div class="fr"><div class="fn2">Step 2: Create environment with base_url and credentials</div></div>
+    <div class="fr"><div class="fn2 b">Step 3: Configure collection-level auth (Basic/Bearer/API Key)</div></div>
+    <div class="fr"><div class="fn2 y">Step 4: Add auto-token pre-request script if token-based</div></div>
+    <div class="fr"><div class="fn2">Step 5: Test one GET request → verify 200 OK</div></div>
+    <div class="fr"><div class="fn2 p">Step 6: Add Tests assertions to each request → save to collection</div></div>
+    <div class="fr"><div class="fn2 o">Step 7: Export → version control in Git → share with team</div></div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — DNAC Full Setup</div><div class="pt">End-to-End Configuration</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Set up a complete DNAC collection: environment variables, auto-token pre-request script, and 4 GET requests (devices, sites, client-health, topology). All must use inherited auth via environment variables. All must return 200 OK.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Environment:</strong> base_url=https://sandboxdnac.cisco.com, username=devnetuser, password=Cisco123!, dnac_token=(empty)<br><br><strong>Collection Pre-req Script:</strong> Auto-token script from Topic 6 (checks expiry, fetches new token if needed)<br><br><strong>Collection Header:</strong> X-Auth-Token: {{dnac_token}}<br><br><strong>Request 1:</strong> GET {{base_url}}/dna/intent/api/v1/network-device<br><strong>Request 2:</strong> GET {{base_url}}/dna/intent/api/v1/site<br><strong>Request 3:</strong> GET {{base_url}}/dna/intent/api/v1/client-health<br><strong>Request 4:</strong> GET {{base_url}}/dna/intent/api/v1/topology/physical-topology<br><br>All use Auth: Inherit from parent. All return 200 OK. Token is fetched automatically.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Meraki Chained Requests</div><div class="pt">API Key + Variable Chaining</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Set up a Meraki collection with API key auth. Chain 3 requests: (1) GET organizations → save org ID, (2) GET networks for that org → save first network ID, (3) GET devices in that network. All IDs passed via environment variables.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Environment:</strong> base_url=https://api.meraki.com/api/v1, api_key=6bec40cf957de430a6f1f2baa056b99a4fac9ea0<br><br><strong>Collection Auth:</strong> API Key → X-Cisco-Meraki-API-Key: {{api_key}} → Header<br><br><strong>Request 1 — GET /organizations, Tests:</strong><br><code>var orgs = pm.response.json();</code><br><code>pm.environment.set("org_id", orgs[0].id);</code><br><code>pm.test("Got orgs", function() { pm.expect(orgs.length).to.be.above(0); });</code><br><br><strong>Request 2 — GET /organizations/{{org_id}}/networks, Tests:</strong><br><code>var nets = pm.response.json();</code><br><code>pm.environment.set("network_id", nets[0].id);</code><br><br><strong>Request 3 — GET /networks/{{network_id}}/devices:</strong><br>Tests: <code>pm.test("Got devices", function() { pm.response.to.have.status(200); });</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 10 ── -->
+<script type="text/x-tmpl" id="m10-theory">
+<h3>Postman Mock Servers</h3>
+<p>A Mock Server creates a simulated API endpoint that returns predefined responses. You can build and test automation scripts against a mock without needing a real device or controller.</p>
+<h4>When to Use Mock Servers</h4>
+<ul>
+<li><strong>Learning:</strong> Practice API calls without a real sandbox or production system</li>
+<li><strong>Parallel development:</strong> Develop Python scripts before the real API is ready</li>
+<li><strong>Testing error scenarios:</strong> Simulate 401, 429, 503, and network timeouts</li>
+<li><strong>Offline development:</strong> Work on API scripts without VPN or sandbox access</li>
+<li><strong>Training labs:</strong> Give students a consistent, always-available API target</li>
+</ul>
+<h4>Postman API Documentation</h4>
+<p>Postman auto-generates documentation from your collection. Every request becomes a documented endpoint with parameter descriptions, examples, and sample responses. Published as a live URL, it becomes a team-wide API reference that is always up to date because it is generated from the same collection used for testing.</p>
+</script>
+
+<script type="text/x-tmpl" id="m10-industry">
+<h3>Mocks &amp; Documentation in Network Teams</h3>
+<h4>Training Lab Use Case</h4>
+<div class="note g"><p><strong>Training Scenario:</strong> Instead of relying on DevNet sandboxes (which can be slow, unreachable, or rate-limited), create a Postman mock that simulates DNAC responses. Students practice Python scripts against the mock locally — no internet required, no shared resource contention.</p></div>
+<h4>Error Testing Use Case</h4>
+<div class="note g"><p><strong>QA Testing:</strong> Create a mock that always returns 401, 429, or 503 to test that your Python scripts handle these edge cases correctly. Without a mock, you cannot reliably reproduce these error states on demand.</p></div>
+<h4>Published Documentation</h4>
+<p>Large network teams publish their Postman collection as documentation — every endpoint is documented with examples, parameters, and expected responses. New team members can immediately see all available API operations and start using them without waiting for someone to explain the API.</p>
+</script>
+
+<script type="text/x-tmpl" id="m10-practical">
+<h3>Creating a Mock DNAC Server</h3>
+<div class="cb"><div class="ch"><span class="lg">Postman Steps</span><span class="fn">Creating a mock server</span></div><pre>1. Open your DNAC collection
+2. Collection → ⋯ (3 dots) → Mock Collection
+3. Name: "DNAC Mock" → Create Mock Server
+4. You receive a URL like: https://abc123.mock.pstmn.io
+
+5. Add example responses to each request:
+   - Open GET /network-device → click "Add Example"
+   - Set status: 200
+   - Paste sample JSON response body
+   - Save
+
+6. Test against the mock:
+   - Set environment base_url = https://abc123.mock.pstmn.io
+   - Send any GET request → returns your saved example response</pre></div>
+<div class="cb"><div class="ch"><span class="lg">JSON</span><span class="fn">Sample mock response — GET /network-device</span></div><pre>{
+  "response": [
+    {
+      "hostname"              : "SW-CORE-01",
+      "managementIpAddress"  : "10.1.1.1",
+      "platformId"           : "C9300-24P",
+      "softwareVersion"      : "17.3.5",
+      "reachabilityStatus"   : "Reachable"
+    },
+    {
+      "hostname"              : "RT-WAN-01",
+      "managementIpAddress"  : "10.1.1.2",
+      "platformId"           : "ASR1001-X",
+      "softwareVersion"      : "17.6.1",
+      "reachabilityStatus"   : "Unreachable"
+    }
+  ],
+  "version": "1.0"
+}</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-flow">
+<h3>Mock Server Workflow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2">Collection with requests + saved example responses</div><div class="fa">→</div><div class="fn2 o">Create Mock → unique URL assigned</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 b">Python script OR Postman request → points to mock URL</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 g">Mock returns your saved example response — no real device needed</div></div>
+</div>
+<h4>Force Specific Error Response</h4>
+<table class="tbl"><thead><tr><th>Header to Add to Request</th><th>Effect on Mock</th></tr></thead><tbody>
+<tr><td><code>x-mock-response-code: 401</code></td><td>Mock returns 401 Unauthorized example</td></tr>
+<tr><td><code>x-mock-response-code: 429</code></td><td>Mock returns 429 Rate Limited example</td></tr>
+<tr><td><code>x-mock-response-code: 503</code></td><td>Mock returns 503 Service Unavailable example</td></tr>
+<tr><td><code>x-mock-response-name: "success"</code></td><td>Mock returns the example named "success"</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m10-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Create a Mock Server</div><div class="pt">Simulate DNAC API</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create a Postman mock simulating DNAC. Add example responses for: GET /network-device (3 fake devices) and GET /site (2 fake sites). Update your environment to point to the mock URL. Verify your collection works against it.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. DNAC Collection → ⋯ → Mock Collection → Name it → Create<br>2. Copy the mock URL (e.g., https://xyz.mock.pstmn.io)<br>3. On GET /network-device: click Add Example → Status 200 → paste 3-device JSON body → Save<br>4. On GET /site: click Add Example → Status 200 → paste 2-site JSON body → Save<br>5. Create environment "DNAC-Mock" → base_url = mock URL<br>6. Switch to DNAC-Mock environment → Send GET /network-device → returns your fake devices<br>7. No auth needed for mock (unless you add auth to examples)<br><br>Python test: replace DNAC_HOST with mock URL → same Python script works against mock.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Simulate Error Responses</div><div class="pt">Testing Error Handling</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Add a 401 error example to your mock GET /network-device. Use the <code>x-mock-response-code: 401</code> header to force the mock to return it. Verify the response is 401 and write a Postman test that asserts this specific error scenario.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. GET /network-device → Examples → Add Example → name: "401 Error"<br>2. Status code: 401 → body: <code>{"errors":["Unauthorized - token invalid or expired"]}</code> → Save<br>3. In your request Headers tab, add: <code>x-mock-response-code: 401</code><br>4. Send → mock returns 401 with error body<br>5. Tests tab assertion:<br><code>pm.test("401 error handled", function() { pm.response.to.have.status(401); });</code><br><code>pm.test("Error message present", function() {</code><br>&nbsp;&nbsp;<code>pm.expect(pm.response.json()).to.have.property("errors");</code><br><code>});</code><br><br>This lets you test ALL error scenarios without touching a real device — critical for robust Python error handler testing.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 11 ── -->
+<script type="text/x-tmpl" id="m11-theory">
+<h3>Advanced Postman Scripting</h3>
+<p>Beyond basic tests, Postman's JavaScript engine supports complex workflows: conditional branching, looping until a condition is met, request chaining, and response visualisation.</p>
+<h4>setNextRequest — Dynamic Flow Control</h4>
+<p><code>postman.setNextRequest("Request Name")</code> controls which request runs next in the Collection Runner. This enables:</p>
+<ul>
+<li><strong>Skipping:</strong> If device is unreachable → skip config push → jump to error handler</li>
+<li><strong>Looping:</strong> Poll a task status endpoint until the task completes</li>
+<li><strong>Branching:</strong> If device type is router → run router checks; if switch → run switch checks</li>
+<li><strong>Stopping:</strong> <code>postman.setNextRequest(null)</code> ends the runner immediately</li>
+</ul>
+<h4>Visualize Tab</h4>
+<p>The Visualize tab renders custom HTML and charts from response data using JavaScript. Useful for creating a quick device health dashboard view during API exploration — without building a separate tool.</p>
+</script>
+
+<script type="text/x-tmpl" id="m11-industry">
+<h3>Advanced Patterns in Production Workflows</h3>
+<h4>Async Operation Polling (DNAC Pattern)</h4>
+<p>DNAC operations like template deployment are asynchronous — you POST the operation and receive a Task ID. You must then poll <code>GET /task/{taskId}</code> repeatedly until the task status changes from "pending" to "success" or "failed". <code>setNextRequest</code> enables this polling loop in Postman's Collection Runner.</p>
+<div class="note o"><p><strong>DNAC Async Pattern in Postman:</strong><br>1. POST deploy template → receive taskId → save to env var<br>2. GET /task/{{taskId}} → check status in Tests<br>3. If status = "pending" → setNextRequest("Check Task") → loops back to step 2<br>4. If status = "success" → setNextRequest(null) → run ends successfully<br>5. If status = "failed" → setNextRequest("Handle Error") → branches to error request</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practical">
+<h3>Advanced Scripting Examples</h3>
+<div class="cb"><div class="ch"><span class="lg">JavaScript</span><span class="fn">Tests tab — Polling with setNextRequest</span></div><pre><span class="cm">// In "Check Task Status" request Tests tab</span>
+<span class="kw">const</span> taskData = pm.response.<span class="fn">json</span>().response;
+<span class="kw">const</span> isError  = taskData.isError;
+<span class="kw">const</span> progress = taskData.progress;
+
+<span class="kw">var</span> retries = parseInt(pm.environment.<span class="fn">get</span>(<span class="st">"poll_retries"</span>) || 0);
+
+<span class="kw">if</span> (!isError &amp;&amp; progress !== <span class="st">"completed"</span> &amp;&amp; retries &lt; 10) {
+    pm.environment.<span class="fn">set</span>(<span class="st">"poll_retries"</span>, retries + 1);
+    console.<span class="fn">log</span>(<span class="st">"Polling attempt: "</span> + (retries + 1));
+    postman.<span class="fn">setNextRequest</span>(<span class="st">"Check Task Status"</span>); <span class="cm">// loop back</span>
+
+} <span class="kw">else if</span> (!isError &amp;&amp; progress === <span class="st">"completed"</span>) {
+    pm.environment.<span class="fn">set</span>(<span class="st">"poll_retries"</span>, 0);
+    pm.<span class="fn">test</span>(<span class="st">"Task completed"</span>, <span class="kw">function</span>() {
+        pm.<span class="fn">expect</span>(<span class="kw">true</span>).to.be.<span class="kw">true</span>;
+    });
+    postman.<span class="fn">setNextRequest</span>(<span class="kw">null</span>); <span class="cm">// end run</span>
+
+} <span class="kw">else</span> {
+    pm.<span class="fn">test</span>(<span class="st">"Task failed"</span>, <span class="kw">function</span>() {
+        pm.<span class="fn">expect</span>(isError).to.be.<span class="kw">false</span>; <span class="cm">// will fail, alerting us</span>
+    });
+    postman.<span class="fn">setNextRequest</span>(<span class="st">"Handle Error"</span>);
+}</pre></div>
+<div class="cb"><div class="ch"><span class="lg">JavaScript</span><span class="fn">Visualize tab — Device health table</span></div><pre><span class="kw">const</span> devices = pm.response.<span class="fn">json</span>().response || [];
+<span class="kw">var</span> rows = <span class="st">""</span>;
+devices.<span class="fn">forEach</span>(<span class="kw">function</span>(d) {
+    <span class="kw">var</span> colour = d.reachabilityStatus === <span class="st">"Reachable"</span> ? <span class="st">"#3fb950"</span> : <span class="st">"#f85149"</span>;
+    rows += <span class="st">"&lt;tr style='color:"</span> + colour + <span class="st">"'&gt;"</span>
+          + <span class="st">"&lt;td&gt;"</span> + d.hostname + <span class="st">"&lt;/td&gt;"</span>
+          + <span class="st">"&lt;td&gt;"</span> + d.managementIpAddress + <span class="st">"&lt;/td&gt;"</span>
+          + <span class="st">"&lt;td&gt;"</span> + d.reachabilityStatus + <span class="st">"&lt;/td&gt;"</span>
+          + <span class="st">"&lt;/tr&gt;"</span>;
+});
+
+pm.visualizer.<span class="fn">set</span>(
+  <span class="st">"&lt;table border='1'&gt;&lt;tr&gt;&lt;th&gt;Host&lt;/th&gt;&lt;th&gt;IP&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;/tr&gt;"</span>
+  + rows + <span class="st">"&lt;/table&gt;"</span>
+);</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-flow">
+<h3>setNextRequest Flow Control</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 o">POST Deploy Template → save taskId to env var</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 b">GET /task/{{taskId}} → check status in Tests</div></div>
+  <div style="height:5px"></div>
+  <div class="fr">
+    <div class="fn2 y">status = "pending" → retries &lt; 10</div>
+    <div class="fa">→</div>
+    <div class="fn2 o">setNextRequest("Check Task")<br><span class="fl">loops back ↑</span></div>
+  </div>
+  <div style="height:4px"></div>
+  <div class="fr">
+    <div class="fn2 g">status = "success"</div>
+    <div class="fa">→</div>
+    <div class="fn2 p">setNextRequest(null) — end run ✓</div>
+  </div>
+  <div style="height:4px"></div>
+  <div class="fr">
+    <div class="fn2 r">status = "failed" OR retries maxed</div>
+    <div class="fa">→</div>
+    <div class="fn2 r">setNextRequest("Handle Error")</div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Conditional Branching</div><div class="pt">setNextRequest</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Build a collection with 3 requests: "Check Device", "Reachable Path", "Unreachable Path". In "Check Device" Tests, use setNextRequest to route to the correct path based on the device's reachabilityStatus field.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>"Check Device" Tests tab:</strong><br><code>var devices = pm.response.json().response;</code><br><code>var device = devices[0];</code><br><code>pm.environment.set("device_status", device.reachabilityStatus);</code><br><code>if (device.reachabilityStatus === "Reachable") {</code><br>&nbsp;&nbsp;<code>console.log("Routing to: Reachable Path");</code><br>&nbsp;&nbsp;<code>postman.setNextRequest("Reachable Path");</code><br><code>} else {</code><br>&nbsp;&nbsp;<code>console.log("Routing to: Unreachable Path");</code><br>&nbsp;&nbsp;<code>postman.setNextRequest("Unreachable Path");</code><br><code>}</code><br><br><strong>"Reachable Path":</strong> GET interface status, assert 200<br><strong>"Unreachable Path":</strong> pm.test("ALERT: device down", function() { pm.expect(false).to.be.true; }) — forces a visible failure in the run report</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Visualise Response Data</div><div class="pt">HTML Table</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Add a Visualize script to GET /network-device that renders an HTML table: hostname, IP, reachability status (green if Reachable, red if not), software version. View it in the Visualize tab of the response.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>In the Visualize tab of GET /network-device:<br><code>var devices = pm.response.json().response || [];</code><br><code>var rows = "";</code><br><code>devices.forEach(function(d) {</code><br>&nbsp;&nbsp;<code>var c = d.reachabilityStatus === "Reachable" ? "green" : "red";</code><br>&nbsp;&nbsp;<code>rows += "&lt;tr style='color:" + c + "'&gt;&lt;td&gt;" + d.hostname + "&lt;/td&gt;&lt;td&gt;" + d.managementIpAddress + "&lt;/td&gt;&lt;td&gt;" + d.reachabilityStatus + "&lt;/td&gt;&lt;td&gt;" + (d.softwareVersion||"N/A") + "&lt;/td&gt;&lt;/tr&gt;";</code><br><code>});</code><br><code>pm.visualizer.set("&lt;style&gt;table{border-collapse:collapse}th,td{border:1px solid #555;padding:6px;font-size:12px;font-family:monospace}th{background:#333}&lt;/style&gt;&lt;table&gt;&lt;tr&gt;&lt;th&gt;Hostname&lt;/th&gt;&lt;th&gt;IP&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;th&gt;Version&lt;/th&gt;&lt;/tr&gt;" + rows + "&lt;/table&gt;");</code><br><br>Click Visualize tab → formatted HTML table with colour-coded status rows.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ── TOPIC 12 ── -->
+<script type="text/x-tmpl" id="m12-theory">
+<h3>Postman for Team Collaboration</h3>
+<p>Postman Workspaces enable teams to share collections, environments, and documentation in real time. Changes sync automatically — when a team member updates a collection, everyone sees it immediately.</p>
+<h4>Workspace Types</h4>
+<table class="tbl"><thead><tr><th>Workspace</th><th>Access</th><th>Best For</th></tr></thead><tbody>
+<tr><td><strong>Personal</strong></td><td>Only you</td><td>Learning, drafting, experimenting</td></tr>
+<tr><td><strong>Team</strong></td><td>Invited members only</td><td>Shared runbooks within the network team</td></tr>
+<tr><td><strong>Partner</strong></td><td>Internal + external guests</td><td>Vendor collaboration and integration projects</td></tr>
+<tr><td><strong>Public</strong></td><td>Anyone on the internet</td><td>Official API documentation (Cisco DevNet uses this)</td></tr>
+</tbody></table>
+<h4>Version Control in Postman</h4>
+<ul>
+<li><strong>Fork:</strong> Create a copy of a collection to work on independently (like a Git branch)</li>
+<li><strong>Pull Request:</strong> Propose changes from your fork to be merged back (like a Git PR)</li>
+<li><strong>Diff view:</strong> Review exactly what changed before merging</li>
+<li><strong>Tags/Versions:</strong> Mark milestone releases of a collection</li>
+</ul>
+</script>
+
+<script type="text/x-tmpl" id="m12-industry">
+<h3>Postman in Enterprise Network Teams</h3>
+<div class="note o"><p><strong>Recommended Team Structure:</strong><br>
+• One Team Workspace per network platform (DNAC, Meraki, IOS-XE)<br>
+• Senior engineers own and maintain the main collections<br>
+• Junior engineers fork → make changes → submit Pull Request for review<br>
+• CI/CD (Newman) runs against the main collection on every merge<br>
+• Published documentation auto-updates from the collection</p></div>
+<h4>Postman + Git Workflow</h4>
+<p>Collections exported as JSON can be stored in Git alongside Ansible playbooks and Terraform configs — the same Infrastructure-as-Code repository. This gives full version history, code review via pull requests, and CI integration for every change.</p>
+<h4>Postman Monitors</h4>
+<p>Monitors run collections on a schedule (every 5 minutes to daily) from Postman's cloud infrastructure. This provides continuous API health monitoring — you receive alerts when any network API endpoint goes down or starts returning errors, without building a separate monitoring system.</p>
+</script>
+
+<script type="text/x-tmpl" id="m12-practical">
+<h3>CI/CD Full Integration Example</h3>
+<div class="cb"><div class="ch"><span class="lg">YAML</span><span class="fn">GitHub Actions — Full network validation pipeline</span></div><pre>name: Network API Validation
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *'    # Nightly at 2am
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Network Health Checks
+        env:
+          DNAC_PASS: ${{ secrets.DNAC_PASSWORD }}
+        run: |
+          sed -i "s/DNAC_PASS_PLACEHOLDER/$DNAC_PASS/g" envs/prod.json
+          newman run collections/NetworkHealth.json \
+            --environment envs/prod.json \
+            --reporters cli,htmlextra,junit \
+            --reporter-htmlextra-export reports/health.html \
+            --reporter-junit-export reports/results.xml
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: network-health-report
+          path: reports/
+
+      - name: Alert on Failure
+        if: failure()
+        run: |
+          curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+            -d '{"text":"Network health check FAILED!"}'</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m12-flow">
+<h3>Complete Team Collaboration Workflow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 b">Senior engineer creates Collection in Team Workspace</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">Team Workspace auto-sync → all team members see it</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 y">Junior engineer forks collection → makes additions</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 o">Pull Request created → Senior reviews diff → approves / requests changes</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">Merged → collection exported to Git repo (JSON)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g">GitHub Actions → Newman runs nightly → Slack alert if any test fails</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m12-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Team Workspace Setup</div><div class="pt">Collaboration Workflow</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create a Team Workspace "Network Automation Team". Move your best collection to it. Invite a classmate. Have the classmate fork the collection, add one new request, and create a Pull Request. Review and merge it.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Workspaces → Create Workspace → Team → "Network Automation Team"<br>2. Your collection → ⋯ → Move to Workspace → select "Network Automation Team"<br>3. Workspace Settings → Invite → enter classmate's email → Send Invite<br>4. Classmate: sees the collection → ⋯ → Fork Collection → creates their copy<br>5. Classmate adds a new GET request → ⋯ on their fork → Create Pull Request<br>6. Original owner: Collection → ⋯ → Pull Requests → view diff → Approve → Merge<br>7. The new request appears in the main collection<br><br>This mirrors exactly how network teams manage collaborative runbook development at enterprise scale.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Git Export &amp; Newman</div><div class="pt">Infrastructure as Code</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Export your collection and environment as JSON. Create a Git repository. Add both JSON files plus a README with instructions for running Newman. Clone the repo on a different directory and run newman successfully.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p>1. Collection → ⋯ → Export → v2.1 → save as <code>network_checks.postman_collection.json</code><br>2. Environment → ⋯ → Export → save as <code>sandbox.postman_environment.json</code><br>3. <code>mkdir network-postman && cd network-postman && git init</code><br>4. Copy both JSON files into the folder<br>5. Create README.md:<br><code># Network Automation Tests</code><br><code>## Prerequisites: npm install -g newman newman-reporter-htmlextra</code><br><code>## Run: newman run network_checks.postman_collection.json -e sandbox.postman_environment.json --reporters htmlextra --reporter-htmlextra-export report.html</code><br>6. <code>git add . && git commit -m "Add Postman network automation tests"</code><br>7. Clone to new directory → follow README → Newman runs successfully</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone Lab — Full End-to-End</div><div class="pt">Complete Module Project</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p><strong>Full capstone:</strong> Build a "Network Day-2 Operations" Postman collection with: (1) auto-token auth, (2) 6+ requests across DNAC + IOS-XE, (3) at least 3 tests on every request, (4) environment variables throughout, (5) export and run via Newman with HTML report.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Collection Structure:</strong><br>📁 Auth → Pre-req script auto-token (DNAC)<br>📁 Inventory → GET devices, GET sites, GET topology<br>📁 Health → GET client-health, GET network-health<br>📁 Device Config → GET interfaces (RESTCONF), PATCH description<br><br><strong>Tests on every request:</strong> status code check, response time under 3s, required JSON key present<br><br><strong>Environment:</strong> base_url, dnac_base, username, password, iosxe_base (all vars)<br><br><strong>Newman run command:</strong><br><code>newman run Day2-Operations.json -e sandbox.json --reporters cli,htmlextra --reporter-htmlextra-export capstone.html</code><br><br><strong>Success criteria:</strong> All tests green ✓, HTML report generated, zero failures. This collection IS your executable Day-2 network operations runbook.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════ -->
+<script>
+/* ── Module metadata (no HTML content here — stored in templates above) ── */
+var M = [
+  {id:1,  title:"Introduction to Postman",           level:"basic"},
+  {id:2,  title:"Postman Interface Deep Dive",        level:"basic"},
+  {id:3,  title:"HTTP Requests in Postman",           level:"basic"},
+  {id:4,  title:"Authentication in Postman",          level:"basic"},
+  {id:5,  title:"Environments & Variables",           level:"intermediate"},
+  {id:6,  title:"Pre-request Scripts & Tests",        level:"intermediate"},
+  {id:7,  title:"Collections & Collection Runner",    level:"intermediate"},
+  {id:8,  title:"Newman – CLI Runner",                level:"intermediate"},
+  {id:9,  title:"Postman for Network APIs",           level:"intermediate"},
+  {id:10, title:"Mock Servers & Documentation",       level:"advanced"},
+  {id:11, title:"Advanced Workflows & Scripting",     level:"advanced"},
+  {id:12, title:"Team Collaboration & CI/CD",         level:"advanced"}
+];
+
+var cur = 0;
+var curTab = 'theory';
+var TABS = ['theory','industry','practical','flow','practice'];
+
+/* ── Get content from inert template elements ── */
+function getSection(id, section) {
+  var el = document.getElementById('m' + id + '-' + section);
+  return el ? el.textContent : '<p style="color:var(--mut)">Content not found.</p>';
+}
+
+/* ── Render sidebar list ── */
+function renderSidebar() {
+  var html = '';
+  for (var i = 0; i < M.length; i++) {
+    var m = M[i];
+    html += '<div class="ti' + (i === cur ? ' active' : '') + '" onclick="selectTopic(' + i + ')">'
+          + '<span class="tn">' + String(m.id).padStart(2,'0') + '</span>'
+          + '<span class="tt">' + m.title + '</span>'
+          + '<span class="lbg lb-' + m.level + '">' + m.level + '</span>'
+          + '</div>';
+  }
+  document.getElementById('tlist').innerHTML = html;
+}
+
+/* ── Render main content ── */
+function renderContent() {
+  var m = M[cur];
+  document.getElementById('ttl').textContent = m.title;
+  var lb = document.getElementById('tlvl');
+  lb.textContent = m.level;
+  lb.className = 'lbg lb-' + m.level;
+  lb.style.display = 'inline-block';
+  for (var i = 0; i < TABS.length; i++) {
+    document.getElementById(TABS[i]).innerHTML = getSection(m.id, TABS[i]);
+  }
+  document.getElementById('sft').textContent = 'Topic ' + m.id + ' of ' + M.length + '  ·  ' + m.level;
+}
+
+/* ── Select a topic ── */
+function selectTopic(i) {
+  cur = i;
+  renderSidebar();
+  renderContent();
+  switchTab('theory');
+  document.getElementById('ct').scrollTop = 0;
+  closeSidebar();
+}
+
+/* ── Switch content tab ── */
+function switchTab(tab) {
+  curTab = tab;
+  var secs = document.querySelectorAll('.sec');
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < secs.length; i++) { secs[i].classList.remove('active'); }
+  for (var i = 0; i < tabs.length; i++) { tabs[i].classList.remove('active'); }
+  document.getElementById(tab).classList.add('active');
+  var tabIdx = TABS.indexOf(tab);
+  if (tabIdx >= 0) { tabs[tabIdx].classList.add('active'); }
+  document.getElementById('ct').scrollTop = 0;
+}
+
+/* ── Wire tab clicks ── */
+document.querySelectorAll('.tab').forEach(function(el) {
+  el.addEventListener('click', function() { switchTab(el.getAttribute('data-tab')); });
+});
+
+/* ── Practice accordion toggle ── */
+function tP(header) {
+  var body = header.nextElementSibling;
+  var chev = header.querySelector('.chv');
+  var isOpen = body.style.display === 'block';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (chev) { chev.classList.toggle('op', !isOpen); }
+}
+
+/* ── Solution toggle ── */
+function tS(btn) {
+  var box = btn.nextElementSibling;
+  var isOpen = box.classList.contains('open');
+  box.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '▶ Show Solution' : '▼ Hide Solution';
+}
+
+/* ── Mobile sidebar ── */
+function openSidebar()  { document.getElementById('sb').classList.add('open'); document.getElementById('ovl').classList.add('open'); }
+function closeSidebar() { document.getElementById('sb').classList.remove('open'); document.getElementById('ovl').classList.remove('open'); }
+document.getElementById('hbg').addEventListener('click', function() {
+  document.getElementById('sb').classList.contains('open') ? closeSidebar() : openSidebar();
+});
+document.getElementById('ovl').addEventListener('click', closeSidebar);
+
+/* ── Init ── */
+renderSidebar();
+renderContent();
+</script>
+</body>
+</html>
