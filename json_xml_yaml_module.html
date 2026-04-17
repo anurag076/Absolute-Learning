@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON, XML & YAML – Network Automation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--sb:#161b22;--sur:#1f2937;--bdr:#30363d;
+  --txt:#c9d1d9;--mut:#8b949e;--brt:#e6edf3;
+  --blu:#58a6ff;--grn:#3fb950;--yel:#e3b341;--red:#f85149;--pur:#d2a8ff;
+  --org:#ffa657;
+  --jc:#f7c948;--xc:#e06c75;--yc:#56b6c2;
+  --sw:275px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+.topnav{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--sb);border-bottom:1px solid var(--bdr);min-height:50px;flex-shrink:0}
+.hbg{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;border:none;background:none;flex-shrink:0}
+.hbg span{display:block;width:20px;height:2px;background:var(--txt);border-radius:2px}
+.topnav h1{font-size:13px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.topnav h1 .j{color:var(--jc)}.topnav h1 .x{color:var(--xc)}.topnav h1 .y{color:var(--yc)}
+.topnav .sep{color:var(--bdr)}
+.topnav h2{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layout{display:flex;flex:1;overflow:hidden;position:relative}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--sb);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:transform .25s,box-shadow .25s;flex-shrink:0}
+.sb-inner{flex:1;overflow-y:auto}
+.sb-head{padding:12px 14px;border-bottom:1px solid var(--bdr);background:var(--bg)}
+.sb-head p{font-size:11px;color:var(--mut);margin-top:2px}
+.sb-head strong{color:var(--jc)}
+.ti{padding:9px 14px;cursor:pointer;border-left:3px solid transparent;display:flex;align-items:flex-start;gap:8px;transition:all .15s}
+.ti:hover{background:var(--sur);color:var(--brt)}
+.ti.active{background:var(--sur);border-left-color:var(--jc);color:var(--jc)}
+.ti .tn{font-size:10px;color:var(--mut);min-width:18px;font-weight:700;padding-top:1px}
+.ti .tt{font-size:12px;line-height:1.4;flex:1}
+.lbg{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.lb-basic{background:#0d3b2e;color:#3fb950}
+.lb-intermediate{background:#2d1f0e;color:#e3b341}
+.lb-advanced{background:#2d1225;color:#f778ba}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bdr);font-size:11px;color:var(--mut)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tabs{display:flex;padding:0 4px;background:var(--bg);border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 12px;cursor:pointer;font-size:12px;color:var(--mut);border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--jc);border-bottom-color:var(--jc)}
+.content{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
+.sec{display:none}.sec.active{display:block}
+h3{font-size:15px;font-weight:600;color:var(--brt);margin-bottom:10px;margin-top:22px}
+h3:first-child{margin-top:0}
+h4{font-size:12.5px;font-weight:600;color:var(--blu);margin:14px 0 6px}
+p{line-height:1.7;color:var(--txt);margin-bottom:10px}
+ul,ol{padding-left:18px;margin-bottom:10px}
+li{line-height:1.9}
+code{background:var(--sur);color:var(--org);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+strong{color:var(--brt);font-weight:600}
+em{color:var(--yel);font-style:normal;font-weight:500}
+.note{background:var(--sb);border-left:3px solid var(--blu);padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0}
+.note.g{border-left-color:var(--grn)}.note.y{border-left-color:var(--yel)}.note.r{border-left-color:var(--red)}
+.note.j{border-left-color:var(--jc)}.note.x{border-left-color:var(--xc)}.note.yc{border-left-color:var(--yc)}
+.note p{margin:0;font-size:13px;line-height:1.7}
+.cb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ch{background:var(--sur);padding:6px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.ch .lg{font-size:11px;font-weight:700;font-family:monospace}
+.ch .lg.j{color:var(--jc)}.ch .lg.x{color:var(--xc)}.ch .lg.y{color:var(--yc)}.ch .lg.py{color:var(--blu)}.ch .lg.sh{color:var(--grn)}
+.ch .fn{font-size:10px;color:var(--mut)}
+pre{padding:14px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;line-height:1.9;color:var(--brt)}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.cm{color:#8b949e;font-style:italic}
+.nm{color:#79c0ff}.vr{color:#ffa657}.jk{color:var(--jc)}.xk{color:var(--xc)}.yk{color:var(--yc)}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+.tbl th{background:var(--sur);color:var(--mut);font-weight:600;text-align:left;padding:7px 10px;border:1px solid var(--bdr);font-size:11px;text-transform:uppercase}
+.tbl td{padding:7px 10px;border:1px solid var(--bdr);vertical-align:top;line-height:1.6}
+.tbl tr:nth-child(even) td{background:var(--sb)}
+.fb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin:10px 0}
+.fr{display:flex;align-items:flex-start;gap:6px;margin:5px 0;flex-wrap:wrap}
+.fn2{background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--brt);line-height:1.4}
+.fn2.b{border-color:#388bfd;color:var(--blu);background:#0d2038}
+.fn2.g{border-color:var(--grn);color:var(--grn);background:#0d2d1a}
+.fn2.y{border-color:var(--yel);color:var(--yel);background:#2d2008}
+.fn2.r{border-color:var(--red);color:var(--red);background:#2d0f0f}
+.fn2.j{border-color:var(--jc);color:var(--jc);background:#2d2600}
+.fn2.xc{border-color:var(--xc);color:var(--xc);background:#2d1215}
+.fn2.yc{border-color:var(--yc);color:var(--yc);background:#0d2028}
+.fa{color:var(--mut);font-size:14px;padding-top:5px;flex-shrink:0}
+.fl{font-size:10px;color:var(--mut);margin-top:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.card{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px}
+.card h5{font-size:12px;font-weight:700;margin-bottom:6px}
+.card.j{border-color:var(--jc)}.card.j h5{color:var(--jc)}
+.card.xc{border-color:var(--xc)}.card.xc h5{color:var(--xc)}
+.card.yc{border-color:var(--yc)}.card.yc h5{color:var(--yc)}
+.card p{font-size:12px;margin:0;line-height:1.6}
+.pi{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ph{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.ph:hover{background:var(--sur)}
+.pn{color:var(--jc);font-weight:700;font-size:12.5px}
+.pt{font-size:10px;color:var(--mut);margin-top:2px}
+.pb{padding:0 14px 14px;border-top:1px solid var(--bdr)}
+.pb p{margin:8px 0 0;font-size:13px;line-height:1.7}
+.stb{background:none;border:1px solid var(--bdr);color:var(--mut);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px;margin-top:10px;transition:all .15s;display:inline-block}
+.stb:hover{border-color:var(--grn);color:var(--grn)}
+.sb2{display:none;margin-top:10px;background:var(--bg);border:1px solid var(--grn);border-radius:6px;padding:12px}
+.sb2.open{display:block}
+.sb2 p{margin:0;font-size:12.5px;color:var(--txt);line-height:1.7}
+.chv{font-size:10px;color:var(--mut);transition:transform .2s}
+.chv.op{transform:rotate(180deg)}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;margin:2px;font-weight:700}
+.bj{background:#2d2600;color:var(--jc)}.bx{background:#2d1215;color:var(--xc)}.by{background:#0d2028;color:var(--yc)}
+.bg{background:#0d2d1a;color:var(--grn)}.br{background:#2d0f0f;color:var(--red)}
+.compare-row{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:0;border:1px solid var(--bdr);border-radius:8px;overflow:hidden;margin:10px 0;font-size:12px}
+.cr-head{background:var(--sur);padding:8px 10px;border-bottom:1px solid var(--bdr);font-weight:700;font-size:11px;text-transform:uppercase;color:var(--mut)}
+.cr-cell{padding:8px 10px;border-bottom:1px solid var(--bdr);border-left:1px solid var(--bdr);line-height:1.5}
+.cr-label{padding:8px 10px;border-bottom:1px solid var(--bdr);color:var(--mut);font-size:11px;font-weight:600}
+@media(max-width:768px){
+  .hbg{display:flex}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:10;transform:translateX(-100%);width:min(var(--sw),88vw);min-width:0}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.5)}
+  .overlay.open{display:block}
+  .g2,.g3{grid-template-columns:1fr}
+  .content{padding:14px}
+  .tbl{font-size:11px}.tbl th,.tbl td{padding:5px 7px}
+  pre{font-size:11px;padding:12px}
+  .tabs .tab{font-size:11px;padding:8px 9px}
+  .topnav h2{font-size:12px}
+  .compare-row{grid-template-columns:1fr}
+}
+@media(max-width:380px){.topnav h1{font-size:10px}.topnav h2{display:none}}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+  <h1><span class="j">JSON</span> · <span class="x">XML</span> · <span class="y">YAML</span></h1>
+  <span class="sep">·</span>
+  <h2 id="ttl">Network Automation Module</h2>
+  <span class="lbg lb-basic" id="tlvl" style="display:none"></span>
+</div>
+<div class="layout">
+  <div class="overlay" id="ovl"></div>
+  <div class="sidebar" id="sb">
+    <div class="sb-inner">
+      <div class="sb-head">
+        <p><strong>Python for Network Automation</strong></p>
+        <p style="margin-top:4px">Module &mdash; JSON, XML &amp; YAML</p>
+      </div>
+      <div id="tlist"></div>
+    </div>
+    <div class="sb-foot" id="sft">Select a topic</div>
+  </div>
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" data-tab="theory">Theory</div>
+      <div class="tab" data-tab="industry">Industry</div>
+      <div class="tab" data-tab="practical">Practical</div>
+      <div class="tab" data-tab="flow">Flow</div>
+      <div class="tab" data-tab="practice">Practice</div>
+    </div>
+    <div class="content" id="ct">
+      <div id="theory"   class="sec active"></div>
+      <div id="industry" class="sec"></div>
+      <div id="practical" class="sec"></div>
+      <div id="flow"     class="sec"></div>
+      <div id="practice" class="sec"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TOPIC 1 ═══════════ -->
+<script type="text/x-tmpl" id="m1-theory">
+<h3>Why Do We Need Data Formats at All?</h3>
+<p>Think about this — when your Python script talks to a Cisco DNAC controller, both sides need to agree on <em>how to package the data</em>. That's all JSON, XML, and YAML are — packaging formats. Like choosing between a box, a bag, or a folder to carry your stuff.</p>
+<p>The device doesn't speak Python. Your script doesn't speak Cisco IOS. But both of them can read JSON. That's the deal.</p>
+<h4>The Three Formats at a Glance</h4>
+<div class="g3">
+  <div class="card j"><h5>JSON</h5><p>The default for REST APIs. Every API response you'll get from DNAC, Meraki, Arista — it's JSON. Clean, compact, Python loves it natively.</p></div>
+  <div class="card xc"><h5>XML</h5><p>The language of NETCONF. Older, more verbose, but rock-solid for structured config. YANG models express themselves in XML.</p></div>
+  <div class="card yc"><h5>YAML</h5><p>The language of Ansible, Nornir, and inventory files. Human-friendly, easy to write by hand. Config as code.</p></div>
+</div>
+<h4>They All Do the Same Job</h4>
+<p>All three represent the same data — just in different styles. Here's the same "interface config" in all three formats:</p>
+<div class="g3">
+  <div class="card j"><h5>JSON</h5><p><code>{"interface": "GigE1",<br>"ip": "10.1.1.1",<br>"enabled": true}</code></p></div>
+  <div class="card xc"><h5>XML</h5><p><code>&lt;interface&gt;<br>&lt;name&gt;GigE1&lt;/name&gt;<br>&lt;ip&gt;10.1.1.1&lt;/ip&gt;<br>&lt;/interface&gt;</code></p></div>
+  <div class="card yc"><h5>YAML</h5><p><code>interface: GigE1<br>ip: 10.1.1.1<br>enabled: true</code></p></div>
+</div>
+<div class="note j"><p><strong>Senior Engineer Take:</strong> You don't get to choose your favourite. The tool chooses for you. NETCONF gives you XML. REST APIs give you JSON. Ansible uses YAML. You need to be comfortable with all three — reading, writing, and parsing them in Python.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-industry">
+<h3>Where Each Format Lives in the Real World</h3>
+<h4>JSON — The REST API World</h4>
+<ul>
+<li>Every Cisco DNAC API call returns JSON</li>
+<li>Meraki Dashboard API — JSON in, JSON out</li>
+<li>Arista eAPI — sends CLI commands, gets back structured JSON</li>
+<li>ServiceNow, Infoblox IPAM, monitoring tools — all JSON APIs</li>
+</ul>
+<h4>XML — The NETCONF World</h4>
+<ul>
+<li>NETCONF protocol (RFC 6241) uses XML for all messages</li>
+<li>Cisco IOS-XE, IOS-XR, Juniper Junos, Nokia SR OS — NETCONF is XML</li>
+<li>RESTCONF can use XML (with <code>application/yang-data+xml</code>)</li>
+<li>Older NMS systems (HP OpenView era) — XML everywhere</li>
+</ul>
+<h4>YAML — The Automation Tool World</h4>
+<ul>
+<li>Ansible playbooks — written in YAML</li>
+<li>Ansible inventory files — YAML</li>
+<li>Nornir host files — YAML</li>
+<li>Docker Compose, Kubernetes configs — YAML</li>
+<li>GitHub Actions CI/CD pipelines — YAML</li>
+</ul>
+<div class="note g"><p><strong>Real scenario:</strong> A typical network automation pipeline reads a YAML inventory file, calls a JSON REST API to get device data, processes NETCONF XML to push config, then logs results back to a JSON file. You'll touch all three in one script.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-practical">
+<h3>Seeing All Three Side by Side in Python</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">all_three_formats.py</span></div><pre><span class="kw">import</span> json, yaml, xml.etree.ElementTree <span class="kw">as</span> ET
+
+<span class="cm"># Same data — device interface info</span>
+device_data = {
+    <span class="st">"hostname"</span>  : <span class="st">"SW-CORE-01"</span>,
+    <span class="st">"interface"</span> : <span class="st">"GigabitEthernet1"</span>,
+    <span class="st">"ip"</span>        : <span class="st">"10.1.1.1"</span>,
+    <span class="st">"enabled"</span>   : <span class="kw">True</span>,
+    <span class="st">"vlan"</span>      : <span class="nm">100</span>
+}
+
+<span class="cm"># ─── JSON ────────────────────────────────────────────</span>
+json_str = json.<span class="fn">dumps</span>(device_data, indent=<span class="nm">2</span>)
+<span class="fn">print</span>(<span class="st">"=== JSON ==="</span>)
+<span class="fn">print</span>(json_str)
+
+<span class="cm"># ─── YAML ────────────────────────────────────────────</span>
+yaml_str = yaml.<span class="fn">dump</span>(device_data, default_flow_style=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="st">"=== YAML ==="</span>)
+<span class="fn">print</span>(yaml_str)
+
+<span class="cm"># ─── XML (manual build) ──────────────────────────────</span>
+xml_str = <span class="st">"""&lt;device&gt;
+  &lt;hostname&gt;SW-CORE-01&lt;/hostname&gt;
+  &lt;interface&gt;GigabitEthernet1&lt;/interface&gt;
+  &lt;ip&gt;10.1.1.1&lt;/ip&gt;
+&lt;/device&gt;"""</span>
+<span class="fn">print</span>(<span class="st">"=== XML ==="</span>)
+<span class="fn">print</span>(xml_str)</pre></div>
+<div class="cb"><div class="ch"><span class="lg sh">Output</span><span class="fn">what you'll see</span></div><pre>=== JSON ===
+{
+  "hostname": "SW-CORE-01",
+  "interface": "GigabitEthernet1",
+  "ip": "10.1.1.1",
+  "enabled": true,
+  "vlan": 100
+}
+
+=== YAML ===
+enabled: true
+hostname: SW-CORE-01
+interface: GigabitEthernet1
+ip: 10.1.1.1
+vlan: 100
+
+=== XML ===
+&lt;device&gt;
+  &lt;hostname&gt;SW-CORE-01&lt;/hostname&gt;
+  &lt;interface&gt;GigabitEthernet1&lt;/interface&gt;
+  &lt;ip&gt;10.1.1.1&lt;/ip&gt;
+&lt;/device&gt;</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-flow">
+<h3>Data Format Decision Map</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2" style="width:100%;text-align:center">What are you working with?</div></div>
+  <div style="height:8px"></div>
+  <div class="fr">
+    <div class="fn2 j">REST API (DNAC, Meraki, Arista)<br><span class="fl">→ You're dealing with JSON</span></div>
+    <div class="fn2 xc">NETCONF / YANG devices<br><span class="fl">→ You're dealing with XML</span></div>
+    <div class="fn2 yc">Ansible / Nornir / inventory<br><span class="fl">→ You're dealing with YAML</span></div>
+  </div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 g" style="width:100%">All roads lead to Python dict — parse any format into Python, manipulate it, write it back out</div></div>
+</div>
+<h4>The Golden Rule in Network Automation</h4>
+<table class="tbl"><thead><tr><th>Step</th><th>What Happens</th></tr></thead><tbody>
+<tr><td>1. <strong>Read</strong></td><td>Parse JSON/XML/YAML → Python dict/list</td></tr>
+<tr><td>2. <strong>Process</strong></td><td>Manipulate data in pure Python — loops, filters, logic</td></tr>
+<tr><td>3. <strong>Write</strong></td><td>Serialize Python dict/list → JSON/XML/YAML → send to device or save to file</td></tr>
+</tbody></table>
+<div class="note j"><p><strong>Once it's in Python, it's just a dict.</strong> Whether it came from JSON, XML, or YAML — after parsing, it's Python objects. That's your power zone.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Format Recognition</div><div class="pt">Identify the format</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Look at these three snippets. For each one, say: (a) which format it is, (b) where you'd encounter it in real network automation, (c) which Python library reads it.<br><br>
+    Snippet A: <code>hostname: R1\ninterfaces:\n  - GigE1\n  - GigE2</code><br>
+    Snippet B: <code>{"hostname":"R1","interfaces":["GigE1","GigE2"]}</code><br>
+    Snippet C: <code>&lt;hostname&gt;R1&lt;/hostname&gt;&lt;interface&gt;GigE1&lt;/interface&gt;</code></p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Snippet A — YAML</strong><br>Found in: Ansible playbooks, Nornir inventory files, CI/CD pipelines<br>Python library: <code>import yaml</code> → <code>yaml.safe_load()</code><br><br><strong>Snippet B — JSON</strong><br>Found in: REST API responses from DNAC, Meraki, Arista eAPI<br>Python library: <code>import json</code> → <code>json.loads()</code> or <code>response.json()</code><br><br><strong>Snippet C — XML</strong><br>Found in: NETCONF messages, RESTCONF with XML content-type, legacy NMS systems<br>Python library: <code>import xml.etree.ElementTree</code> or <code>import xmltodict</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Write the Same Data</div><div class="pt">Multi-format</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Take this router info: hostname=R1, management_ip=192.168.1.1, platform=ASR1001-X, uptime_days=45. Write this out manually (no code) in all three formats: JSON, YAML, and XML. Check that they all represent the same information.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>JSON:</strong><br><code>{"hostname":"R1","management_ip":"192.168.1.1","platform":"ASR1001-X","uptime_days":45}</code><br><br><strong>YAML:</strong><br><code>hostname: R1<br>management_ip: 192.168.1.1<br>platform: ASR1001-X<br>uptime_days: 45</code><br><br><strong>XML:</strong><br><code>&lt;router&gt;&lt;hostname&gt;R1&lt;/hostname&gt;&lt;management_ip&gt;192.168.1.1&lt;/management_ip&gt;&lt;platform&gt;ASR1001-X&lt;/platform&gt;&lt;uptime_days&gt;45&lt;/uptime_days&gt;&lt;/router&gt;</code><br><br>Notice: JSON uses quotes and colons. YAML uses just colons and indentation. XML wraps everything in tags. All represent the same router data.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Real API Response</div><div class="pt">Spot the format</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Open Postman and make a GET call to the IOS-XE RESTCONF sandbox: <code>https://sandbox-iosxe-latest-1.cisco.com/restconf/data/ietf-interfaces:interfaces</code>. Look at the response. What format is it? Now change the Accept header to <code>application/yang-data+xml</code> and resend. What format do you get now?</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>First call (Accept: application/yang-data+json):</strong><br>Response format = <strong>JSON</strong><br>You see: <code>{"ietf-interfaces:interfaces": {"interface": [...]}}</code><br><br><strong>Second call (Accept: application/yang-data+xml):</strong><br>Response format = <strong>XML</strong><br>You see: <code>&lt;interfaces xmlns="..."&gt;&lt;interface&gt;&lt;name&gt;...&lt;/name&gt;&lt;/interface&gt;&lt;/interfaces&gt;</code><br><br>Same data, same device, same RESTCONF endpoint — just different packaging. The Accept header tells the device which format to use. This is why knowing both JSON and XML matters.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 2 ═══════════ -->
+<script type="text/x-tmpl" id="m2-theory">
+<h3>JSON — Let's Break It Down</h3>
+<p>JSON stands for JavaScript Object Notation. Don't let the "JavaScript" part fool you — every modern programming language, including Python, reads and writes JSON natively. It became the web's universal language for data exchange.</p>
+<h4>JSON Building Blocks — Just 6 Types</h4>
+<table class="tbl"><thead><tr><th>JSON Type</th><th>Example</th><th>Python Equivalent</th><th>Network Use Case</th></tr></thead><tbody>
+<tr><td><strong>string</strong></td><td><code>"GigabitEthernet1"</code></td><td>str</td><td>Interface names, hostnames, IPs</td></tr>
+<tr><td><strong>number</strong></td><td><code>100</code> or <code>1500.5</code></td><td>int / float</td><td>VLAN IDs, MTU, bandwidth</td></tr>
+<tr><td><strong>boolean</strong></td><td><code>true</code> / <code>false</code></td><td>True / False</td><td>Interface enabled, shutdown state</td></tr>
+<tr><td><strong>null</strong></td><td><code>null</code></td><td>None</td><td>Missing/empty values</td></tr>
+<tr><td><strong>object {}</strong></td><td><code>{"ip": "10.1.1.1"}</code></td><td>dict</td><td>A device, an interface config</td></tr>
+<tr><td><strong>array []</strong></td><td><code>["GigE1","GigE2"]</code></td><td>list</td><td>List of devices, list of VLANs</td></tr>
+</tbody></table>
+<h4>The Big Gotcha — JSON vs Python Spelling Differences</h4>
+<div class="g2">
+  <div class="note j"><p><strong>JSON writes:</strong> <code>true</code>, <code>false</code>, <code>null</code> (all lowercase)</p></div>
+  <div class="note g"><p><strong>Python writes:</strong> <code>True</code>, <code>False</code>, <code>None</code> (capitalised)</p></div>
+</div>
+<p>Python's <code>json</code> module handles this conversion automatically. You write Python — it converts to JSON. You read JSON — it converts to Python. You don't have to think about it, but you need to know it happens.</p>
+<h4>JSON Rules — The Strict Ones</h4>
+<ul>
+<li>Keys <em>must</em> be strings with double quotes — <code>"key"</code> not <code>'key'</code></li>
+<li>No trailing commas — <code>{"a":1, "b":2}</code> is fine; <code>{"a":1, "b":2,}</code> breaks</li>
+<li>No comments allowed in JSON — it was designed for machines, not humans</li>
+<li>Strings must use double quotes — single quotes will cause a parse error</li>
+</ul>
+</script>
+
+<script type="text/x-tmpl" id="m2-industry">
+<h3>JSON in the Wild — What Real API Responses Look Like</h3>
+<p>Every vendor wraps their JSON slightly differently. Learning to read the structure quickly is a daily skill for a network automation engineer.</p>
+<h4>Cisco DNAC — The "response" Wrapper Pattern</h4>
+<p>DNAC almost always wraps the actual data inside a <code>"response"</code> key. If you forget this, you'll end up iterating over the wrapper instead of the actual data — a classic beginner mistake.</p>
+<div class="cb"><div class="ch"><span class="lg j">JSON</span><span class="fn">DNAC GET /network-device response</span></div><pre>{
+  <span class="jk">"response"</span>: [               <span class="cm">// The actual list is INSIDE "response"</span>
+    {
+      <span class="jk">"hostname"</span>             : <span class="st">"SW-CORE-01"</span>,
+      <span class="jk">"managementIpAddress"</span>  : <span class="st">"10.1.1.1"</span>,
+      <span class="jk">"platformId"</span>           : <span class="st">"C9300-24P"</span>,
+      <span class="jk">"reachabilityStatus"</span>   : <span class="st">"Reachable"</span>,
+      <span class="jk">"softwareVersion"</span>      : <span class="st">"17.3.5"</span>,
+      <span class="jk">"id"</span>                   : <span class="st">"abc-123-def"</span>
+    }
+  ],
+  <span class="jk">"version"</span>: <span class="st">"1.0"</span>           <span class="cm">// Metadata — mostly ignore this</span>
+}</pre></div>
+<h4>Meraki — No Wrapper, Direct Array</h4>
+<p>Meraki returns a plain list at the top level. No wrapper key. Many engineers get confused switching between DNAC and Meraki patterns.</p>
+<div class="cb"><div class="ch"><span class="lg j">JSON</span><span class="fn">Meraki GET /organizations response</span></div><pre>[                             <span class="cm">// Direct array — no "response" wrapper</span>
+  {
+    <span class="jk">"id"</span>  : <span class="st">"123456"</span>,
+    <span class="jk">"name"</span>: <span class="st">"My Network Org"</span>,
+    <span class="jk">"url"</span> : <span class="st">"https://dashboard.meraki.com/o/abc"</span>
+  }
+]</pre></div>
+<div class="note y"><p><strong>Lesson:</strong> Before writing a single line of parsing code, <em>always</em> pretty-print the raw response first. <code>print(json.dumps(r.json(), indent=2))</code> — this saves hours of debugging.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-practical">
+<h3>Working with JSON in Python</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">json_basics.py</span></div><pre><span class="kw">import</span> json
+
+<span class="cm"># ─── String to Python (parsing) ──────────────────────</span>
+json_string = <span class="st">'''
+{
+  "hostname"   : "SW-01",
+  "ip"         : "10.1.1.1",
+  "enabled"    : true,
+  "vlan_list"  : [10, 20, 30],
+  "description": null
+}'''</span>
+
+data = json.<span class="fn">loads</span>(json_string)   <span class="cm"># string → Python dict</span>
+<span class="fn">print</span>(<span class="fn">type</span>(data))               <span class="cm"># &lt;class 'dict'&gt;</span>
+<span class="fn">print</span>(data[<span class="st">"hostname"</span>])         <span class="cm"># SW-01</span>
+<span class="fn">print</span>(data[<span class="st">"enabled"</span>])          <span class="cm"># True  (JSON true → Python True)</span>
+<span class="fn">print</span>(data[<span class="st">"description"</span>])      <span class="cm"># None  (JSON null → Python None)</span>
+<span class="fn">print</span>(data[<span class="st">"vlan_list"</span>][<span class="nm">0</span>])     <span class="cm"># 10</span>
+
+<span class="cm"># ─── Python to String (serializing) ─────────────────</span>
+device = {
+    <span class="st">"hostname"</span>: <span class="st">"R1"</span>,
+    <span class="st">"platform"</span>: <span class="st">"ASR1001-X"</span>,
+    <span class="st">"active"</span>  : <span class="kw">True</span>
+}
+compact = json.<span class="fn">dumps</span>(device)              <span class="cm"># no spaces</span>
+pretty  = json.<span class="fn">dumps</span>(device, indent=<span class="nm">2</span>)  <span class="cm"># nice formatting</span>
+<span class="fn">print</span>(compact)
+<span class="fn">print</span>(pretty)
+
+<span class="cm"># ─── File operations ─────────────────────────────────</span>
+<span class="cm"># Write to file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"devices.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(device, f, indent=<span class="nm">2</span>)
+
+<span class="cm"># Read from file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"devices.json"</span>, <span class="st">"r"</span>) <span class="kw">as</span> f:
+    loaded = json.<span class="fn">load</span>(f)
+<span class="fn">print</span>(loaded[<span class="st">"hostname"</span>])  <span class="cm"># R1</span>
+
+<span class="cm"># ─── Safe access — avoid KeyError crashes ────────────</span>
+ip = data.<span class="fn">get</span>(<span class="st">"management_ip"</span>, <span class="st">"unknown"</span>)  <span class="cm"># default if missing</span>
+<span class="fn">print</span>(ip)  <span class="cm"># unknown</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-flow">
+<h3>JSON Parse Flow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 j">API Response / File (JSON string)</div><div class="fa">→</div><div class="fn2">json.loads() or response.json()</div><div class="fa">→</div><div class="fn2 g">Python dict or list</div></div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 g">Python dict (your data)</div><div class="fa">→</div><div class="fn2">json.dumps()</div><div class="fa">→</div><div class="fn2 j">JSON string (to send/save)</div></div>
+</div>
+<h4>The 4 JSON Functions You'll Actually Use</h4>
+<table class="tbl"><thead><tr><th>Function</th><th>Direction</th><th>When to Use</th></tr></thead><tbody>
+<tr><td><code>json.loads(string)</code></td><td>string → dict</td><td>Parsing a JSON string you received</td></tr>
+<tr><td><code>json.dumps(dict)</code></td><td>dict → string</td><td>Converting Python to JSON to send</td></tr>
+<tr><td><code>json.load(file)</code></td><td>file → dict</td><td>Reading a .json file from disk</td></tr>
+<tr><td><code>json.dump(dict, file)</code></td><td>dict → file</td><td>Saving a .json file to disk</td></tr>
+</tbody></table>
+<div class="note j"><p><strong>Memory trick:</strong> <code>loads</code> / <code>load</code> = loading data IN to Python. <code>dumps</code> / <code>dump</code> = dumping data OUT of Python. The <strong>s</strong> at the end = string version.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Parse and Extract</div><div class="pt">Basic JSON parsing</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Given this JSON string, write Python code to: (a) parse it, (b) print the hostname, (c) print how many interfaces exist, (d) print only the name of the second interface.<br><br>
+    <code>{"hostname":"R1","interfaces":[{"name":"GigE1","ip":"10.1.1.1"},{"name":"GigE2","ip":"10.1.2.1"},{"name":"Loopback0","ip":"1.1.1.1"}]}</code></p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import json</code><br><br><code>raw = '{"hostname":"R1","interfaces":[{"name":"GigE1","ip":"10.1.1.1"},{"name":"GigE2","ip":"10.1.2.1"},{"name":"Loopback0","ip":"1.1.1.1"}]}'</code><br><br><code>data = json.loads(raw)</code><br><br><code>print(data["hostname"])                 # R1</code><br><code>print(len(data["interfaces"]))          # 3</code><br><code>print(data["interfaces"][1]["name"])    # GigE2  (index 1 = second item)</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — DNAC Response Parsing</div><div class="pt">Real-world structure</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Call the DevNet DNAC sandbox <code>GET /dna/intent/api/v1/network-device</code>. Then write Python to: (a) print total device count, (b) print a table of hostname + IP, (c) count how many devices are "Reachable" vs not.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import requests, json</code><br><code>requests.packages.urllib3.disable_warnings()</code><br><br><code># Get token first (Basic auth)</code><br><code>r = requests.post("https://sandboxdnac.cisco.com/dna/system/api/v1/auth/token", auth=("devnetuser","Cisco123!"), verify=False)</code><br><code>token = r.json()["Token"]</code><br><br><code>r = requests.get("https://sandboxdnac.cisco.com/dna/intent/api/v1/network-device", headers={"X-Auth-Token":token}, verify=False)</code><br><br><code>devices = r.json()["response"]  # MUST access "response" key</code><br><br><code>print(f"Total devices: {len(devices)}")</code><br><code>for d in devices:</code><br>&nbsp;&nbsp;<code>print(f"{d['hostname']:20} {d['managementIpAddress']}")</code><br><br><code>reachable = sum(1 for d in devices if d["reachabilityStatus"] == "Reachable")</code><br><code>print(f"Reachable: {reachable} / Unreachable: {len(devices)-reachable}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — JSON File Operations</div><div class="pt">Save and reload</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Query the DNAC device list, save the response to a file called <code>device_inventory.json</code>. Then in a separate script, read that file back and print a simple inventory report — without making another API call.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Script 1 — fetch and save:</strong><br><code>import requests, json</code><br><code># ... (auth + API call as above) ...</code><br><code>devices = r.json()["response"]</code><br><code>with open("device_inventory.json", "w") as f:</code><br>&nbsp;&nbsp;<code>json.dump(devices, f, indent=2)</code><br><code>print(f"Saved {len(devices)} devices to device_inventory.json")</code><br><br><strong>Script 2 — read and report (no API needed):</strong><br><code>import json</code><br><code>with open("device_inventory.json", "r") as f:</code><br>&nbsp;&nbsp;<code>devices = json.load(f)</code><br><code>print(f"Inventory report — {len(devices)} devices")</code><br><code>for d in devices:</code><br>&nbsp;&nbsp;<code>status = "UP" if d["reachabilityStatus"] == "Reachable" else "DOWN"</code><br>&nbsp;&nbsp;<code>print(f"[{status}] {d['hostname']:20} {d['managementIpAddress']}")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 3 ═══════════ -->
+<script type="text/x-tmpl" id="m3-theory">
+<h3>JSON Deep Dive — Nested Data &amp; List Operations</h3>
+<p>Real API responses aren't flat. They're nested — objects inside objects inside arrays. You need to be comfortable navigating this without getting lost or crashing your script.</p>
+<h4>Navigating Nested JSON</h4>
+<div class="cb"><div class="ch"><span class="lg j">JSON</span><span class="fn">A typical nested device response</span></div><pre>{
+  <span class="jk">"response"</span>: [
+    {
+      <span class="jk">"hostname"</span>: <span class="st">"SW-01"</span>,
+      <span class="jk">"location"</span>: {
+        <span class="jk">"site"</span>    : <span class="st">"HQ"</span>,
+        <span class="jk">"building"</span>: <span class="st">"Block-A"</span>,
+        <span class="jk">"floor"</span>   : <span class="nm">3</span>
+      },
+      <span class="jk">"interfaces"</span>: [
+        { <span class="jk">"name"</span>: <span class="st">"GigE1"</span>, <span class="jk">"status"</span>: <span class="st">"up"</span>   },
+        { <span class="jk">"name"</span>: <span class="st">"GigE2"</span>, <span class="jk">"status"</span>: <span class="st">"down"</span> }
+      ]
+    }
+  ]
+}</pre></div>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">Navigating the nesting</span></div><pre>data = response.<span class="fn">json</span>()
+
+device   = data[<span class="st">"response"</span>][<span class="nm">0</span>]         <span class="cm"># first device</span>
+site     = device[<span class="st">"location"</span>][<span class="st">"site"</span>]  <span class="cm"># nested object</span>
+floor    = device[<span class="st">"location"</span>][<span class="st">"floor"</span>] <span class="cm"># number</span>
+iface1   = device[<span class="st">"interfaces"</span>][<span class="nm">0</span>]      <span class="cm"># first interface</span>
+if_name  = iface1[<span class="st">"name"</span>]               <span class="cm"># GigE1</span></pre></div>
+<h4>List Comprehensions — Your Best Friend</h4>
+<p>Instead of writing a for loop just to filter or extract values, list comprehensions do it in one line. Very commonly used in network automation scripts.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">List comprehension patterns</span></div><pre><span class="cm"># Get all hostnames</span>
+hostnames = [d[<span class="st">"hostname"</span>] <span class="kw">for</span> d <span class="kw">in</span> devices]
+
+<span class="cm"># Get only reachable devices</span>
+reachable = [d <span class="kw">for</span> d <span class="kw">in</span> devices
+             <span class="kw">if</span> d[<span class="st">"reachabilityStatus"</span>] == <span class="st">"Reachable"</span>]
+
+<span class="cm"># Get IPs of all switches</span>
+switch_ips = [d[<span class="st">"managementIpAddress"</span>] <span class="kw">for</span> d <span class="kw">in</span> devices
+              <span class="kw">if</span> d.<span class="fn">get</span>(<span class="st">"type"</span>, <span class="st">""</span>) == <span class="st">"Switch"</span>]</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-industry">
+<h3>JSON Parsing Patterns in Production Scripts</h3>
+<h4>The .get() Pattern — Never Crash on Missing Keys</h4>
+<p>Network APIs often return optional fields. If a device doesn't have a description set, the <code>"description"</code> key might just not exist in the response. Hitting <code>device["description"]</code> will crash your script with a <code>KeyError</code>. Use <code>.get()</code> instead — always.</p>
+<div class="note y"><p><strong>Rule of thumb in production:</strong> Use <code>d["key"]</code> only when you're 100% sure the key will always be there (like "hostname" in a device response). For everything else, use <code>d.get("key", "default")</code>.</p></div>
+<h4>Handling Pagination</h4>
+<p>Many network APIs (Meraki, DNAC with large inventories) paginate their responses — they send 500 items at a time. If you call the API once and process what you got, you'll miss the rest. Always check if there's a next page, or use the <code>limit</code> and <code>offset</code> parameters.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">DNAC pagination pattern</span></div><pre>all_devices = []
+offset = <span class="nm">1</span>
+limit  = <span class="nm">500</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    r = session.<span class="fn">get</span>(f<span class="st">"{BASE}/network-device"</span>,
+                   params={<span class="st">"offset"</span>: offset, <span class="st">"limit"</span>: limit})
+    batch = r.<span class="fn">json</span>().<span class="fn">get</span>(<span class="st">"response"</span>, [])
+    <span class="kw">if</span> <span class="kw">not</span> batch:
+        <span class="kw">break</span>
+    all_devices.<span class="fn">extend</span>(batch)
+    offset += limit
+
+<span class="fn">print</span>(f<span class="st">"Total devices: {len(all_devices)}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-practical">
+<h3>Real JSON Parsing — Full Script</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">network_inventory.py</span></div><pre><span class="kw">import</span> requests, json, csv
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+BASE = <span class="st">"https://sandboxdnac.cisco.com"</span>
+
+<span class="cm"># Step 1: Auth</span>
+r = requests.<span class="fn">post</span>(f<span class="st">"{BASE}/dna/system/api/v1/auth/token"</span>,
+                   auth=(<span class="st">"devnetuser"</span>, <span class="st">"Cisco123!"</span>), verify=<span class="kw">False</span>)
+token = r.<span class="fn">json</span>()[<span class="st">"Token"</span>]
+hdrs  = {<span class="st">"X-Auth-Token"</span>: token, <span class="st">"Content-Type"</span>: <span class="st">"application/json"</span>}
+
+<span class="cm"># Step 2: Get devices</span>
+r       = requests.<span class="fn">get</span>(f<span class="st">"{BASE}/dna/intent/api/v1/network-device"</span>,
+                       headers=hdrs, verify=<span class="kw">False</span>)
+devices = r.<span class="fn">json</span>()[<span class="st">"response"</span>]
+
+<span class="cm"># Step 3: Process — filter and extract</span>
+reachable   = [d <span class="kw">for</span> d <span class="kw">in</span> devices
+               <span class="kw">if</span> d[<span class="st">"reachabilityStatus"</span>] == <span class="st">"Reachable"</span>]
+unreachable = [d <span class="kw">for</span> d <span class="kw">in</span> devices
+               <span class="kw">if</span> d[<span class="st">"reachabilityStatus"</span>] != <span class="st">"Reachable"</span>]
+
+<span class="cm"># Step 4: Print report</span>
+<span class="fn">print</span>(f<span class="st">"Total: {len(devices)}  |  Up: {len(reachable)}  |  Down: {len(unreachable)}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nm">60</span>)
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    status = <span class="st">"✓"</span> <span class="kw">if</span> d[<span class="st">"reachabilityStatus"</span>] == <span class="st">"Reachable"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(f<span class="st">"{status} {d['hostname']:20} {d['managementIpAddress']:16} {d.get('platformId','Unknown')}"</span>)
+
+<span class="cm"># Step 5: Export to CSV</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.csv"</span>, <span class="st">"w"</span>, newline=<span class="st">""</span>) <span class="kw">as</span> f:
+    writer = csv.<span class="fn">DictWriter</span>(f, fieldnames=[
+        <span class="st">"hostname"</span>, <span class="st">"managementIpAddress"</span>, <span class="st">"platformId"</span>,
+        <span class="st">"softwareVersion"</span>, <span class="st">"reachabilityStatus"</span>])
+    writer.<span class="fn">writeheader</span>()
+    <span class="kw">for</span> d <span class="kw">in</span> devices:
+        writer.<span class="fn">writerow</span>({k: d.<span class="fn">get</span>(k, <span class="st">""</span>) <span class="kw">for</span> k <span class="kw">in</span> writer.fieldnames})
+<span class="fn">print</span>(<span class="st">"Saved to inventory.csv"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-flow">
+<h3>Safe JSON Navigation Pattern</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 j">API Response JSON string</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">response.json() → top level dict</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 y">data["response"] → the actual list (DNAC pattern)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">for device in list → each device is a dict</div></div>
+  <div style="height:5px"></div>
+  <div class="fr">
+    <div class="fn2 g">device["hostname"] → safe (always exists)</div>
+    <div class="fa">and</div>
+    <div class="fn2 g">device.get("description","") → safe (may not exist)</div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m3-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Filter and Count</div><div class="pt">List comprehensions</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>From the DNAC device list, use list comprehensions to: (a) get a list of all hostnames, (b) get all devices where platformId contains "C93" (Catalyst 9300s), (c) get a dict mapping hostname to IP for all reachable devices.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>devices = r.json()["response"]</code><br><br><strong>a) All hostnames:</strong><br><code>hostnames = [d["hostname"] for d in devices]</code><br><br><strong>b) Catalyst 9300s:</strong><br><code>cat9k = [d for d in devices if "C93" in d.get("platformId","")]</code><br><br><strong>c) Hostname to IP dict (reachable only):</strong><br><code>ip_map = {d["hostname"]: d["managementIpAddress"]</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>for d in devices</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>if d["reachabilityStatus"] == "Reachable"}</code><br><br><code>print(ip_map)  # {"SW-01": "10.1.1.1", "RT-01": "10.1.1.2", ...}</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Nested Data</div><div class="pt">Deep navigation</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Write a function <code>get_device_summary(device_dict)</code> that takes one device dict and safely returns a clean dict with: hostname, ip, platform, version, status. Use <code>.get()</code> for every field with sensible defaults for missing values.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def get_device_summary(d):</code><br>&nbsp;&nbsp;<code>return {</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"hostname": d.get("hostname", "unknown"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"ip"      : d.get("managementIpAddress", "N/A"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"platform": d.get("platformId", "N/A"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"version" : d.get("softwareVersion", "N/A"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"status"  : d.get("reachabilityStatus", "Unknown")</code><br>&nbsp;&nbsp;<code>}</code><br><br><code>for device in devices:</code><br>&nbsp;&nbsp;<code>summary = get_device_summary(device)</code><br>&nbsp;&nbsp;<code>print(f"{summary['hostname']:20} {summary['status']}")</code><br><br>This pattern — a clean summariser function — is used everywhere in production network scripts.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Build and Send JSON</div><div class="pt">Constructing payloads</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Build a Python dict representing a new RESTCONF interface config (Loopback200, description, enabled=True). Convert it to the correct JSON payload format and POST it to the IOS-XE sandbox via RESTCONF. Verify 201 Created.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import requests, json</code><br><code>requests.packages.urllib3.disable_warnings()</code><br><br><code>AUTH = ("developer","C1sco12345")</code><br><code>HDR  = {"Content-Type":"application/yang-data+json","Accept":"application/yang-data+json"}</code><br><code>BASE = "https://sandbox-iosxe-latest-1.cisco.com/restconf/data"</code><br><br><code>payload = {</code><br>&nbsp;&nbsp;<code>"ietf-interfaces:interface": {</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"name"       : "Loopback200",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"description": "Built from Python dict via JSON",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"type"       : "iana-if-type:softwareLoopback",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"enabled"    : True</code><br>&nbsp;&nbsp;<code>}</code><br><code>}</code><br><br><code>r = requests.post(f"{BASE}/ietf-interfaces:interfaces",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>auth=AUTH, headers=HDR, verify=False,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>json=payload)  # json= auto-converts dict to JSON string</code><br><code>print(r.status_code)  # 201 Created</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 4 ═══════════ -->
+<script type="text/x-tmpl" id="m4-theory">
+<h3>XML — Tags, Trees, and Why NETCONF Uses It</h3>
+<p>XML (eXtensible Markup Language) looks more intimidating than it is. If you've seen HTML, XML is the same idea — everything is wrapped in opening and closing tags. The difference is you define your own tags instead of using h1, p, div etc.</p>
+<h4>XML Anatomy</h4>
+<div class="cb"><div class="ch"><span class="lg xc">XML</span><span class="fn">anatomy of an XML document</span></div><pre><span class="cm">&lt;!-- This is a comment --&gt;</span>
+&lt;?xml version=<span class="st">"1.0"</span> encoding=<span class="st">"UTF-8"</span>?&gt;  <span class="cm">&lt;-- declaration (optional)</span>
+
+&lt;<span class="xk">device</span>&gt;                     <span class="cm">&lt;-- opening tag (root element)</span>
+  &lt;<span class="xk">hostname</span>&gt;SW-01&lt;/<span class="xk">hostname</span>&gt;  <span class="cm">&lt;-- element with text content</span>
+  &lt;<span class="xk">ip</span>&gt;10.1.1.1&lt;/<span class="xk">ip</span>&gt;
+  &lt;<span class="xk">enabled</span>&gt;true&lt;/<span class="xk">enabled</span>&gt;
+  &lt;<span class="xk">interfaces</span>&gt;               <span class="cm">&lt;-- parent element</span>
+    &lt;<span class="xk">interface</span> name=<span class="st">"GigE1"</span>&gt;  <span class="cm">&lt;-- element with attribute</span>
+      &lt;<span class="xk">status</span>&gt;up&lt;/<span class="xk">status</span>&gt;
+    &lt;/<span class="xk">interface</span>&gt;
+    &lt;<span class="xk">interface</span> name=<span class="st">"GigE2"</span>&gt;
+      &lt;<span class="xk">status</span>&gt;down&lt;/<span class="xk">status</span>&gt;
+    &lt;/<span class="xk">interface</span>&gt;
+  &lt;/<span class="xk">interfaces</span>&gt;
+&lt;/<span class="xk">device</span>&gt;                     <span class="cm">&lt;-- closing tag (must match opening)</span></pre></div>
+<h4>Key XML Concepts</h4>
+<table class="tbl"><thead><tr><th>Term</th><th>What It Is</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Element</strong></td><td>A tag pair + content</td><td><code>&lt;hostname&gt;R1&lt;/hostname&gt;</code></td></tr>
+<tr><td><strong>Attribute</strong></td><td>Property inside opening tag</td><td><code>&lt;interface name="GigE1"&gt;</code></td></tr>
+<tr><td><strong>Root</strong></td><td>The single top-level element</td><td><code>&lt;device&gt;...&lt;/device&gt;</code></td></tr>
+<tr><td><strong>Namespace</strong></td><td>Prefix to avoid tag name conflicts</td><td><code>xmlns="urn:ietf:..."</code></td></tr>
+<tr><td><strong>Self-closing</strong></td><td>Element with no content</td><td><code>&lt;br/&gt;</code> or <code>&lt;empty/&gt;</code></td></tr>
+</tbody></table>
+<div class="note xc"><p><strong>Why does NETCONF use XML?</strong> XML was chosen because it has a formal schema system (YANG maps directly to XML structure), supports namespaces (critical for multi-vendor data models), and has excellent validation tooling. Not because it's easy to read — it's not. That's why we use Python libraries to handle it.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-industry">
+<h3>XML in NETCONF — What Real Messages Look Like</h3>
+<p>When you use ncclient to connect to a device, every message going back and forth is XML. Here's what an actual NETCONF get-config response looks like — this is the raw data your Python script receives.</p>
+<div class="cb"><div class="ch"><span class="lg xc">XML</span><span class="fn">NETCONF get-config response (simplified)</span></div><pre>&lt;rpc-reply xmlns=<span class="st">"urn:ietf:params:xml:ns:netconf:base:1.0"</span>&gt;
+  &lt;data&gt;
+    &lt;interfaces xmlns=<span class="st">"urn:ietf:params:xml:ns:yang:ietf-interfaces"</span>&gt;
+      &lt;interface&gt;
+        &lt;name&gt;GigabitEthernet1&lt;/name&gt;
+        &lt;description&gt;WAN Uplink&lt;/description&gt;
+        &lt;type xmlns:ianaift=<span class="st">"urn:ietf:params:xml:ns:yang:iana-if-type"</span>&gt;
+          ianaift:ethernetCsmacd
+        &lt;/type&gt;
+        &lt;enabled&gt;true&lt;/enabled&gt;
+      &lt;/interface&gt;
+      &lt;interface&gt;
+        &lt;name&gt;Loopback0&lt;/name&gt;
+        &lt;enabled&gt;true&lt;/enabled&gt;
+      &lt;/interface&gt;
+    &lt;/interfaces&gt;
+  &lt;/data&gt;
+&lt;/rpc-reply&gt;</pre></div>
+<div class="note xc"><p><strong>See those long xmlns="urn:..." parts?</strong> Those are namespaces. They tell the parser which data model a tag belongs to. When parsing NETCONF XML in Python, you'll need to handle namespaces — or use xmltodict which strips them out for you automatically. Most people use xmltodict for this reason.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-practical">
+<h3>Parsing XML in Python — Two Ways</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">Method 1: xml.etree.ElementTree (built-in)</span></div><pre><span class="kw">import</span> xml.etree.ElementTree <span class="kw">as</span> ET
+
+xml_data = <span class="st">"""&lt;devices&gt;
+  &lt;device&gt;
+    &lt;hostname&gt;SW-01&lt;/hostname&gt;
+    &lt;ip&gt;10.1.1.1&lt;/ip&gt;
+    &lt;status&gt;up&lt;/status&gt;
+  &lt;/device&gt;
+  &lt;device&gt;
+    &lt;hostname&gt;RT-01&lt;/hostname&gt;
+    &lt;ip&gt;10.1.1.2&lt;/ip&gt;
+    &lt;status&gt;up&lt;/status&gt;
+  &lt;/device&gt;
+&lt;/devices&gt;"""</span>
+
+root = ET.<span class="fn">fromstring</span>(xml_data)    <span class="cm"># parse string → Element tree</span>
+
+<span class="kw">for</span> device <span class="kw">in</span> root.<span class="fn">findall</span>(<span class="st">"device"</span>):
+    hostname = device.<span class="fn">find</span>(<span class="st">"hostname"</span>).text
+    ip       = device.<span class="fn">find</span>(<span class="st">"ip"</span>).text
+    status   = device.<span class="fn">find</span>(<span class="st">"status"</span>).text
+    <span class="fn">print</span>(f<span class="st">"{hostname:10} {ip:15} {status}"</span>)
+
+<span class="cm"># Reading attributes</span>
+<span class="cm"># &lt;interface name="GigE1" speed="1000"&gt;</span>
+<span class="cm"># iface.get("name")  → "GigE1"</span></pre></div>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">Method 2: xmltodict (recommended for NETCONF) — pip install xmltodict</span></div><pre><span class="kw">import</span> xmltodict, json
+
+<span class="cm"># xmltodict converts XML → Python dict (like JSON!)</span>
+result = xmltodict.<span class="fn">parse</span>(xml_data)
+
+<span class="cm"># Now it's just like working with JSON</span>
+<span class="fn">print</span>(json.<span class="fn">dumps</span>(result, indent=<span class="nm">2</span>))  <span class="cm"># see the structure</span>
+
+devices = result[<span class="st">"devices"</span>][<span class="st">"device"</span>]  <span class="cm"># access like a dict</span>
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="fn">print</span>(d[<span class="st">"hostname"</span>], d[<span class="st">"ip"</span>])
+
+<span class="cm"># With NETCONF responses (namespaces stripped)</span>
+<span class="cm">from ncclient import manager</span>
+<span class="cm">with manager.connect(...) as m:</span>
+<span class="cm">    result = m.get_config(source="running")</span>
+<span class="cm">    data = xmltodict.parse(result.xml)  # XML → dict</span>
+<span class="cm">    # now navigate like JSON!</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-flow">
+<h3>Two Ways to Handle XML</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 xc">Raw XML string from NETCONF / RESTCONF</div></div>
+  <div style="height:6px"></div>
+  <div class="fr">
+    <div class="fn2 y">Path A: ElementTree<br><span class="fl">ET.fromstring() → find() → findall()</span><br><span class="fl">Built-in, no install, verbose</span></div>
+    <div class="fa">or</div>
+    <div class="fn2 g">Path B: xmltodict<br><span class="fl">xmltodict.parse() → dict navigation</span><br><span class="fl">pip install, much simpler</span></div>
+  </div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 g" style="width:100%">Either way → Python dict → same processing code</div></div>
+</div>
+<h4>When to Use Which</h4>
+<table class="tbl"><thead><tr><th>Situation</th><th>Use</th></tr></thead><tbody>
+<tr><td>Simple XML, no namespaces, quick script</td><td><code>xmltodict</code> — faster to write</td></tr>
+<tr><td>Complex namespace handling, searching by path</td><td><code>ElementTree</code> — more control</td></tr>
+<tr><td>NETCONF responses</td><td><code>xmltodict</code> — most network engineers prefer this</td></tr>
+<tr><td>Building XML to send (edit-config)</td><td>Just write XML as a string — simpler than building it</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m4-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Parse XML with ElementTree</div><div class="pt">Basic parsing</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Parse this XML and print each interface name and status: <code>&lt;interfaces&gt;&lt;interface&gt;&lt;name&gt;GigE1&lt;/name&gt;&lt;status&gt;up&lt;/status&gt;&lt;/interface&gt;&lt;interface&gt;&lt;name&gt;GigE2&lt;/name&gt;&lt;status&gt;down&lt;/status&gt;&lt;/interface&gt;&lt;/interfaces&gt;</code></p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import xml.etree.ElementTree as ET</code><br><br><code>xml_str = """&lt;interfaces&gt;&lt;interface&gt;&lt;name&gt;GigE1&lt;/name&gt;&lt;status&gt;up&lt;/status&gt;&lt;/interface&gt;&lt;interface&gt;&lt;name&gt;GigE2&lt;/name&gt;&lt;status&gt;down&lt;/status&gt;&lt;/interface&gt;&lt;/interfaces&gt;"""</code><br><br><code>root = ET.fromstring(xml_str)</code><br><code>for iface in root.findall("interface"):</code><br>&nbsp;&nbsp;<code>name   = iface.find("name").text</code><br>&nbsp;&nbsp;<code>status = iface.find("status").text</code><br>&nbsp;&nbsp;<code>print(f"{name:10} → {status}")</code><br><br><strong>Output:</strong><br><code>GigE1      → up</code><br><code>GigE2      → down</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — NETCONF + xmltodict</div><div class="pt">Real NETCONF parsing</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Connect to the DevNet IOS-XE sandbox using ncclient. Get the running config using a subtree filter for interfaces. Use xmltodict to parse the response and print all interface names and their enabled state.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>from ncclient import manager</code><br><code>import xmltodict, json</code><br><br><code>filter_xml = """&lt;filter&gt;&lt;interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"&gt;&lt;interface/&gt;&lt;/interfaces&gt;&lt;/filter&gt;"""</code><br><br><code>with manager.connect(host="sandbox-iosxe-latest-1.cisco.com", port=830,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>username="developer", password="C1sco12345", hostkey_verify=False) as m:</code><br>&nbsp;&nbsp;<code>result = m.get(filter=("subtree", filter_xml))</code><br>&nbsp;&nbsp;<code>data   = xmltodict.parse(result.xml)</code><br><br><code># Navigate the dict (namespace keys show up as long strings)</code><br><code>ifaces = data["rpc-reply"]["data"]["interfaces"]["interface"]</code><br><code>if not isinstance(ifaces, list):</code><br>&nbsp;&nbsp;<code>ifaces = [ifaces]  # single interface comes as dict, not list</code><br><code>for i in ifaces:</code><br>&nbsp;&nbsp;<code>print(f"{i['name']:25} enabled={i.get('enabled','N/A')}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — XML to JSON Conversion</div><div class="pt">Format conversion</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Write a Python function <code>xml_to_json(xml_string)</code> that takes any XML string, converts it to a Python dict, and returns it as a pretty-printed JSON string. Test it on a NETCONF response snippet.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import xmltodict, json</code><br><br><code>def xml_to_json(xml_string, indent=2):</code><br>&nbsp;&nbsp;<code>"""Convert XML string to pretty JSON string."""</code><br>&nbsp;&nbsp;<code>d = xmltodict.parse(xml_string)</code><br>&nbsp;&nbsp;<code>return json.dumps(d, indent=indent)</code><br><br><code>xml = """&lt;device&gt;&lt;hostname&gt;R1&lt;/hostname&gt;&lt;ip&gt;10.1.1.1&lt;/ip&gt;&lt;platform&gt;ASR1001-X&lt;/platform&gt;&lt;/device&gt;"""</code><br><br><code>result = xml_to_json(xml)</code><br><code>print(result)</code><br><br><strong>Output:</strong><br><code>{</code><br>&nbsp;&nbsp;<code>"device": {</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"hostname": "R1",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"ip": "10.1.1.1",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"platform": "ASR1001-X"</code><br>&nbsp;&nbsp;<code>}</code><br><code>}</code><br><br>This function is genuinely useful in scripts that receive XML from NETCONF and need to log or compare data in JSON format.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 5 ═══════════ -->
+<script type="text/x-tmpl" id="m5-theory">
+<h3>YAML — The Human One</h3>
+<p>YAML (YAML Ain't Markup Language — yes, it's a recursive acronym) was designed to be read and written by humans. No curly braces, no angle brackets, no quotes needed most of the time. Just clean indentation and colons.</p>
+<p>You'll write YAML by hand constantly in network automation — Ansible playbooks, inventory files, variable files, Nornir configs. Being comfortable with YAML syntax is non-negotiable.</p>
+<h4>YAML Syntax — The Key Rules</h4>
+<div class="cb"><div class="ch"><span class="lg yc">YAML</span><span class="fn">Complete YAML syntax reference</span></div><pre><span class="cm"># This is a comment (YAML supports comments — unlike JSON!)</span>
+
+<span class="cm"># Key-value pairs (like dict in Python)</span>
+<span class="yk">hostname</span>: SW-CORE-01
+<span class="yk">ip_address</span>: 10.1.1.1
+<span class="yk">vlan_id</span>: 100              <span class="cm"># number — no quotes needed</span>
+<span class="yk">enabled</span>: true             <span class="cm"># boolean</span>
+<span class="yk">description</span>: Main switch  <span class="cm"># string — quotes optional for simple text</span>
+<span class="yk">notes</span>: "has special: colon"  <span class="cm"># quotes needed when colon is in value</span>
+
+<span class="cm"># List (like list in Python)</span>
+<span class="yk">vlans</span>:
+  - 10
+  - 20
+  - 30
+
+<span class="cm"># List of dicts</span>
+<span class="yk">interfaces</span>:
+  - <span class="yk">name</span>: GigabitEthernet1
+    <span class="yk">ip</span>: 192.168.1.1
+    <span class="yk">enabled</span>: true
+  - <span class="yk">name</span>: GigabitEthernet2
+    <span class="yk">ip</span>: 192.168.2.1
+    <span class="yk">enabled</span>: false
+
+<span class="cm"># Nested dict</span>
+<span class="yk">location</span>:
+  <span class="yk">site</span>: HQ
+  <span class="yk">building</span>: Block-A
+  <span class="yk">floor</span>: 3</pre></div>
+<div class="note yc"><p><strong>The golden rule of YAML:</strong> Indentation IS the structure. Use spaces, never tabs. Two spaces per level is the standard. One wrong indent and your YAML breaks — silently or with a cryptic error.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-industry">
+<h3>YAML in the Network Automation World</h3>
+<h4>Ansible — YAML is Everything</h4>
+<p>Ansible playbooks, variable files, inventory files, role defaults — all YAML. If you're doing network automation with Ansible (and you probably will), you're writing YAML every day.</p>
+<div class="cb"><div class="ch"><span class="lg yc">YAML</span><span class="fn">Ansible inventory file (hosts.yaml)</span></div><pre><span class="yk">all</span>:
+  <span class="yk">children</span>:
+    <span class="yk">routers</span>:
+      <span class="yk">hosts</span>:
+        R1:
+          <span class="yk">ansible_host</span>: 10.1.1.1
+          <span class="yk">ansible_user</span>: admin
+        R2:
+          <span class="yk">ansible_host</span>: 10.1.1.2
+          <span class="yk">ansible_user</span>: admin
+    <span class="yk">switches</span>:
+      <span class="yk">hosts</span>:
+        SW-01:
+          <span class="yk">ansible_host</span>: 10.1.2.1</pre></div>
+<h4>Nornir — YAML Inventory Files</h4>
+<p>Nornir (the Python-native network automation framework) uses YAML files to define hosts and groups. You define all your devices, their credentials, platform types, and custom data in YAML — then your Python script processes them all.</p>
+<div class="cb"><div class="ch"><span class="lg yc">YAML</span><span class="fn">Nornir hosts.yaml</span></div><pre><span class="yk">SW-CORE-01</span>:
+  <span class="yk">hostname</span>: 10.1.1.1
+  <span class="yk">groups</span>:
+    - cisco_ios
+  <span class="yk">data</span>:
+    <span class="yk">site</span>: HQ
+    <span class="yk">role</span>: core_switch
+    <span class="yk">vlans</span>: [10, 20, 30, 100]
+
+<span class="yk">RT-WAN-01</span>:
+  <span class="yk">hostname</span>: 10.1.1.2
+  <span class="yk">groups</span>:
+    - cisco_ios
+  <span class="yk">data</span>:
+    <span class="yk">site</span>: HQ
+    <span class="yk">role</span>: wan_router</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-practical">
+<h3>Working with YAML in Python</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">yaml_basics.py  —  pip install pyyaml</span></div><pre><span class="kw">import</span> yaml
+
+<span class="cm"># ─── Parse YAML string ───────────────────────────────</span>
+yaml_string = <span class="st">"""
+hostname: SW-01
+ip: 10.1.1.1
+vlans:
+  - 10
+  - 20
+  - 30
+interfaces:
+  - name: GigE1
+    enabled: true
+  - name: GigE2
+    enabled: false
+"""</span>
+
+data = yaml.<span class="fn">safe_load</span>(yaml_string)  <span class="cm"># string → Python dict</span>
+<span class="fn">print</span>(<span class="fn">type</span>(data))                   <span class="cm"># &lt;class 'dict'&gt;</span>
+<span class="fn">print</span>(data[<span class="st">"hostname"</span>])             <span class="cm"># SW-01</span>
+<span class="fn">print</span>(data[<span class="st">"vlans"</span>])               <span class="cm"># [10, 20, 30]</span>
+<span class="fn">print</span>(data[<span class="st">"interfaces"</span>][<span class="nm">0</span>])       <span class="cm"># {"name":"GigE1","enabled":True}</span>
+
+<span class="cm"># ─── Read from YAML file ─────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"hosts.yaml"</span>, <span class="st">"r"</span>) <span class="kw">as</span> f:
+    inventory = yaml.<span class="fn">safe_load</span>(f)
+
+<span class="cm"># ─── Write to YAML ───────────────────────────────────</span>
+device_list = [
+    {<span class="st">"hostname"</span>: <span class="st">"R1"</span>, <span class="st">"ip"</span>: <span class="st">"10.1.1.1"</span>, <span class="st">"role"</span>: <span class="st">"router"</span>},
+    {<span class="st">"hostname"</span>: <span class="st">"SW-01"</span>, <span class="st">"ip"</span>: <span class="st">"10.1.1.2"</span>, <span class="st">"role"</span>: <span class="st">"switch"</span>}
+]
+yaml_out = yaml.<span class="fn">dump</span>(device_list, default_flow_style=<span class="kw">False</span>)
+<span class="fn">print</span>(yaml_out)
+
+<span class="cm"># ─── Write to file ───────────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"output.yaml"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    yaml.<span class="fn">dump</span>(device_list, f, default_flow_style=<span class="kw">False</span>)
+
+<span class="cm"># ─── IMPORTANT: Use safe_load, not load ──────────────</span>
+<span class="cm"># yaml.load() has a security risk — can execute arbitrary code</span>
+<span class="cm"># yaml.safe_load() is always the right choice</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-flow">
+<h3>YAML Common Patterns in Network Automation</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 yc">YAML inventory file (hosts.yaml)</div><div class="fa">→</div><div class="fn2">yaml.safe_load()</div><div class="fa">→</div><div class="fn2 g">Python dict → loop over devices</div></div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 g">Device data collected from API</div><div class="fa">→</div><div class="fn2">yaml.dump()</div><div class="fa">→</div><div class="fn2 yc">YAML report file (human readable)</div></div>
+</div>
+<h4>YAML Gotchas That Bite Everyone</h4>
+<table class="tbl"><thead><tr><th>Gotcha</th><th>What Happens</th><th>Fix</th></tr></thead><tbody>
+<tr><td><code>no: yes</code> in YAML</td><td>Parses as <code>{False: True}</code> not strings!</td><td>Quote them: <code>"no": "yes"</code></td></tr>
+<tr><td>Tab character used for indent</td><td>YAML parser crashes</td><td>Always use spaces (2 or 4)</td></tr>
+<tr><td>Extra space before colon: <code>key :value</code></td><td>Parsing error</td><td><code>key: value</code></td></tr>
+<tr><td>Missing space after colon: <code>key:value</code></td><td>Treated as a string, not key-value</td><td><code>key: value</code></td></tr>
+<tr><td>IP address without quotes: <code>ip: 1.1.1.1</code></td><td>Parsed as float in some YAML versions</td><td>Quote it: <code>ip: "1.1.1.1"</code></td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m5-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Write a YAML Inventory</div><div class="pt">Hand-write YAML</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Write a YAML file by hand (no Python yet) representing 3 network devices: R1 (router, 10.1.1.1), SW-01 (switch, 10.1.2.1), FW-01 (firewall, 10.1.3.1). Each device should have: hostname, ip, type, site="HQ", and a list of at least 2 vlans.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>devices:</code><br>&nbsp;&nbsp;<code>- hostname: R1</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ip: "10.1.1.1"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>type: router</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>site: HQ</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>vlans: [10, 20]</code><br><br>&nbsp;&nbsp;<code>- hostname: SW-01</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ip: "10.1.2.1"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>type: switch</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>site: HQ</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>vlans: [10, 20, 30, 100]</code><br><br>&nbsp;&nbsp;<code>- hostname: FW-01</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ip: "10.1.3.1"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>type: firewall</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>site: HQ</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>vlans: [10, 20]</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Parse and Use YAML Inventory</div><div class="pt">Python + YAML</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Save the YAML from Exercise 1 as <code>inventory.yaml</code>. Write Python to: load it, print a table of hostname + IP + type, and print a list of unique VLANs across all devices.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import yaml</code><br><br><code>with open("inventory.yaml", "r") as f:</code><br>&nbsp;&nbsp;<code>data = yaml.safe_load(f)</code><br><br><code>devices = data["devices"]</code><br><br><code>print(f"{'Hostname':12} {'IP':15} {'Type':10}")</code><br><code>print("-" * 40)</code><br><code>for d in devices:</code><br>&nbsp;&nbsp;<code>print(f"{d['hostname']:12} {d['ip']:15} {d['type']:10}")</code><br><br><code># All unique VLANs across all devices</code><br><code>all_vlans = set()</code><br><code>for d in devices:</code><br>&nbsp;&nbsp;<code>all_vlans.update(d.get("vlans", []))</code><br><code>print(f"\nAll VLANs in use: {sorted(all_vlans)}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — API Data → YAML Report</div><div class="pt">Saving as YAML</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Query the DNAC sandbox for device inventory. For each device, extract: hostname, ip, platform, status. Save the entire list as a YAML file called <code>dnac_report.yaml</code>. Open the file in a text editor and confirm it's readable and clean.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import requests, yaml</code><br><code>requests.packages.urllib3.disable_warnings()</code><br><br><code># Authenticate</code><br><code>r = requests.post("https://sandboxdnac.cisco.com/dna/system/api/v1/auth/token",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>auth=("devnetuser","Cisco123!"), verify=False)</code><br><code>token = r.json()["Token"]</code><br><code>hdrs  = {"X-Auth-Token": token}</code><br><br><code>r = requests.get("https://sandboxdnac.cisco.com/dna/intent/api/v1/network-device",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>headers=hdrs, verify=False)</code><br><code>raw = r.json()["response"]</code><br><br><code># Extract only what we need</code><br><code>report = [{"hostname": d.get("hostname"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>"ip"      : d.get("managementIpAddress"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>"platform": d.get("platformId"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>"status"  : d.get("reachabilityStatus")} for d in raw]</code><br><br><code>with open("dnac_report.yaml", "w") as f:</code><br>&nbsp;&nbsp;<code>yaml.dump({"devices": report}, f, default_flow_style=False)</code><br><br><code>print(f"Saved {len(report)} devices to dnac_report.yaml")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 6 ═══════════ -->
+<script type="text/x-tmpl" id="m6-theory">
+<h3>JSON vs XML vs YAML — The Honest Comparison</h3>
+<p>No format is the best for everything. Each has a job it does well and jobs it's bad at. As a senior network automation engineer, you pick the right tool for the situation — not your favourite.</p>
+<div class="compare-row">
+  <div class="cr-head">Feature</div>
+  <div class="cr-head" style="color:var(--jc)">JSON</div>
+  <div class="cr-head" style="color:var(--xc)">XML</div>
+  <div class="cr-head" style="color:var(--yc)">YAML</div>
+  <div class="cr-label">Human readability</div>
+  <div class="cr-cell">Good — clean but has braces and quotes</div>
+  <div class="cr-cell">Poor — tag soup, verbose</div>
+  <div class="cr-cell">Excellent — cleanest of the three</div>
+  <div class="cr-label">Comments</div>
+  <div class="cr-cell">Not supported</div>
+  <div class="cr-cell">Supported</div>
+  <div class="cr-cell">Supported (<code>#</code>)</div>
+  <div class="cr-label">Data types</div>
+  <div class="cr-cell">string, number, bool, null, array, object</div>
+  <div class="cr-cell">Everything is text by default (need schema)</div>
+  <div class="cr-cell">string, int, float, bool, null, list, dict</div>
+  <div class="cr-label">Python library</div>
+  <div class="cr-cell">Built-in <code>json</code></div>
+  <div class="cr-cell">Built-in <code>xml.etree</code> or <code>xmltodict</code></div>
+  <div class="cr-cell"><code>pip install pyyaml</code></div>
+  <div class="cr-label">Network use</div>
+  <div class="cr-cell">REST APIs, config files</div>
+  <div class="cr-cell">NETCONF, RESTCONF (xml mode)</div>
+  <div class="cr-cell">Ansible, Nornir, inventory</div>
+  <div class="cr-label">Strictness</div>
+  <div class="cr-cell">Strict — no trailing commas, must quote keys</div>
+  <div class="cr-cell">Strict — tags must match, namespaces matter</div>
+  <div class="cr-cell">Relaxed — but indentation is critical</div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m6-industry">
+<h3>Real Scenarios — Which Format, Which Tool</h3>
+<div class="g2">
+  <div class="note j"><p><strong>Scenario: You're writing a Python script to query Meraki, DNAC, and Arista APIs and generate a unified inventory report.</strong><br><br>→ All three APIs return JSON. Use Python's built-in json module. Output the report as JSON (for machine consumption) and YAML (for humans to read).</p></div>
+  <div class="note xc"><p><strong>Scenario: You need to push configuration to 50 IOS-XR routers using NETCONF — zero downtime, transactional.</strong><br><br>→ NETCONF speaks XML. Use ncclient + write your edit-config payload as an XML string. Use xmltodict to parse responses.</p></div>
+</div>
+<div class="g2">
+  <div class="note yc"><p><strong>Scenario: Team wants to use Ansible to deploy VLAN configs across 200 campus switches.</strong><br><br>→ Ansible inventory, playbooks, and variable files are YAML. Your VLAN definitions live in a YAML file. Ansible reads them and generates the right config.</p></div>
+  <div class="note g"><p><strong>Scenario: You're building a Network-as-Code pipeline. Developers define network changes in files stored in Git.</strong><br><br>→ Human-defined changes = YAML (readable, commentable). Pipeline processes them = JSON (API calls). Device receives them = XML (NETCONF) or JSON (REST).</p></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m6-practical">
+<h3>Converting Between All Three Formats</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">format_converter.py — the universal converter</span></div><pre><span class="kw">import</span> json, yaml, xmltodict
+
+<span class="kw">def</span> <span class="fn">json_to_yaml</span>(json_str):
+    data = json.<span class="fn">loads</span>(json_str)
+    <span class="kw">return</span> yaml.<span class="fn">dump</span>(data, default_flow_style=<span class="kw">False</span>)
+
+<span class="kw">def</span> <span class="fn">yaml_to_json</span>(yaml_str, indent=<span class="nm">2</span>):
+    data = yaml.<span class="fn">safe_load</span>(yaml_str)
+    <span class="kw">return</span> json.<span class="fn">dumps</span>(data, indent=indent)
+
+<span class="kw">def</span> <span class="fn">xml_to_json</span>(xml_str, indent=<span class="nm">2</span>):
+    data = xmltodict.<span class="fn">parse</span>(xml_str)
+    <span class="kw">return</span> json.<span class="fn">dumps</span>(data, indent=indent)
+
+<span class="kw">def</span> <span class="fn">json_to_xml</span>(json_str, root_tag=<span class="st">"root"</span>):
+    data = json.<span class="fn">loads</span>(json_str)
+    <span class="kw">return</span> xmltodict.<span class="fn">unparse</span>({root_tag: data}, pretty=<span class="kw">True</span>)
+
+<span class="cm"># ─── Demo ─────────────────────────────────────────────</span>
+json_input = <span class="st">'{"hostname":"R1","ip":"10.1.1.1","enabled":true}'</span>
+
+<span class="fn">print</span>(<span class="st">"JSON → YAML:"</span>)
+<span class="fn">print</span>(<span class="fn">json_to_yaml</span>(json_input))
+
+<span class="fn">print</span>(<span class="st">"JSON → XML:"</span>)
+<span class="fn">print</span>(<span class="fn">json_to_xml</span>(json_input, root_tag=<span class="st">"device"</span>))</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-flow">
+<h3>The Format Lifecycle in a Real Pipeline</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 yc">Engineer writes YAML<br><span class="fl">device vars, intent, inventory</span></div><div class="fa">→</div><div class="fn2">Python reads it<br><span class="fl">yaml.safe_load()</span></div><div class="fa">→</div><div class="fn2 g">Python dict in memory</div></div>
+  <div style="height:8px"></div>
+  <div class="fr">
+    <div class="fn2 j">REST API call → JSON response<br><span class="fl">Meraki/DNAC/Arista</span></div>
+    <div class="fa">→</div>
+    <div class="fn2 g">json.loads() → dict<br><span class="fl">merged with YAML data</span></div>
+  </div>
+  <div style="height:8px"></div>
+  <div class="fr">
+    <div class="fn2 g">Dict → build config payload</div>
+    <div class="fa">→</div>
+    <div class="fn2 xc">NETCONF XML sent to device<br><span class="fl">edit-config</span></div>
+    <div class="fa">or</div>
+    <div class="fn2 j">JSON sent to REST API<br><span class="fl">POST/PATCH</span></div>
+  </div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 yc">Results saved as YAML report<br><span class="fl">human-readable audit trail</span></div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m6-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Format Selection</div><div class="pt">Decision making</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>For each of these tasks, say which format you'd use and why: (a) Storing Ansible group variables for 5 sites, (b) Sending a config change to an IOS-XR router via NETCONF, (c) Receiving device inventory from the Cisco DNAC REST API, (d) Writing a CI/CD pipeline config in GitHub Actions, (e) Logging API results to a file for a human operator to review.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>a) Ansible group variables:</strong> YAML — Ansible requires it; it's also human-readable and supports comments to explain each variable.<br><br><strong>b) NETCONF config change:</strong> XML — NETCONF protocol only speaks XML, no choice here. Write the payload as an XML string.<br><br><strong>c) DNAC REST API response:</strong> JSON — DNAC returns JSON, you parse it with Python's json module. No choice here either.<br><br><strong>d) GitHub Actions pipeline:</strong> YAML — GitHub Actions only supports YAML for workflow files.<br><br><strong>e) Log file for human operator:</strong> YAML — most readable format for humans. JSON works too but YAML is cleaner for reports and includes comments if needed.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Build a Converter</div><div class="pt">All three formats</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Write a Python script that: reads a YAML inventory file, converts it to JSON and prints it, also converts to XML and saves it to a file. Use the YAML inventory you created in Topic 5.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import json, yaml, xmltodict</code><br><br><code>with open("inventory.yaml", "r") as f:</code><br>&nbsp;&nbsp;<code>data = yaml.safe_load(f)</code><br><br><code># YAML → JSON (print)</code><br><code>print("=== JSON Output ===")</code><br><code>print(json.dumps(data, indent=2))</code><br><br><code># YAML → XML (save to file)</code><br><code>xml_str = xmltodict.unparse(data, pretty=True)</code><br><code>with open("inventory.xml", "w") as f:</code><br>&nbsp;&nbsp;<code>f.write(xml_str)</code><br><code>print("Saved inventory.xml")</code><br><br><code># Verify by reading back the XML</code><br><code>with open("inventory.xml", "r") as f:</code><br>&nbsp;&nbsp;<code>back_to_dict = xmltodict.parse(f.read())</code><br><code>print(f"Devices in XML: {len(back_to_dict['devices']['device'])}")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 7 ═══════════ -->
+<script type="text/x-tmpl" id="m7-theory">
+<h3>YANG + JSON/XML — Understanding the Connection</h3>
+<p>You'll see YANG mentioned constantly when working with NETCONF and RESTCONF. YANG (Yet Another Next Generation) is a <em>data modelling language</em> — it defines the structure and rules for network device configuration data. It's not a data format itself — but it dictates how the XML and JSON for device config looks.</p>
+<h4>Think of It This Way</h4>
+<div class="g3">
+  <div class="card yc"><h5>YANG</h5><p>The blueprint/schema. Defines what keys exist, what types they are, what values are valid. Like a database schema.</p></div>
+  <div class="card j"><h5>JSON</h5><p>One way to express YANG-modelled data. Used in RESTCONF with <code>application/yang-data+json</code>.</p></div>
+  <div class="card xc"><h5>XML</h5><p>Another way to express YANG-modelled data. Used in NETCONF and RESTCONF with <code>application/yang-data+xml</code>.</p></div>
+</div>
+<h4>Common YANG Modules You'll Encounter</h4>
+<table class="tbl"><thead><tr><th>Module</th><th>What it models</th><th>Who defines it</th></tr></thead><tbody>
+<tr><td><code>ietf-interfaces</code></td><td>Interface config and state</td><td>IETF (standard — works on all vendors)</td></tr>
+<tr><td><code>ietf-routing</code></td><td>Routing config</td><td>IETF (standard)</td></tr>
+<tr><td><code>Cisco-IOS-XE-native</code></td><td>Full IOS-XE CLI config</td><td>Cisco (vendor-specific)</td></tr>
+<tr><td><code>Cisco-IOS-XE-bgp</code></td><td>BGP config on IOS-XE</td><td>Cisco (vendor-specific)</td></tr>
+<tr><td><code>openconfig-interfaces</code></td><td>Interface config</td><td>OpenConfig (multi-vendor)</td></tr>
+</tbody></table>
+<div class="note j"><p><strong>Practical takeaway:</strong> You don't need to learn YANG syntax deeply right now. What matters is knowing that the JSON/XML structure you see from RESTCONF/NETCONF is shaped by YANG models. The namespace in XML tags (<code>xmlns="urn:ietf:..."</code>) tells you which YANG module it came from.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-industry">
+<h3>YANG Models in the Real World</h3>
+<h4>Why This Matters Practically</h4>
+<p>When you call RESTCONF and get JSON back, the keys in that JSON are defined by YANG. When you POST a config change, the JSON structure you build must match the YANG model exactly — otherwise the device rejects it with a 400 error.</p>
+<div class="note y"><p><strong>Debug tip:</strong> If you get a 400 Bad Request from RESTCONF, 90% of the time it's because your JSON or XML structure doesn't match the YANG model. Use Cisco's YANG Suite tool or the YANG Catalog at <code>https://yangcatalog.org</code> to look up the correct structure.</p></div>
+<h4>Standard vs Vendor YANG Models</h4>
+<p>Standard models (ietf-*, openconfig-*) work across vendors — same JSON/XML structure on Cisco, Juniper, Arista. Vendor-specific models (Cisco-IOS-XE-*, Junos-*) only work on that vendor's devices but give you access to every feature, not just the standards-covered ones. In production, you'll use both.</p>
+<div class="note g"><p><strong>Real-world balance:</strong> Use standard IETF/OpenConfig models for common operations (interface up/down, IP addressing, routing). Use vendor models for advanced features (QoS policies, platform-specific counters, advanced BGP features).</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-practical">
+<h3>YANG-Shaped JSON in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">yang_restconf.py — exploring models</span></div><pre><span class="kw">import</span> requests, json
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+DEVICE = <span class="st">"sandbox-iosxe-latest-1.cisco.com"</span>
+AUTH   = (<span class="st">"developer"</span>, <span class="st">"C1sco12345"</span>)
+HDR_J  = {<span class="st">"Accept"</span>: <span class="st">"application/yang-data+json"</span>}
+HDR_X  = {<span class="st">"Accept"</span>: <span class="st">"application/yang-data+xml"</span>}
+BASE   = f<span class="st">"https://{DEVICE}/restconf/data"</span>
+
+<span class="cm"># ─── Same data, two YANG-based formats ───────────────</span>
+url = f<span class="st">"{BASE}/ietf-interfaces:interfaces/interface=GigabitEthernet1"</span>
+
+<span class="cm"># JSON format (easier to parse)</span>
+r_json = requests.<span class="fn">get</span>(url, auth=AUTH, headers=HDR_J, verify=<span class="kw">False</span>)
+iface_j = r_json.<span class="fn">json</span>()[<span class="st">"ietf-interfaces:interface"</span>]
+<span class="fn">print</span>(<span class="st">"Name (from JSON):"</span>, iface_j[<span class="st">"name"</span>])
+
+<span class="cm"># XML format (NETCONF style)</span>
+r_xml = requests.<span class="fn">get</span>(url, auth=AUTH, headers=HDR_X, verify=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="st">"XML response preview:"</span>, r_xml.text[:<span class="nm">200</span>])
+
+<span class="cm"># ─── Discover supported YANG modules ─────────────────</span>
+r = requests.<span class="fn">get</span>(
+    f<span class="st">"{BASE}/ietf-yang-library:modules-state"</span>,
+    auth=AUTH, headers=HDR_J, verify=<span class="kw">False</span>)
+modules = r.<span class="fn">json</span>()[<span class="st">"ietf-yang-library:modules-state"</span>][<span class="st">"module"</span>]
+<span class="fn">print</span>(f<span class="st">"Device supports {len(modules)} YANG modules"</span>)
+
+<span class="cm"># Show Cisco-specific ones</span>
+cisco_mods = [m[<span class="st">"name"</span>] <span class="kw">for</span> m <span class="kw">in</span> modules
+              <span class="kw">if</span> m[<span class="st">"name"</span>].<span class="fn">startswith</span>(<span class="st">"Cisco-IOS-XE"</span>)]
+<span class="fn">print</span>(f<span class="st">"Cisco-IOS-XE modules: {len(cisco_mods)}"</span>)
+<span class="kw">for</span> m <span class="kw">in</span> cisco_mods[:<span class="nm">5</span>]:
+    <span class="fn">print</span>(<span class="st">" -"</span>, m)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-flow">
+<h3>YANG → JSON/XML Relationship</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 yc" style="width:100%">YANG Model defines: what keys exist, types, valid values, structure</div></div>
+  <div style="height:8px"></div>
+  <div class="fr">
+    <div class="fn2 j">JSON representation<br><span class="fl">{"ietf-interfaces:interface": {<br>"name": "GigE1", "enabled": true}}</span></div>
+    <div class="fa">same data</div>
+    <div class="fn2 xc">XML representation<br><span class="fl">&lt;interface&gt;&lt;name&gt;GigE1&lt;/name&gt;<br>&lt;enabled&gt;true&lt;/enabled&gt;&lt;/interface&gt;</span></div>
+  </div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 g" style="width:100%">Your Python code reads either one — choose JSON (easier) when RESTCONF, XML when NETCONF</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m7-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — JSON vs XML from Same Endpoint</div><div class="pt">RESTCONF dual format</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Using the DevNet IOS-XE sandbox, query the interfaces endpoint twice: once with JSON Accept header, once with XML. Parse both responses and confirm they contain the same interface names. Print the names from each format side by side.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import requests, xmltodict</code><br><code>requests.packages.urllib3.disable_warnings()</code><br><br><code>BASE = "https://sandbox-iosxe-latest-1.cisco.com/restconf/data"</code><br><code>AUTH = ("developer","C1sco12345")</code><br><code>URL  = f"{BASE}/ietf-interfaces:interfaces"</code><br><br><code># JSON</code><br><code>rj = requests.get(URL, auth=AUTH, headers={"Accept":"application/yang-data+json"}, verify=False)</code><br><code>jdata  = rj.json()["ietf-interfaces:interfaces"]["interface"]</code><br><code>j_names = [i["name"] for i in jdata]</code><br><br><code># XML</code><br><code>rx = requests.get(URL, auth=AUTH, headers={"Accept":"application/yang-data+xml"}, verify=False)</code><br><code>xdata   = xmltodict.parse(rx.text)</code><br><code>ifaces  = xdata["interfaces"]["interface"]</code><br><code>if not isinstance(ifaces, list): ifaces = [ifaces]</code><br><code>x_names = [i["name"] for i in ifaces]</code><br><br><code>print("JSON names:", j_names)</code><br><code>print("XML  names:", x_names)</code><br><code>print("Match:", sorted(j_names) == sorted(x_names))</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Discover YANG Modules</div><div class="pt">Device capability check</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Query the YANG library endpoint on the IOS-XE sandbox. Count: (a) total modules supported, (b) how many are ietf-* standard modules, (c) how many are Cisco-IOS-XE-* vendor modules. Print the first 5 of each.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import requests</code><br><code>requests.packages.urllib3.disable_warnings()</code><br><br><code>r = requests.get("https://sandbox-iosxe-latest-1.cisco.com/restconf/data/ietf-yang-library:modules-state",</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>auth=("developer","C1sco12345"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>headers={"Accept":"application/yang-data+json"}, verify=False)</code><br><br><code>modules = r.json()["ietf-yang-library:modules-state"]["module"]</code><br><br><code>ietf_mods  = [m["name"] for m in modules if m["name"].startswith("ietf-")]</code><br><code>cisco_mods = [m["name"] for m in modules if m["name"].startswith("Cisco-IOS-XE")]</code><br><br><code>print(f"Total: {len(modules)}")</code><br><code>print(f"IETF standard: {len(ietf_mods)} — first 5: {ietf_mods[:5]}")</code><br><code>print(f"Cisco vendor:  {len(cisco_mods)} — first 5: {cisco_mods[:5]}")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 8 ═══════════ -->
+<script type="text/x-tmpl" id="m8-theory">
+<h3>Jinja2 + YAML — Templating Network Configs</h3>
+<p>Here's where things get really useful. Instead of hardcoding interface configs in your Python scripts, you store the <em>template</em> separately (with variables) and the <em>data</em> in YAML. Then you combine them using Jinja2 — Python's templating engine (the same one Ansible uses internally).</p>
+<h4>The Idea</h4>
+<div class="g2">
+  <div class="card yc"><h5>YAML data file</h5><p>Defines the values: hostname, IPs, VLANs, descriptions. Changes per device.</p></div>
+  <div class="card j"><h5>Jinja2 template</h5><p>Defines the structure: the actual config commands with <code>{{ variable }}</code> placeholders.</p></div>
+</div>
+<div class="cb"><div class="ch"><span class="lg yc">Jinja2 Template</span><span class="fn">interface_template.j2</span></div><pre>interface {{ interface_name }}
+ description {{ description }}
+ ip address {{ ip_address }} {{ subnet_mask }}
+ no shutdown
+!
+{% for vlan in vlans %}
+vlan {{ vlan }}
+{% endfor %}</pre></div>
+<div class="cb"><div class="ch"><span class="lg yc">YAML</span><span class="fn">device_data.yaml</span></div><pre><span class="yk">interface_name</span>: GigabitEthernet1
+<span class="yk">description</span>: WAN Uplink to ISP
+<span class="yk">ip_address</span>: <span class="st">"192.168.1.1"</span>
+<span class="yk">subnet_mask</span>: <span class="st">"255.255.255.0"</span>
+<span class="yk">vlans</span>:
+  - 10
+  - 20
+  - 100</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-industry">
+<h3>Templating in Real Network Automation</h3>
+<p>Every professional network automation system uses some form of data + template separation. It's one of the most important patterns to understand.</p>
+<h4>Why It Matters</h4>
+<ul>
+<li><strong>One template, many devices:</strong> Write the config template once, apply it to 500 switches with different data from YAML/CSV/database</li>
+<li><strong>Config drift prevention:</strong> The template IS the source of truth. Any device config generated from it is consistent</li>
+<li><strong>Separation of concerns:</strong> Network engineers own the YAML data, automation engineers own the templates — team collaboration</li>
+<li><strong>Ansible uses this:</strong> Ansible's <code>template</code> module is literally Jinja2 + YAML data</li>
+</ul>
+<div class="note g"><p><strong>Real example:</strong> A UK financial services firm uses this pattern to configure 3,000 branch switches. One Jinja2 template, branch data in YAML (with per-site VLAN lists, IP ranges, descriptions). A single Python script generates configs for all 3,000 in under 2 minutes.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-practical">
+<h3>Jinja2 + YAML in Python</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">config_generator.py  —  pip install jinja2</span></div><pre><span class="kw">import</span> yaml
+<span class="kw">from</span> jinja2 <span class="kw">import</span> Template
+
+<span class="cm"># ─── The template (stored as string here, usually a .j2 file)</span>
+template_str = <span class="st">"""
+hostname {{ hostname }}
+!
+interface {{ interface }}
+ description {{ description }}
+ ip address {{ ip }} {{ mask }}
+ {% if enabled %}no shutdown{% else %}shutdown{% endif %}
+!
+{% for vlan in vlans %}
+vlan {{ vlan.id }}
+ name {{ vlan.name }}
+{% endfor %}
+"""</span>
+
+<span class="cm"># ─── The data (from YAML file)</span>
+yaml_data = <span class="st">"""
+hostname: SW-CORE-01
+interface: GigabitEthernet1
+description: "Uplink to Distribution"
+ip: 10.1.1.1
+mask: 255.255.255.0
+enabled: true
+vlans:
+  - id: 10
+    name: USERS
+  - id: 20
+    name: SERVERS
+  - id: 100
+    name: MANAGEMENT
+"""</span>
+
+data = yaml.<span class="fn">safe_load</span>(yaml_data)
+
+<span class="cm"># ─── Render: combine template + data → config</span>
+tmpl   = <span class="fn">Template</span>(template_str)
+config = tmpl.<span class="fn">render</span>(**data)
+<span class="fn">print</span>(config)
+
+<span class="cm"># ─── Save to file</span>
+<span class="kw">with</span> <span class="fn">open</span>(f<span class="st">"{data['hostname']}_config.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(config)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-flow">
+<h3>Template + Data → Config Flow</h3>
+<div class="fb">
+  <div class="fr">
+    <div class="fn2 yc">device_vars.yaml<br><span class="fl">hostname, IPs, VLANs</span></div>
+    <div class="fa">+</div>
+    <div class="fn2">template.j2<br><span class="fl">config structure with {{ vars }}</span></div>
+    <div class="fa">→</div>
+    <div class="fn2 g">jinja2.Template.render()<br><span class="fl">fill in the blanks</span></div>
+    <div class="fa">→</div>
+    <div class="fn2 j">Final config text<br><span class="fl">ready to push</span></div>
+  </div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 b" style="width:100%">Scale up: Loop over 100 devices, each with own YAML vars → 100 configs generated in seconds</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m8-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Build a Config Generator</div><div class="pt">Jinja2 + YAML</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create a Jinja2 template that generates a basic IOS switch config (hostname, NTP server, VLAN list, management interface IP). Create YAML data for 2 different switches. Generate both configs using Python and save them as separate text files.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>template.j2:</strong><br><code>hostname {{ hostname }}</code><br><code>ntp server {{ ntp_server }}</code><br><code>!</code><br><code>{% for vlan in vlans %}</code><br><code>vlan {{ vlan }}</code><br><code>{% endfor %}</code><br><code>!</code><br><code>interface Vlan{{ mgmt_vlan }}</code><br><code> ip address {{ mgmt_ip }} 255.255.255.0</code><br><br><strong>devices.yaml:</strong><br><code>devices:</code><br>&nbsp;&nbsp;<code>- hostname: SW-01</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ntp_server: "10.0.0.1"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>vlans: [10, 20, 100]</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>mgmt_vlan: 100</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>mgmt_ip: "10.100.1.1"</code><br>&nbsp;&nbsp;<code>- hostname: SW-02</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ntp_server: "10.0.0.1"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>vlans: [10, 30, 100]</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>mgmt_vlan: 100</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>mgmt_ip: "10.100.1.2"</code><br><br><strong>Python:</strong><br><code>import yaml; from jinja2 import Template</code><br><code>with open("template.j2") as f: tmpl = Template(f.read())</code><br><code>with open("devices.yaml") as f: data = yaml.safe_load(f)</code><br><code>for device in data["devices"]:</code><br>&nbsp;&nbsp;<code>cfg = tmpl.render(**device)</code><br>&nbsp;&nbsp;<code>with open(f"{device['hostname']}.txt","w") as f: f.write(cfg)</code><br>&nbsp;&nbsp;<code>print(f"Generated {device['hostname']}.txt")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Conditional Templates</div><div class="pt">If/else in Jinja2</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Add to your template: if the device type is "router", include an <code>ip routing</code> command; if it's a "switch", include <code>spanning-tree mode rapid-pvst</code>. Add a <code>type</code> field to your YAML data for each device and test both cases.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Add to template.j2:</strong><br><code>{% if type == "router" %}</code><br><code>ip routing</code><br><code>ip cef</code><br><code>{% elif type == "switch" %}</code><br><code>spanning-tree mode rapid-pvst</code><br><code>spanning-tree extend system-id</code><br><code>{% endif %}</code><br><br><strong>Add to YAML data for each device:</strong><br><code>type: switch  # or "router"</code><br><br>When you render a switch config, you get spanning-tree commands. Router config gets ip routing. Same template, different output based on YAML data. This is how Ansible handles multi-device-type playbooks.</p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 9 ═══════════ -->
+<script type="text/x-tmpl" id="m9-theory">
+<h3>Data Validation — Making Sure the Data Is Correct</h3>
+<p>Your Python script parses a YAML file written by a human. Humans make mistakes — wrong IP format, missing required field, wrong data type. Before you use that data to push config to 500 switches, you want to validate it. This is where schema validation comes in.</p>
+<h4>Common Validation Tools</h4>
+<table class="tbl"><thead><tr><th>Tool</th><th>What it validates</th><th>Install</th></tr></thead><tbody>
+<tr><td><strong>jsonschema</strong></td><td>JSON data against a JSON Schema definition</td><td><code>pip install jsonschema</code></td></tr>
+<tr><td><strong>pydantic</strong></td><td>Python objects with type hints (auto-validates)</td><td><code>pip install pydantic</code></td></tr>
+<tr><td><strong>cerberus</strong></td><td>Dict validation with simple rules</td><td><code>pip install cerberus</code></td></tr>
+<tr><td><strong>Manual checks</strong></td><td>Simple assert statements and if/else</td><td>Built-in</td></tr>
+</tbody></table>
+<h4>What to Validate in Network Data</h4>
+<ul>
+<li>IP address is a valid IP (not "10.1.1.300")</li>
+<li>VLAN ID is between 1 and 4094</li>
+<li>Required fields exist (hostname, ip, type)</li>
+<li>Data types are correct (port numbers are integers, not strings)</li>
+<li>Interface names follow the expected pattern</li>
+</ul>
+</script>
+
+<script type="text/x-tmpl" id="m9-industry">
+<h3>Why Validation Saves Your Job</h3>
+<p>Imagine you're running a script that pushes VLAN configs to 300 switches. Someone puts <code>vlan: 5000</code> in the YAML file (invalid — max is 4094). Without validation, your script sends bad config to 300 switches. With validation, it catches it before touching a single device.</p>
+<div class="note r"><p><strong>Real incident pattern:</strong> A network engineer once pushed a script that read IPs from a YAML file with a typo — one IP was "10.1.1.256". The script pushed configs with the invalid IP to 150 devices. Rollback took 3 hours. Five minutes of validation code would have prevented this entirely.</p></div>
+<div class="note g"><p><strong>Best practice:</strong> Always validate input data (YAML, CSV, user input) before using it to interact with network devices. Fail fast with a clear error message rather than partially applying bad config.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practical">
+<h3>Validation in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">validate_inventory.py</span></div><pre><span class="kw">import</span> yaml, ipaddress, sys
+
+<span class="kw">def</span> <span class="fn">validate_device</span>(device, index):
+    errors = []
+
+    <span class="cm"># Check required fields exist</span>
+    required = [<span class="st">"hostname"</span>, <span class="st">"ip"</span>, <span class="st">"type"</span>]
+    <span class="kw">for</span> field <span class="kw">in</span> required:
+        <span class="kw">if</span> field <span class="kw">not in</span> device:
+            errors.<span class="fn">append</span>(f<span class="st">"Missing required field: '{field}'"</span>)
+
+    <span class="cm"># Check IP is valid</span>
+    <span class="kw">if</span> <span class="st">"ip"</span> <span class="kw">in</span> device:
+        <span class="kw">try</span>:
+            ipaddress.<span class="fn">ip_address</span>(device[<span class="st">"ip"</span>])
+        <span class="kw">except</span> ValueError:
+            errors.<span class="fn">append</span>(f<span class="st">"Invalid IP address: '{device['ip']}'"</span>)
+
+    <span class="cm"># Check device type is valid</span>
+    valid_types = [<span class="st">"router"</span>, <span class="st">"switch"</span>, <span class="st">"firewall"</span>]
+    <span class="kw">if</span> device.<span class="fn">get</span>(<span class="st">"type"</span>) <span class="kw">not in</span> valid_types:
+        errors.<span class="fn">append</span>(f<span class="st">"Invalid type: '{device.get('type')}'. Must be {valid_types}"</span>)
+
+    <span class="cm"># Check VLANs are in valid range</span>
+    <span class="kw">for</span> vlan <span class="kw">in</span> device.<span class="fn">get</span>(<span class="st">"vlans"</span>, []):
+        <span class="kw">if</span> <span class="kw">not</span> (<span class="nm">1</span> &lt;= vlan &lt;= <span class="nm">4094</span>):
+            errors.<span class="fn">append</span>(f<span class="st">"VLAN {vlan} is out of range (1-4094)"</span>)
+
+    <span class="kw">return</span> errors
+
+<span class="cm"># ─── Run validation ───────────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.yaml"</span>) <span class="kw">as</span> f:
+    data = yaml.<span class="fn">safe_load</span>(f)
+
+all_valid = <span class="kw">True</span>
+<span class="kw">for</span> i, device <span class="kw">in</span> <span class="fn">enumerate</span>(data[<span class="st">"devices"</span>]):
+    errors = <span class="fn">validate_device</span>(device, i)
+    <span class="kw">if</span> errors:
+        all_valid = <span class="kw">False</span>
+        <span class="fn">print</span>(f<span class="st">"Device {i+1} ({device.get('hostname','?')}): VALIDATION FAILED"</span>)
+        <span class="kw">for</span> e <span class="kw">in</span> errors:
+            <span class="fn">print</span>(f<span class="st">"  → {e}"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(f<span class="st">"Device {i+1} ({device['hostname']}): OK"</span>)
+
+<span class="kw">if</span> <span class="kw">not</span> all_valid:
+    <span class="fn">print</span>(<span class="st">"\nFix errors before running against live devices!"</span>)
+    sys.<span class="fn">exit</span>(<span class="nm">1</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-flow">
+<h3>Validation-First Workflow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 yc">Load YAML inventory</div><div class="fa">→</div><div class="fn2">Validate every field</div></div>
+  <div style="height:6px"></div>
+  <div class="fr">
+    <div class="fn2 r">Validation FAILS → print all errors → exit (no device touched)</div>
+  </div>
+  <div style="height:4px"></div>
+  <div class="fr">
+    <div class="fn2 g">Validation PASSES → proceed with automation → push to devices</div>
+  </div>
+</div>
+<div class="note g"><p><strong>The rule:</strong> Never write data directly from a human-edited file to a live network device without validation in between. Always fail fast, fail loud, fail before touching anything.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Add a Bad Entry</div><div class="pt">Trigger validation errors</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>In your inventory.yaml, intentionally add bad data: an invalid IP (10.1.1.999), a VLAN out of range (5000), and a device with no hostname field. Run the validation script and confirm it catches all three errors without touching any device.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Bad YAML entries to add:</strong><br><code>- hostname: BAD-SW</code><br>&nbsp;&nbsp;<code>ip: "10.1.1.999"    # invalid IP</code><br>&nbsp;&nbsp;<code>type: switch</code><br>&nbsp;&nbsp;<code>vlans: [10, 5000]  # VLAN out of range</code><br><br><code>- ip: "10.1.2.1"    # missing hostname</code><br>&nbsp;&nbsp;<code>type: router</code><br><br><strong>Expected validation output:</strong><br><code>Device 4 (BAD-SW): VALIDATION FAILED</code><br><code>  → Invalid IP address: '10.1.1.999'</code><br><code>  → VLAN 5000 is out of range (1-4094)</code><br><code>Device 5 (?): VALIDATION FAILED</code><br><code>  → Missing required field: 'hostname'</code><br><code>Fix errors before running against live devices!</code><br><br>Script exits with code 1 — nothing was sent to any device. This is exactly what you want.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Pydantic Validation</div><div class="pt">Type-safe models</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Install pydantic and create a <code>DeviceModel</code> class that validates: hostname (string, min 2 chars), ip (valid IPv4), type (must be router/switch/firewall), vlans (list of ints, each 1-4094). Test it with valid and invalid data.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>from pydantic import BaseModel, validator</code><br><code>from typing import List, Literal</code><br><code>import ipaddress</code><br><br><code>class DeviceModel(BaseModel):</code><br>&nbsp;&nbsp;<code>hostname: str</code><br>&nbsp;&nbsp;<code>ip: str</code><br>&nbsp;&nbsp;<code>type: Literal["router","switch","firewall"]</code><br>&nbsp;&nbsp;<code>vlans: List[int] = []</code><br><br>&nbsp;&nbsp;<code>@validator("hostname")</code><br>&nbsp;&nbsp;<code>def hostname_length(cls, v):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if len(v) &lt; 2: raise ValueError("Hostname too short")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return v</code><br><br>&nbsp;&nbsp;<code>@validator("ip")</code><br>&nbsp;&nbsp;<code>def valid_ip(cls, v):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ipaddress.ip_address(v)  # raises ValueError if invalid</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return v</code><br><br>&nbsp;&nbsp;<code>@validator("vlans", each_item=True)</code><br>&nbsp;&nbsp;<code>def valid_vlan(cls, v):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if not (1 &lt;= v &lt;= 4094): raise ValueError(f"VLAN {v} out of range")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return v</code><br><br><code>try:</code><br>&nbsp;&nbsp;<code>d = DeviceModel(hostname="SW-01", ip="10.1.1.1", type="switch", vlans=[10,20])</code><br>&nbsp;&nbsp;<code>print("Valid:", d)</code><br><code>except Exception as e:</code><br>&nbsp;&nbsp;<code>print("Invalid:", e)</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 10 ═══════════ -->
+<script type="text/x-tmpl" id="m10-theory">
+<h3>Working with Multiple Files and Data Sources</h3>
+<p>In real network automation, your data comes from multiple places — a YAML inventory file, a JSON API response, a CSV export from your IPAM system, maybe an Excel spreadsheet from the network team. You need to merge, compare, and reconcile data from all of them.</p>
+<h4>Common Multi-Source Scenarios</h4>
+<ul>
+<li><strong>YAML inventory vs API reality:</strong> You think you have 50 devices in your YAML file. The DNAC API says there are 53. Which 3 are missing?</li>
+<li><strong>Config drift detection:</strong> The intended config is in YAML. The running config comes from NETCONF XML. Are they the same?</li>
+<li><strong>Data enrichment:</strong> Start with a JSON API response (device list), add YAML data (site info, roles), combine into one rich dataset</li>
+<li><strong>Multi-vendor normalisation:</strong> Cisco returns JSON structure A, Juniper returns JSON structure B. Normalise both into your own standard format</li>
+</ul>
+<div class="note j"><p><strong>The key skill:</strong> Once everything is in Python dicts and lists, all your data manipulation skills apply regardless of whether the original source was JSON, YAML, or XML. That's the power of the parse → manipulate → output pattern.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-industry">
+<h3>Data Reconciliation in Production</h3>
+<h4>Reconciliation Use Case — CMDB vs Reality</h4>
+<p>Your CMDB (Configuration Management Database) or IPAM tool has a list of devices it <em>thinks</em> are on the network. The DNAC API has a list of what's <em>actually</em> on the network. A daily reconciliation script compares both lists and flags differences — devices in CMDB but not in DNAC (decommissioned?), devices in DNAC but not CMDB (rogue devices?).</p>
+<div class="note y"><p><strong>This script runs every morning at 6am at many enterprises.</strong> It's one of the most valuable automation scripts you can write for a network team — takes 2 minutes of Python, saves hours of manual checking.</p></div>
+<h4>Config Drift Detection</h4>
+<p>Compare the "intended state" (what's in your YAML templates) against the "actual state" (what NETCONF/RESTCONF returns from the device). Any difference is configuration drift — someone manually changed something that wasn't in the approved config. Catch it, report it, revert it.</p>
+</script>
+
+<script type="text/x-tmpl" id="m10-practical">
+<h3>Multi-Source Data Handling</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">reconcile_inventory.py</span></div><pre><span class="kw">import</span> requests, yaml, json
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+<span class="cm"># ─── Source 1: Local YAML inventory ──────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.yaml"</span>) <span class="kw">as</span> f:
+    local = yaml.<span class="fn">safe_load</span>(f)
+local_ips = {d[<span class="st">"ip"</span>] <span class="kw">for</span> d <span class="kw">in</span> local[<span class="st">"devices"</span>]}
+local_map  = {d[<span class="st">"ip"</span>]: d <span class="kw">for</span> d <span class="kw">in</span> local[<span class="st">"devices"</span>]}
+
+<span class="cm"># ─── Source 2: DNAC API ───────────────────────────────</span>
+r = requests.<span class="fn">post</span>(<span class="st">"https://sandboxdnac.cisco.com/dna/system/api/v1/auth/token"</span>,
+                   auth=(<span class="st">"devnetuser"</span>,<span class="st">"Cisco123!"</span>), verify=<span class="kw">False</span>)
+token   = r.<span class="fn">json</span>()[<span class="st">"Token"</span>]
+r       = requests.<span class="fn">get</span>(<span class="st">"https://sandboxdnac.cisco.com/dna/intent/api/v1/network-device"</span>,
+                       headers={<span class="st">"X-Auth-Token"</span>: token}, verify=<span class="kw">False</span>)
+dnac_devices = r.<span class="fn">json</span>()[<span class="st">"response"</span>]
+dnac_ips     = {d[<span class="st">"managementIpAddress"</span>] <span class="kw">for</span> d <span class="kw">in</span> dnac_devices}
+
+<span class="cm"># ─── Reconcile ────────────────────────────────────────</span>
+in_yaml_only = local_ips - dnac_ips    <span class="cm"># in YAML but not DNAC</span>
+in_dnac_only = dnac_ips - local_ips    <span class="cm"># in DNAC but not YAML</span>
+in_both      = local_ips &amp; dnac_ips    <span class="cm"># in both — these are fine</span>
+
+<span class="fn">print</span>(f<span class="st">"Matched:           {len(in_both)}"</span>)
+<span class="fn">print</span>(f<span class="st">"In YAML, not DNAC: {len(in_yaml_only)} — may be offline"</span>)
+<span class="fn">print</span>(f<span class="st">"In DNAC, not YAML: {len(in_dnac_only)} — undocumented devices!"</span>)
+
+<span class="kw">if</span> in_dnac_only:
+    <span class="fn">print</span>(<span class="st">"\nUndocumented devices (in DNAC but not inventory):"</span>)
+    <span class="kw">for</span> d <span class="kw">in</span> dnac_devices:
+        <span class="kw">if</span> d[<span class="st">"managementIpAddress"</span>] <span class="kw">in</span> in_dnac_only:
+            <span class="fn">print</span>(f<span class="st">"  {d['hostname']:20} {d['managementIpAddress']}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-flow">
+<h3>Multi-Source Data Pipeline</h3>
+<div class="fb">
+  <div class="fr">
+    <div class="fn2 yc">YAML file<br><span class="fl">local inventory</span></div>
+    <div class="fa">+</div>
+    <div class="fn2 j">API JSON<br><span class="fl">DNAC / Meraki</span></div>
+    <div class="fa">+</div>
+    <div class="fn2 xc">NETCONF XML<br><span class="fl">device state</span></div>
+  </div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 g" style="width:100%">Parse all three → Python dicts → merge/compare/reconcile</div></div>
+  <div style="height:6px"></div>
+  <div class="fr">
+    <div class="fn2 j">JSON report (for systems)</div>
+    <div class="fa">or</div>
+    <div class="fn2 yc">YAML report (for humans)</div>
+    <div class="fa">or</div>
+    <div class="fn2">CSV (for management)</div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m10-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Inventory Reconciliation</div><div class="pt">YAML vs API</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Take your local YAML inventory. Deliberately add 2 fake IPs to it. Run the reconciliation script against the DNAC sandbox. Confirm your 2 fake devices show up as "in YAML, not DNAC". Also check if there are any devices DNAC knows about that aren't in your YAML.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Add to inventory.yaml (fake devices):</strong><br><code>- hostname: FAKE-SW-01</code><br>&nbsp;&nbsp;<code>ip: "172.16.99.1"</code><br>&nbsp;&nbsp;<code>type: switch</code><br><code>- hostname: FAKE-RT-01</code><br>&nbsp;&nbsp;<code>ip: "172.16.99.2"</code><br>&nbsp;&nbsp;<code>type: router</code><br><br><strong>Run reconciliation script.</strong> Expected output:<br><code>In YAML, not DNAC: 2 — may be offline</code><br>→ 172.16.99.1 and 172.16.99.2 don't exist in DNAC<br><br>If DNAC sandbox has devices your YAML doesn't know about:<br><code>In DNAC, not YAML: N — undocumented devices!</code><br>→ These are devices the controller manages that aren't in your inventory file yet. Real action: add them to YAML or investigate why they're there.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Data Enrichment</div><div class="pt">Merge sources</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Query DNAC for device list (JSON). Load your YAML inventory. For each device in DNAC that also exists in your YAML (matched by IP), enrich the DNAC data with your YAML fields (site, role, vlans). Save the enriched data as a JSON file.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import requests, yaml, json</code><br><code>requests.packages.urllib3.disable_warnings()</code><br><br><code># Load YAML</code><br><code>with open("inventory.yaml") as f: local = yaml.safe_load(f)</code><br><code>yaml_map = {d["ip"]: d for d in local["devices"]}</code><br><br><code># Get DNAC devices</code><br><code># ... (auth + API call) ...</code><br><code>dnac_devices = r.json()["response"]</code><br><br><code># Enrich</code><br><code>enriched = []</code><br><code>for device in dnac_devices:</code><br>&nbsp;&nbsp;<code>ip = device["managementIpAddress"]</code><br>&nbsp;&nbsp;<code>enriched_device = {</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"hostname" : device["hostname"],</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"ip"       : ip,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"platform" : device.get("platformId"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"status"   : device["reachabilityStatus"],</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code># YAML enrichment data</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"site"     : yaml_map.get(ip, {}).get("site", "unknown"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"role"     : yaml_map.get(ip, {}).get("role", "unknown"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"vlans"    : yaml_map.get(ip, {}).get("vlans", [])</code><br>&nbsp;&nbsp;<code>}</code><br>&nbsp;&nbsp;<code>enriched.append(enriched_device)</code><br><br><code>with open("enriched_inventory.json","w") as f:</code><br>&nbsp;&nbsp;<code>json.dump(enriched, f, indent=2)</code><br><code>print(f"Saved {len(enriched)} enriched devices")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 11 ═══════════ -->
+<script type="text/x-tmpl" id="m11-theory">
+<h3>Error Handling When Parsing Data</h3>
+<p>Network data is messy. APIs change their response structure without warning. YAML files have typos. XML from some vendors is malformed. Your parsing code needs to handle all of this without crashing and burning in the middle of a change window.</p>
+<h4>Common Parsing Failures</h4>
+<table class="tbl"><thead><tr><th>Error</th><th>Cause</th><th>Exception in Python</th></tr></thead><tbody>
+<tr><td>Invalid JSON</td><td>Malformed response, HTML error page instead of JSON</td><td><code>json.JSONDecodeError</code></td></tr>
+<tr><td>Missing key</td><td>API response structure changed, optional field absent</td><td><code>KeyError</code></td></tr>
+<tr><td>Wrong type</td><td>Expected list, got dict (single result vs multiple)</td><td><code>TypeError</code></td></tr>
+<tr><td>Invalid YAML</td><td>Tab instead of spaces, bad indentation</td><td><code>yaml.YAMLError</code></td></tr>
+<tr><td>Malformed XML</td><td>Unclosed tags, invalid characters</td><td><code>xml.etree.ElementTree.ParseError</code></td></tr>
+<tr><td>None value</td><td>Field exists but value is null/None</td><td><code>AttributeError</code> (on None.text etc.)</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m11-industry">
+<h3>Defensive Parsing in Production Scripts</h3>
+<p>The difference between a script a junior engineer writes and one a senior engineer writes is usually in the error handling. The happy path works for both. It's the edge cases that separate them.</p>
+<div class="note y"><p><strong>Classic gotcha:</strong> DNAC returns a single device as a dict when there's one result, but a list of dicts when there are multiple. If your code does <code>for d in response["response"]</code> and the result is a single dict instead of a list, you iterate over the keys of the dict instead of the devices. Always check the type: <code>if isinstance(result, dict): result = [result]</code></p></div>
+<div class="note y"><p><strong>Another classic:</strong> Sometimes an API returns <code>{"response": null}</code> instead of <code>{"response": []}</code> when there's no data. Doing <code>for d in data["response"]</code> on a null crashes with TypeError. Always: <code>devices = data.get("response") or []</code></p></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practical">
+<h3>Defensive Parsing Code Patterns</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">defensive_parsing.py</span></div><pre><span class="kw">import</span> json, yaml, requests
+
+<span class="cm"># ─── Safe JSON parsing ────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">safe_json_parse</span>(response):
+    <span class="kw">try</span>:
+        <span class="kw">return</span> response.<span class="fn">json</span>()
+    <span class="kw">except</span> (json.JSONDecodeError, ValueError) <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"JSON parse failed: {e}"</span>)
+        <span class="fn">print</span>(f<span class="st">"Raw response: {response.text[:200]}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="cm"># ─── Safe YAML loading ────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">safe_yaml_load</span>(filepath):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(filepath) <span class="kw">as</span> f:
+            <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+    <span class="kw">except</span> FileNotFoundError:
+        <span class="fn">print</span>(f<span class="st">"File not found: {filepath}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+    <span class="kw">except</span> yaml.YAMLError <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"YAML parse error in {filepath}: {e}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="cm"># ─── Always-a-list helper ─────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">ensure_list</span>(data):
+    <span class="st">"""Make sure we always have a list, even for single results."""</span>
+    <span class="kw">if</span> data <span class="kw">is None</span>:   <span class="kw">return</span> []
+    <span class="kw">if</span> <span class="fn">isinstance</span>(data, list):  <span class="kw">return</span> data
+    <span class="kw">return</span> [data]  <span class="cm"># single dict → wrap in list</span>
+
+<span class="cm"># ─── Safe nested access ───────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">deep_get</span>(d, *keys, default=<span class="kw">None</span>):
+    <span class="st">"""Safely navigate nested dicts without KeyError."""</span>
+    <span class="kw">for</span> k <span class="kw">in</span> keys:
+        <span class="kw">if not isinstance</span>(d, dict):
+            <span class="kw">return</span> default
+        d = d.<span class="fn">get</span>(k, default)
+    <span class="kw">return</span> d
+
+<span class="cm"># Usage:</span>
+<span class="cm"># deep_get(data, "response", 0, "location", "site")  → safe!</span>
+
+<span class="cm"># ─── Full safe parsing example ────────────────────────</span>
+data = <span class="fn">safe_yaml_load</span>(<span class="st">"inventory.yaml"</span>)
+<span class="kw">if</span> data <span class="kw">is None</span>:
+    <span class="fn">print</span>(<span class="st">"Could not load inventory — stopping"</span>)
+<span class="kw">else</span>:
+    devices = <span class="fn">ensure_list</span>(data.<span class="fn">get</span>(<span class="st">"devices"</span>))
+    <span class="fn">print</span>(f<span class="st">"Loaded {len(devices)} devices safely"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-flow">
+<h3>Defensive Parsing Decision Tree</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2">Receive data (API / file)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 y">Did parsing succeed? (try/except)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr">
+    <div class="fn2 r">No → log error, return None, stop gracefully</div>
+  </div>
+  <div style="height:4px"></div>
+  <div class="fr"><div class="fn2">Yes → is result None?</div></div>
+  <div style="height:4px"></div>
+  <div class="fr"><div class="fn2 r">None → return empty list [], continue safely</div></div>
+  <div style="height:4px"></div>
+  <div class="fr"><div class="fn2">Is it a list or single dict?</div></div>
+  <div style="height:4px"></div>
+  <div class="fr"><div class="fn2 g">ensure_list() → always a list → iterate safely</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Break Your Parser</div><div class="pt">Error scenario testing</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Intentionally break your YAML file (add a tab character, remove a colon). Run your script without error handling and see the crash. Then add proper try/except around the YAML load and run again — confirm it fails gracefully with a helpful message.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Break YAML (add a tab):</strong> Replace any leading spaces with a tab character on one line.<br><br><strong>Without error handling — crash:</strong><br><code>yaml.scanner.ScannerError: while scanning for the next token, found character '\t' that cannot start any token</code><br>— script crashes completely, no helpful message<br><br><strong>With error handling — graceful:</strong><br><code>try:</code><br>&nbsp;&nbsp;<code>with open("inventory.yaml") as f:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>data = yaml.safe_load(f)</code><br><code>except yaml.YAMLError as e:</code><br>&nbsp;&nbsp;<code>print(f"YAML file has an error: {e}")</code><br>&nbsp;&nbsp;<code>print("Fix the YAML file before running.")</code><br>&nbsp;&nbsp;<code>sys.exit(1)</code><br><br>User sees a clear message, no cryptic traceback, knows exactly what to fix.</p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Handle API Format Changes</div><div class="pt">Defensive JSON parsing</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Write a function <code>get_devices_safe(response)</code> that handles all these cases: response is None, response body is not valid JSON, response JSON has no "response" key, response["response"] is None, response["response"] is a single dict instead of list.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import json</code><br><br><code>def get_devices_safe(response):</code><br>&nbsp;&nbsp;<code>"""Safely extract device list from any DNAC-style response."""</code><br>&nbsp;&nbsp;<code>if response is None:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print("No response object"); return []</code><br>&nbsp;&nbsp;<code>try:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>data = response.json()</code><br>&nbsp;&nbsp;<code>except (json.JSONDecodeError, ValueError):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"Not valid JSON: {response.text[:100]}"); return []</code><br>&nbsp;&nbsp;<code>raw = data.get("response")  # handles missing key</code><br>&nbsp;&nbsp;<code>if raw is None:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return []  # handles null response</code><br>&nbsp;&nbsp;<code>if isinstance(raw, dict):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return [raw]  # handles single result as dict</code><br>&nbsp;&nbsp;<code>if isinstance(raw, list):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return raw</code><br>&nbsp;&nbsp;<code>return []  # anything else — return empty</code><br><br><code># Usage:</code><br><code>devices = get_devices_safe(api_response)</code><br><code>for d in devices:  # always safe to iterate</code><br>&nbsp;&nbsp;<code>print(d["hostname"])</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════ TOPIC 12 ═══════════ -->
+<script type="text/x-tmpl" id="m12-theory">
+<h3>Putting It All Together — Real Network Automation Pipelines</h3>
+<p>A real network automation pipeline reads data from multiple sources, transforms it, validates it, and acts on it. This final topic ties everything together in a realistic scenario that uses JSON, XML, and YAML in one workflow.</p>
+<h4>The Full Data Flow</h4>
+<div class="g2">
+  <div class="card"><h5>Input Sources</h5><p>YAML inventory (intent), JSON API (actual state), XML NETCONF (device config)</p></div>
+  <div class="card"><h5>Processing</h5><p>Parse, validate, compare, enrich, transform in pure Python</p></div>
+  <div class="card"><h5>Actions</h5><p>Push changes via REST API (JSON payload) or NETCONF (XML edit-config)</p></div>
+  <div class="card"><h5>Output</h5><p>YAML/JSON report, CSV for management, notification webhook</p></div>
+</div>
+<h4>The Automation Engineer Mindset</h4>
+<ul>
+<li>You don't care what format the data arrives in — you parse it to Python immediately</li>
+<li>You don't care what format the device needs — you build the right structure and serialise</li>
+<li>The Python dict is your workspace. Formats are just the door in and the door out</li>
+<li>Always validate before acting. Always log what happened. Always handle errors gracefully</li>
+</ul>
+</script>
+
+<script type="text/x-tmpl" id="m12-industry">
+<h3>Full Pipeline Example — VLAN Compliance Check</h3>
+<p>Here's a real scenario you might be asked to build as a network automation engineer:</p>
+<p><strong>Goal:</strong> Check that every campus switch has exactly the VLANs it's supposed to have (from YAML intent), and report any differences. No manual device login, fully automated.</p>
+<div class="note g"><p><strong>Steps:</strong><br>1. Load intended VLAN list per switch from YAML inventory<br>2. Query each switch via RESTCONF (JSON) to get actual VLANs<br>3. Compare intended vs actual<br>4. Generate a compliance report (YAML for engineers, JSON for ticketing system)<br>5. If differences found → alert via webhook (JSON payload to Slack/Teams)</p></div>
+<div class="note yc"><p><strong>This kind of script typically runs in CI/CD</strong> every time someone proposes a network change — it checks that the proposed YAML change doesn't violate any existing policies, and after deployment it verifies the change took effect as expected.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m12-practical">
+<h3>Full Pipeline Script</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">vlan_compliance_pipeline.py</span></div><pre><span class="kw">import</span> requests, yaml, json, ipaddress, sys
+requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+
+<span class="cm"># ─── Step 1: Load and validate intent (YAML) ─────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.yaml"</span>) <span class="kw">as</span> f:
+    intent = yaml.<span class="fn">safe_load</span>(f)
+
+<span class="cm"># Simple validation</span>
+<span class="kw">for</span> d <span class="kw">in</span> intent[<span class="st">"devices"</span>]:
+    <span class="kw">if</span> <span class="st">"hostname"</span> <span class="kw">not in</span> d <span class="kw">or</span> <span class="st">"vlans"</span> <span class="kw">not in</span> d:
+        <span class="fn">print</span>(f<span class="st">"Invalid entry in YAML: {d}"</span>); sys.<span class="fn">exit</span>(<span class="nm">1</span>)
+
+<span class="cm"># ─── Step 2: Fetch actual VLANs via API ──────────────</span>
+BASE = <span class="st">"https://sandbox-iosxe-latest-1.cisco.com/restconf/data"</span>
+AUTH = (<span class="st">"developer"</span>, <span class="st">"C1sco12345"</span>)
+HDR  = {<span class="st">"Accept"</span>: <span class="st">"application/yang-data+json"</span>}
+
+<span class="kw">def</span> <span class="fn">get_actual_vlans</span>(hostname):
+    <span class="kw">try</span>:
+        url = f<span class="st">"{BASE}/Cisco-IOS-XE-vlan:vlans"</span>
+        r = requests.<span class="fn">get</span>(url, auth=AUTH, headers=HDR, verify=<span class="kw">False</span>, timeout=<span class="nm">10</span>)
+        <span class="kw">if</span> r.status_code != <span class="nm">200</span>:
+            <span class="kw">return</span> <span class="kw">None</span>
+        vlan_data = r.<span class="fn">json</span>().<span class="fn">get</span>(<span class="st">"Cisco-IOS-XE-vlan:vlans"</span>, {})
+        vlan_list = vlan_data.<span class="fn">get</span>(<span class="st">"vlan"</span>, [])
+        <span class="kw">return</span> {int(v[<span class="st">"id"</span>]) <span class="kw">for</span> v <span class="kw">in</span> (<span class="fn">ensure_list</span>(vlan_list))}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"Could not reach {hostname}: {e}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="kw">def</span> <span class="fn">ensure_list</span>(x):
+    <span class="kw">return</span> x <span class="kw">if isinstance</span>(x, list) <span class="kw">else</span> [x] <span class="kw">if</span> x <span class="kw">else</span> []
+
+<span class="cm"># ─── Step 3: Compare intent vs actual ────────────────</span>
+report = []
+<span class="kw">for</span> device <span class="kw">in</span> intent[<span class="st">"devices"</span>]:
+    hostname     = device[<span class="st">"hostname"</span>]
+    intended     = <span class="fn">set</span>(device.<span class="fn">get</span>(<span class="st">"vlans"</span>, []))
+    actual       = <span class="fn">get_actual_vlans</span>(hostname) <span class="kw">or</span> <span class="fn">set</span>()
+    missing      = intended - actual   <span class="cm"># should be there, isn't</span>
+    extra        = actual - intended   <span class="cm"># there but shouldn't be</span>
+    compliant    = <span class="kw">not</span> missing <span class="kw">and not</span> extra
+
+    report.<span class="fn">append</span>({
+        <span class="st">"hostname"</span>  : hostname,
+        <span class="st">"compliant"</span> : compliant,
+        <span class="st">"intended"</span>  : <span class="fn">sorted</span>(intended),
+        <span class="st">"actual"</span>    : <span class="fn">sorted</span>(actual),
+        <span class="st">"missing"</span>   : <span class="fn">sorted</span>(missing),
+        <span class="st">"extra"</span>     : <span class="fn">sorted</span>(extra)
+    })
+    status = <span class="st">"COMPLIANT"</span> <span class="kw">if</span> compliant <span class="kw">else</span> <span class="st">"DRIFT DETECTED"</span>
+    <span class="fn">print</span>(f<span class="st">"[{status}] {hostname}: missing={sorted(missing)} extra={sorted(extra)}"</span>)
+
+<span class="cm"># ─── Step 4: Save reports in multiple formats ─────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"compliance_report.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(report, f, indent=<span class="nm">2</span>)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"compliance_report.yaml"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    yaml.<span class="fn">dump</span>({<span class="st">"vlan_compliance"</span>: report}, f, default_flow_style=<span class="kw">False</span>)
+
+<span class="fn">print</span>(<span class="st">"Reports saved: compliance_report.json + compliance_report.yaml"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m12-flow">
+<h3>Full Automation Pipeline Summary</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 yc">1. YAML inventory<br><span class="fl">intended state</span></div><div class="fa">→</div><div class="fn2">yaml.safe_load()</div><div class="fa">→</div><div class="fn2 g">Python dicts</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 j">2. REST API call<br><span class="fl">actual state</span></div><div class="fa">→</div><div class="fn2">requests.get() + .json()</div><div class="fa">→</div><div class="fn2 g">Python dicts</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 xc">3. NETCONF XML<br><span class="fl">device config</span></div><div class="fa">→</div><div class="fn2">xmltodict.parse()</div><div class="fa">→</div><div class="fn2 g">Python dicts</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g" style="width:100%">All data now Python — compare, merge, validate, decide</div></div>
+  <div style="height:5px"></div>
+  <div class="fr">
+    <div class="fn2 j">json.dump() → JSON report</div>
+    <div class="fn2 yc">yaml.dump() → YAML report</div>
+    <div class="fn2 xc">XML string → NETCONF push</div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m12-practice">
+<h3>Practice &amp; Solutions — Capstone</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone 1 — Full Pipeline Build</div><div class="pt">End-to-end project</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Build a complete network audit pipeline: (1) Load a YAML inventory with 3+ devices, (2) For each device, query the IOS-XE sandbox via RESTCONF for interface status (JSON), (3) Compare actual interface count vs expected count in YAML, (4) Save a compliance report as both JSON and YAML, (5) Print a clean summary table.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>inventory.yaml (add expected_interface_count field):</strong><br><code>devices:</code><br>&nbsp;&nbsp;<code>- hostname: IOS-XE-SANDBOX</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ip: sandbox-iosxe-latest-1.cisco.com</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>type: router</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>expected_interface_count: 3</code><br><br><strong>Python pipeline:</strong><br><code>import requests, yaml, json</code><br><code>requests.packages.urllib3.disable_warnings()</code><br><br><code>with open("inventory.yaml") as f: inventory = yaml.safe_load(f)</code><br><br><code>report = []</code><br><code>for device in inventory["devices"]:</code><br>&nbsp;&nbsp;<code>url = f"https://{device['ip']}/restconf/data/ietf-interfaces:interfaces"</code><br>&nbsp;&nbsp;<code>r = requests.get(url, auth=("developer","C1sco12345"),</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>headers={"Accept":"application/yang-data+json"}, verify=False)</code><br>&nbsp;&nbsp;<code>ifaces = r.json()["ietf-interfaces:interfaces"]["interface"]</code><br>&nbsp;&nbsp;<code>actual = len(ifaces)</code><br>&nbsp;&nbsp;<code>expected = device.get("expected_interface_count", 0)</code><br>&nbsp;&nbsp;<code>ok = actual >= expected</code><br>&nbsp;&nbsp;<code>report.append({"hostname":device["hostname"],"expected":expected,"actual":actual,"ok":ok})</code><br>&nbsp;&nbsp;<code>print(f"{'OK' if ok else 'FAIL'} {device['hostname']}: expected={expected} actual={actual}")</code><br><br><code>with open("audit.json","w") as f: json.dump(report,f,indent=2)</code><br><code>with open("audit.yaml","w") as f: yaml.dump({"audit":report},f,default_flow_style=False)</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone 2 — Config Generator at Scale</div><div class="pt">Template + data + output</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Create a YAML file with 5 devices (different roles, VLANs, IPs). Write a Jinja2 template for a complete switch base config. Generate all 5 configs automatically. Save each as a .txt file named after the hostname. Print a summary showing what was generated.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Template (switch_base.j2):</strong><br><code>hostname {{ hostname }}</code><br><code>ip domain-name {{ domain | default("lab.local") }}</code><br><code>ntp server {{ ntp | default("10.0.0.1") }}</code><br><code>!</code><br><code>{% for vlan in vlans %}</code><br><code>vlan {{ vlan }}</code><br><code>{% endfor %}</code><br><code>!</code><br><code>interface Vlan{{ mgmt_vlan }}</code><br><code> ip address {{ mgmt_ip }} 255.255.255.0</code><br><code> no shutdown</code><br><br><strong>Python:</strong><br><code>import yaml; from jinja2 import Template</code><br><code>with open("switch_base.j2") as f: tmpl = Template(f.read())</code><br><code>with open("devices.yaml") as f: data = yaml.safe_load(f)</code><br><code>generated = []</code><br><code>for device in data["devices"]:</code><br>&nbsp;&nbsp;<code>config = tmpl.render(**device)</code><br>&nbsp;&nbsp;<code>filename = f"{device['hostname']}.txt"</code><br>&nbsp;&nbsp;<code>with open(filename, "w") as f: f.write(config)</code><br>&nbsp;&nbsp;<code>generated.append(filename)</code><br>&nbsp;&nbsp;<code>print(f"Generated: {filename}")</code><br><br><code>print(f"\nDone: {len(generated)} config files generated")</code><br><code>print("Files:", generated)</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone 3 — Format Conversion Utility</div><div class="pt">Build a real tool</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none">
+    <p>Build a command-line utility <code>convert.py</code> that takes a filename as argument and converts: .json → .yaml, .yaml → .json, .xml → .json. Print the result to stdout. Test all three conversions with real network data files.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import sys, json, yaml, xmltodict</code><br><br><code>def convert_file(filename):</code><br>&nbsp;&nbsp;<code>with open(filename) as f: content = f.read()</code><br>&nbsp;&nbsp;<code>if filename.endswith(".json"):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>data = json.loads(content)</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(yaml.dump(data, default_flow_style=False))</code><br>&nbsp;&nbsp;<code>elif filename.endswith(".yaml") or filename.endswith(".yml"):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>data = yaml.safe_load(content)</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(json.dumps(data, indent=2))</code><br>&nbsp;&nbsp;<code>elif filename.endswith(".xml"):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>data = xmltodict.parse(content)</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(json.dumps(data, indent=2))</code><br>&nbsp;&nbsp;<code>else:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"Unknown format: {filename}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>sys.exit(1)</code><br><br><code>if len(sys.argv) != 2:</code><br>&nbsp;&nbsp;<code>print("Usage: python convert.py &lt;filename&gt;")</code><br>&nbsp;&nbsp;<code>sys.exit(1)</code><br><br><code>convert_file(sys.argv[1])</code><br><br><strong>Usage:</strong><br><code>python convert.py inventory.yaml    # outputs JSON</code><br><code>python convert.py devices.json     # outputs YAML</code><br><code>python convert.py netconf.xml      # outputs JSON</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══════════════════════════ JS ════════════════════════════ -->
+<script>
+var M = [
+  {id:1,  title:"Why Data Formats? The Big Picture",        level:"basic"},
+  {id:2,  title:"JSON — Structure & Python Basics",         level:"basic"},
+  {id:3,  title:"JSON Deep Dive — Parsing API Responses",   level:"basic"},
+  {id:4,  title:"XML — Structure & NETCONF Parsing",        level:"intermediate"},
+  {id:5,  title:"YAML — Structure & Python Basics",         level:"intermediate"},
+  {id:6,  title:"JSON vs XML vs YAML — When to Use What",   level:"intermediate"},
+  {id:7,  title:"YANG Models — The Data Behind the Format", level:"intermediate"},
+  {id:8,  title:"Jinja2 + YAML — Config Templating",        level:"intermediate"},
+  {id:9,  title:"Data Validation — Fail Safe, Fail Early",  level:"intermediate"},
+  {id:10, title:"Multi-Source Data & Reconciliation",       level:"advanced"},
+  {id:11, title:"Defensive Parsing — Handling Bad Data",    level:"advanced"},
+  {id:12, title:"Full Pipeline — Capstone Project",         level:"advanced"}
+];
+
+var cur = 0;
+var TABS = ['theory','industry','practical','flow','practice'];
+
+function getSection(id, section) {
+  var el = document.getElementById('m' + id + '-' + section);
+  return el ? el.textContent : '<p style="color:var(--mut)">Content loading...</p>';
+}
+
+function renderSidebar() {
+  var html = '';
+  for (var i = 0; i < M.length; i++) {
+    html += '<div class="ti' + (i === cur ? ' active' : '') + '" onclick="selectTopic(' + i + ')">'
+          + '<span class="tn">' + String(M[i].id).padStart(2,'0') + '</span>'
+          + '<span class="tt">' + M[i].title + '</span>'
+          + '<span class="lbg lb-' + M[i].level + '">' + M[i].level + '</span>'
+          + '</div>';
+  }
+  document.getElementById('tlist').innerHTML = html;
+}
+
+function renderContent() {
+  var m = M[cur];
+  document.getElementById('ttl').textContent = m.title;
+  var lb = document.getElementById('tlvl');
+  lb.textContent = m.level;
+  lb.className = 'lbg lb-' + m.level;
+  lb.style.display = 'inline-block';
+  for (var i = 0; i < TABS.length; i++) {
+    document.getElementById(TABS[i]).innerHTML = getSection(m.id, TABS[i]);
+  }
+  document.getElementById('sft').textContent = 'Topic ' + m.id + ' of ' + M.length + '  ·  ' + m.level;
+}
+
+function selectTopic(i) {
+  cur = i;
+  renderSidebar();
+  renderContent();
+  switchTab('theory');
+  document.getElementById('ct').scrollTop = 0;
+  closeSidebar();
+}
+
+function switchTab(tab) {
+  var secs = document.querySelectorAll('.sec');
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < secs.length; i++) secs[i].classList.remove('active');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  document.getElementById(tab).classList.add('active');
+  var idx = TABS.indexOf(tab);
+  if (idx >= 0) tabs[idx].classList.add('active');
+  document.getElementById('ct').scrollTop = 0;
+}
+
+document.querySelectorAll('.tab').forEach(function(el) {
+  el.addEventListener('click', function() { switchTab(el.getAttribute('data-tab')); });
+});
+
+function tP(header) {
+  var body = header.nextElementSibling;
+  var chev = header.querySelector('.chv');
+  var open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  if (chev) chev.classList.toggle('op', !open);
+}
+
+function tS(btn) {
+  var box = btn.nextElementSibling;
+  var open = box.classList.contains('open');
+  box.classList.toggle('open', !open);
+  btn.textContent = open ? '▶ Show Solution' : '▼ Hide Solution';
+}
+
+function openSidebar()  { document.getElementById('sb').classList.add('open');  document.getElementById('ovl').classList.add('open');  }
+function closeSidebar() { document.getElementById('sb').classList.remove('open'); document.getElementById('ovl').classList.remove('open'); }
+
+document.getElementById('hbg').addEventListener('click', function() {
+  document.getElementById('sb').classList.contains('open') ? closeSidebar() : openSidebar();
+});
+document.getElementById('ovl').addEventListener('click', closeSidebar);
+
+renderSidebar();
+renderContent();
+</script>
+</body>
+</html>
