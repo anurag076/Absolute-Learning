@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palo Alto Firewall — REST API Automation Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0b0f1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --heading: #f8fafc;
+    --nav-w: 260px;
+    --topbar-h: 56px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* MOBILE TOPBAR */
+  .topbar {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--topbar-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    z-index: 200;
+    align-items: center;
+    padding: 0 1rem; gap: 12px;
+  }
+
+  .hamburger {
+    width: 36px; height: 36px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center; gap: 5px;
+    cursor: pointer; border-radius: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    flex-shrink: 0; transition: background 0.15s;
+  }
+  .hamburger:hover { background: var(--border); }
+  .hamburger span {
+    display: block; width: 18px; height: 1.5px;
+    background: var(--text); border-radius: 2px;
+    transition: all 0.25s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .topbar-brand { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .topbar-brand .fw-icon {
+    width: 26px; height: 26px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff; font-family: 'Syne', sans-serif;
+  }
+  .topbar-title {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--heading);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* OVERLAY */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 150;
+  }
+  .overlay.visible { display: block; }
+
+  /* SIDEBAR */
+  nav {
+    width: var(--nav-w); min-height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    position: fixed; top: 0; left: 0;
+    overflow-y: auto; padding: 0 0 2rem;
+    z-index: 160;
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .nav-brand { padding: 1.5rem 1.25rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+  .nav-brand .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .fw-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff; font-family: 'Syne', sans-serif;
+  }
+  .nav-brand h1 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--heading); letter-spacing: 0.02em; }
+  .nav-brand p  { font-size: 11px; color: var(--muted); }
+
+  .nav-section { padding: 0.5rem 0; }
+  .nav-section-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); padding: 0.5rem 1.25rem 0.25rem;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.5rem 1.25rem; cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s; font-size: 13px; color: var(--muted);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,212,255,0.06); }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  /* MAIN */
+  main { margin-left: var(--nav-w); flex: 1; padding: 2.5rem 3rem; max-width: 960px; min-width: 0; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .page-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem;
+  }
+  .page-tag::before { content: ''; width: 16px; height: 1px; background: var(--accent); }
+
+  h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--heading); margin-bottom: 0.5rem; line-height: 1.2; }
+  .page-desc { font-size: 14px; color: var(--muted); max-width: 620px; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+  .card h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--heading); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  /* BADGES */
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+  .badge-get  { background: rgba(16,185,129,0.15); color: var(--accent3); }
+  .badge-post { background: rgba(0,212,255,0.12);  color: var(--accent); }
+  .badge-info { background: rgba(124,58,237,0.15); color: #a78bfa; }
+
+  /* OBJ GRID */
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .obj-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; }
+  .obj-box .obj-icon { font-size: 20px; margin-bottom: 6px; }
+  .obj-box h4 { font-size: 13px; font-weight: 600; color: var(--heading); margin-bottom: 4px; }
+  .obj-box p  { font-size: 12px; color: var(--muted); margin: 0; }
+
+  /* CODE BLOCKS */
+  .code-block { background: #070c17; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 1rem 0; }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); gap: 8px;
+  }
+  .code-lang { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy-btn {
+    font-size: 11px; color: var(--muted); cursor: pointer; padding: 3px 10px;
+    border: 1px solid var(--border); border-radius: 4px; background: transparent;
+    transition: all 0.15s; font-family: 'Inter', sans-serif; flex-shrink: 0; white-space: nowrap;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  pre {
+    padding: 1.25rem; overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px; line-height: 1.8; color: #cbd5e1;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kw { color: #7c3aed; } .str{ color: #10b981; } .cm { color: #475569; font-style: italic; }
+  .fn { color: #00d4ff; } .num{ color: #f59e0b; }
+
+  /* URL ANATOMY */
+  .url-anatomy {
+    background: #070c17; border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    margin: 1rem 0; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    word-break: break-all; word-wrap: break-word;
+    white-space: pre-wrap; line-height: 2;
+  }
+  .url-scheme { color: #7c3aed; } .url-host { color: #00d4ff; }
+  .url-path   { color: #10b981; } .url-param { color: #f59e0b; }
+  .url-value  { color: #fb923c; }
+
+  .url-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 12px; }
+  .url-legend-item { display: flex; align-items: center; gap: 6px; }
+  .url-legend-dot  { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  /* TABLE WRAPPER — key for mobile */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; margin: 1rem 0; }
+  .param-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 400px; }
+  .param-table th { text-align: left; padding: 0.5rem 0.75rem; background: var(--surface2); color: var(--muted); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--border); }
+  .param-table td { padding: 0.6rem 0.75rem; border: 1px solid var(--border); vertical-align: top; }
+  .param-table tr:hover td { background: var(--surface2); }
+  .param-table .param-val  { font-family: 'JetBrains Mono', monospace; color: var(--accent3); font-size: 11px; word-break: break-all; }
+  .param-table .param-desc { color: var(--muted); }
+
+  /* ALERTS */
+  .alert { border-radius: 8px; padding: 0.875rem 1rem; margin: 1rem 0; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
+  .alert-info    { background: rgba(0,212,255,0.07);  border: 1px solid rgba(0,212,255,0.2);  color: #7dd3fc; }
+  .alert-warn    { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.25);color: #fcd34d; }
+  .alert-success { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.2); color: #6ee7b7; }
+  .alert-icon    { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* STEPS */
+  .steps { counter-reset: step; }
+  .step-item { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+  .step-num {
+    counter-increment: step; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--accent);
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-num::before { content: counter(step); }
+  .step-body h4 { font-size: 14px; font-weight: 600; color: var(--heading); margin-bottom: 6px; }
+  .step-body p  { font-size: 13px; color: var(--muted); }
+
+  /* FLOW */
+  .flow { display: flex; align-items: center; margin: 1rem 0; flex-wrap: wrap; row-gap: 8px; }
+  .flow-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.875rem; font-size: 12px; font-weight: 500; color: var(--text); }
+  .flow-arr { color: var(--muted); font-size: 16px; padding: 0 6px; }
+
+  /* RESPONSE */
+  .response-block { background: #070c17; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; color: #94a3b8; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* SECTION TITLE */
+  .section-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--heading); margin: 2rem 0 1rem; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .lab-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+
+  ul { padding-left: 1.25rem; }
+  ul li { margin-bottom: 0.25rem; font-size: 13px; color: var(--muted); }
+  ul li strong { color: var(--text); }
+  p { font-size: 13px; color: var(--muted); margin-bottom: 0.75rem; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; color: var(--accent); }
+
+  /* ═══════════════════
+     TABLET ≤ 900px
+  ═══════════════════ */
+  @media (max-width: 900px) {
+    main { padding: 2rem 1.75rem; }
+    h2   { font-size: 22px; }
+  }
+
+  /* ═══════════════════
+     MOBILE ≤ 768px
+  ═══════════════════ */
+  @media (max-width: 768px) {
+    .topbar   { display: flex; }
+    .nav-brand{ display: none; }
+
+    nav {
+      transform: translateX(-100%);
+      width: 280px; top: 0; padding-top: 0.75rem;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+    nav.open { transform: translateX(0); }
+
+    body { flex-direction: column; }
+    main {
+      margin-left: 0;
+      padding: 1.25rem 1rem;
+      padding-top: calc(var(--topbar-h) + 1.25rem);
+      max-width: 100%;
+    }
+
+    h2          { font-size: 20px; }
+    .page-desc  { font-size: 13px; }
+    .obj-grid   { grid-template-columns: 1fr; gap: 0.75rem; }
+    .url-anatomy{ font-size: 11.5px; padding: 0.875rem; }
+    pre         { font-size: 11.5px; padding: 1rem; }
+    .section-title { font-size: 15px; margin: 1.5rem 0 0.75rem; }
+    .card       { padding: 1rem; }
+    .alert      { padding: 0.75rem; font-size: 12.5px; }
+    .response-block { font-size: 11px; padding: 1rem; }
+    .flow-box   { font-size: 11px; padding: 0.4rem 0.6rem; }
+    .flow-arr   { font-size: 13px; padding: 0 3px; }
+    .step-item  { gap: 0.75rem; }
+    .page-header{ margin-bottom: 1.5rem; padding-bottom: 1.25rem; }
+  }
+
+  /* ═══════════════════
+     SMALL ≤ 400px
+  ═══════════════════ */
+  @media (max-width: 400px) {
+    main        { padding: 1rem 0.875rem; padding-top: calc(var(--topbar-h) + 1rem); }
+    h2          { font-size: 18px; }
+    pre         { font-size: 11px; }
+    .url-anatomy{ font-size: 11px; }
+    .section-title { font-size: 14px; }
+    .copy-btn   { font-size: 10px; padding: 2px 7px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<header class="topbar" id="topbar">
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="topbar-brand">
+    <div class="fw-icon">FW</div>
+    <div class="topbar-title">Firewall Automation Lab</div>
+  </div>
+</header>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="nav-brand">
+    <div class="logo">
+      <div class="fw-icon">PA</div>
+      <div><h1>Firewall Automation</h1><p>REST API Lab Module</p></div>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Getting Started</div>
+    <div class="nav-item active" onclick="showSection('overview',this)"><div class="nav-dot"></div> Overview &amp; Objectives</div>
+    <div class="nav-item" onclick="showSection('setup',this)"><div class="nav-dot"></div> Initial Setup</div>
+    <div class="nav-item" onclick="showSection('api-url',this)"><div class="nav-dot"></div> API URL Construction</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Labs</div>
+    <div class="nav-item" onclick="showSection('lab1',this)"><div class="nav-dot"></div> Lab 1 — Get API Key</div>
+    <div class="nav-item" onclick="showSection('lab2',this)"><div class="nav-dot"></div> Lab 2 — Interface Details</div>
+    <div class="nav-item" onclick="showSection('lab3',this)"><div class="nav-dot"></div> Lab 3 — Security Policies</div>
+    <div class="nav-item" onclick="showSection('lab4',this)"><div class="nav-dot"></div> Lab 4 — Address Object</div>
+    <div class="nav-item" onclick="showSection('lab5',this)"><div class="nav-dot"></div> Lab 5 — Commit Config</div>
+    <div class="nav-item" onclick="showSection('lab6',this)"><div class="nav-dot"></div> Lab 6 — System Info</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Reference</div>
+    <div class="nav-item" onclick="showSection('reference',this)"><div class="nav-dot"></div> Quick Reference</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="overview">
+    <div class="page-header">
+      <div class="page-tag">Module — Firewall Automation</div>
+      <h2>Overview &amp; Objectives</h2>
+      <p class="page-desc">Automate a Palo Alto firewall in EVE-NG using VS Code and the PAN-OS REST API. Your local PC and the firewall share the same network — no jump host needed.</p>
+    </div>
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <span>This module uses the <strong>PAN-OS XML API</strong> (port 443). The firewall's management interface must be reachable from your PC. All requests are HTTPS.</span>
+    </div>
+    <div class="section-title">Lab Environment</div>
+    <div class="obj-grid">
+      <div class="obj-box"><div class="obj-icon">🔥</div><h4>Palo Alto Firewall</h4><p>Running in EVE-NG. Management IP reachable from your local PC on the same subnet.</p></div>
+      <div class="obj-box"><div class="obj-icon">☁️</div><h4>Cloud Management</h4><p>Connected to Panorama or Strata Cloud Manager via management port.</p></div>
+      <div class="obj-box"><div class="obj-icon">💻</div><h4>VS Code + Python</h4><p>Your local machine. Python 3.x with the <code>requests</code> library installed.</p></div>
+      <div class="obj-box"><div class="obj-icon">🔗</div><h4>Same Network</h4><p>PC ↔ Firewall mgmt on same L3 network. Direct API calls — no proxy required.</p></div>
+    </div>
+    <div class="section-title">What You Will Build</div>
+    <div class="card">
+      <h3>Lab Coverage</h3>
+      <ul>
+        <li><strong>Lab 1</strong> — Generate and store an API key from the firewall</li>
+        <li><strong>Lab 2</strong> — Retrieve all interface names, IPs, and link states</li>
+        <li><strong>Lab 3</strong> — Fetch and parse security policy rules</li>
+        <li><strong>Lab 4</strong> — Create a new address object (host / subnet)</li>
+        <li><strong>Lab 5</strong> — Commit candidate configuration to running config</li>
+        <li><strong>Lab 6</strong> — Pull system-level information (hostname, model, uptime)</li>
+      </ul>
+    </div>
+    <div class="section-title">API Flow</div>
+    <div class="flow">
+      <div class="flow-box">VS Code Script</div><div class="flow-arr">→</div>
+      <div class="flow-box">HTTPS Request</div><div class="flow-arr">→</div>
+      <div class="flow-box">PAN-OS XML API</div><div class="flow-arr">→</div>
+      <div class="flow-box">XML Response</div><div class="flow-arr">→</div>
+      <div class="flow-box">Python Parser</div>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="section" id="setup">
+    <div class="page-header">
+      <div class="page-tag">Getting Started</div>
+      <h2>Initial Setup</h2>
+      <p class="page-desc">Prepare your VS Code environment, install dependencies, and verify connectivity to the firewall.</p>
+    </div>
+    <div class="section-title">Step 1 — Folder Structure</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Project Structure</span></div>
+      <pre>firewall-automation/
+├── config.py          <span class="cm"># Firewall IP, credentials, API key</span>
+├── api_client.py      <span class="cm"># Reusable API helper functions</span>
+├── labs/
+│   ├── lab1_get_apikey.py
+│   ├── lab2_interfaces.py
+│   ├── lab3_security_policy.py
+│   ├── lab4_address_object.py
+│   ├── lab5_commit.py
+│   └── lab6_system_info.py
+└── requirements.txt</pre>
+    </div>
+    <div class="section-title">Step 2 — Install Dependencies</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cm"># Create virtual environment</span>
+python -m venv venv
+source venv/bin/activate    <span class="cm"># Linux/Mac</span>
+venv\Scripts\activate       <span class="cm"># Windows</span>
+
+pip install requests xmltodict python-dotenv</pre>
+    </div>
+    <div class="section-title">Step 3 — Config File</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">config.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>FIREWALL_IP  = <span class="str">"192.168.1.1"</span>   <span class="cm"># Your firewall's management IP</span>
+USERNAME     = <span class="str">"admin"</span>
+PASSWORD     = <span class="str">"Admin@123"</span>
+API_KEY      = <span class="str">""</span>            <span class="cm"># Populated after Lab 1</span>
+BASE_URL     = <span class="fn">f</span><span class="str">"https://{FIREWALL_IP}/api/"</span>
+VERIFY_SSL   = <span class="kw">False</span>         <span class="cm"># Self-signed cert in lab</span></pre>
+    </div>
+    <div class="section-title">Step 4 — Reusable API Client</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">api_client.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">import</span> requests, xmltodict, urllib3
+<span class="kw">from</span> config <span class="kw">import</span> BASE_URL, API_KEY, VERIFY_SSL
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+<span class="kw">def</span> <span class="fn">api_get</span>(params):
+    params[<span class="str">"key"</span>] = API_KEY
+    r = requests.<span class="fn">get</span>(BASE_URL, params=params, verify=VERIFY_SSL)
+    r.<span class="fn">raise_for_status</span>()
+    <span class="kw">return</span> xmltodict.<span class="fn">parse</span>(r.text)
+
+<span class="kw">def</span> <span class="fn">api_post</span>(params, data=<span class="kw">None</span>):
+    params[<span class="str">"key"</span>] = API_KEY
+    r = requests.<span class="fn">post</span>(BASE_URL, params=params, data=data, verify=VERIFY_SSL)
+    r.<span class="fn">raise_for_status</span>()
+    <span class="kw">return</span> xmltodict.<span class="fn">parse</span>(r.text)</pre>
+    </div>
+    <div class="section-title">Step 5 — Verify Connectivity</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>ping 192.168.1.1
+curl -k https://192.168.1.1/api/</pre>
+    </div>
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠</span>
+      <span>Always use <code>verify=False</code> in lab environments. Never disable SSL verification in production.</span>
+    </div>
+  </div>
+
+  <!-- API URL -->
+  <div class="section" id="api-url">
+    <div class="page-header">
+      <div class="page-tag">Core Concept</div>
+      <h2>API URL Construction</h2>
+      <p class="page-desc">Every PAN-OS API call follows the same URL pattern. Learn how to build the right URL for any operation.</p>
+    </div>
+    <div class="section-title">URL Anatomy</div>
+    <div class="url-anatomy"><span class="url-scheme">https://</span><span class="url-host">192.168.1.1</span><span class="url-path">/api/</span>?<span class="url-param">type</span>=<span class="url-value">op</span>&amp;<span class="url-param">cmd</span>=<span class="url-value">&lt;show&gt;&lt;system&gt;&lt;info/&gt;&lt;/system&gt;&lt;/show&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">LUFRPT14...</span></div>
+    <div class="url-legend">
+      <div class="url-legend-item"><div class="url-legend-dot" style="background:#7c3aed"></div> Scheme</div>
+      <div class="url-legend-item"><div class="url-legend-dot" style="background:#00d4ff"></div> Host (Mgmt IP)</div>
+      <div class="url-legend-item"><div class="url-legend-dot" style="background:#10b981"></div> Endpoint</div>
+      <div class="url-legend-item"><div class="url-legend-dot" style="background:#f59e0b"></div> Param name</div>
+      <div class="url-legend-item"><div class="url-legend-dot" style="background:#fb923c"></div> Param value</div>
+    </div>
+    <div class="section-title">The <code>type</code> Parameter</div>
+    <div class="table-wrap">
+      <table class="param-table">
+        <thead><tr><th>type=</th><th>Purpose</th><th>When to use</th></tr></thead>
+        <tbody>
+          <tr><td><span class="param-val">keygen</span></td><td class="param-desc">Generate API key</td><td class="param-desc">First step — only needs user + password.</td></tr>
+          <tr><td><span class="param-val">op</span></td><td class="param-desc">Operational commands</td><td class="param-desc">Show interfaces, system info, routing table.</td></tr>
+          <tr><td><span class="param-val">config</span></td><td class="param-desc">Read/write configuration</td><td class="param-desc">Get/set policies, objects, zones.</td></tr>
+          <tr><td><span class="param-val">commit</span></td><td class="param-desc">Commit candidate config</td><td class="param-desc">Push candidate config to running config.</td></tr>
+          <tr><td><span class="param-val">export</span></td><td class="param-desc">Export data</td><td class="param-desc">Download config files, tech support, certs.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-title">The <code>action</code> Parameter</div>
+    <div class="table-wrap">
+      <table class="param-table">
+        <thead><tr><th>action=</th><th>HTTP</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><span class="param-val">get</span></td><td>GET</td><td class="param-desc">Read candidate config</td></tr>
+          <tr><td><span class="param-val">show</span></td><td>GET</td><td class="param-desc">Read running config</td></tr>
+          <tr><td><span class="param-val">set</span></td><td>POST</td><td class="param-desc">Create or update a config element</td></tr>
+          <tr><td><span class="param-val">edit</span></td><td>POST</td><td class="param-desc">Replace an entire config block</td></tr>
+          <tr><td><span class="param-val">delete</span></td><td>POST</td><td class="param-desc">Remove a config element</td></tr>
+          <tr><td><span class="param-val">rename</span></td><td>POST</td><td class="param-desc">Rename an existing element</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-title">URL Recipes for Each Lab</div>
+    <div class="card"><h3><span class="badge badge-get">GET</span> Generate API Key</h3>
+      <div class="url-anatomy" style="font-size:11.5px">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">keygen</span>&amp;<span class="url-param">user</span>=<span class="url-value">admin</span>&amp;<span class="url-param">password</span>=<span class="url-value">Admin@123</span></div>
+    </div>
+    <div class="card"><h3><span class="badge badge-get">GET</span> Interface Details</h3>
+      <div class="url-anatomy" style="font-size:11.5px">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">op</span>&amp;<span class="url-param">cmd</span>=<span class="url-value">&lt;show&gt;&lt;interface&gt;all&lt;/interface&gt;&lt;/show&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">{KEY}</span></div>
+    </div>
+    <div class="card"><h3><span class="badge badge-get">GET</span> Security Policies</h3>
+      <div class="url-anatomy" style="font-size:11.5px">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">config</span>&amp;<span class="url-param">action</span>=<span class="url-value">get</span>&amp;<span class="url-param">xpath</span>=<span class="url-value">/config/devices/entry/vsys/entry/rulebase/security</span>&amp;<span class="url-param">key</span>=<span class="url-value">{KEY}</span></div>
+    </div>
+    <div class="card"><h3><span class="badge badge-post">POST</span> Create Address Object</h3>
+      <div class="url-anatomy" style="font-size:11.5px">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">config</span>&amp;<span class="url-param">action</span>=<span class="url-value">set</span>&amp;<span class="url-param">xpath</span>=<span class="url-value">/config/.../address</span>&amp;<span class="url-param">element</span>=<span class="url-value">&lt;entry name="..."&gt;...&lt;/entry&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">{KEY}</span></div>
+    </div>
+    <div class="card"><h3><span class="badge badge-post">POST</span> Commit Configuration</h3>
+      <div class="url-anatomy" style="font-size:11.5px">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">commit</span>&amp;<span class="url-param">cmd</span>=<span class="url-value">&lt;commit&gt;&lt;/commit&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">{KEY}</span></div>
+    </div>
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <span>The <code>xpath</code> acts like a file path into the PAN-OS config tree. <code>/config/devices/entry</code> is always the root — append vsys, rulebase, address, etc. to navigate deeper.</span>
+    </div>
+  </div>
+
+  <!-- LAB 1 -->
+  <div class="section" id="lab1">
+    <div class="page-header">
+      <div class="page-tag">Lab 1</div>
+      <h2>Generate API Key</h2>
+      <div class="lab-meta"><span class="badge badge-get">GET</span><span class="badge badge-info">type=keygen</span></div>
+    </div>
+    <p class="page-desc">Authenticate to the PAN-OS XML API using username and password to retrieve a long-lived API key. Store it in config.py for all subsequent labs.</p>
+    <div class="section-title">API URL</div>
+    <div class="url-anatomy">https://<span class="url-host">{FIREWALL_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">keygen</span>&amp;<span class="url-param">user</span>=<span class="url-value">admin</span>&amp;<span class="url-param">password</span>=<span class="url-value">{PASSWORD}</span></div>
+    <div class="section-title">Script</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">labs/lab1_get_apikey.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">import</span> requests, xmltodict, urllib3
+<span class="kw">from</span> config <span class="kw">import</span> FIREWALL_IP, USERNAME, PASSWORD, VERIFY_SSL
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+<span class="kw">def</span> <span class="fn">get_api_key</span>():
+    url    = <span class="fn">f</span><span class="str">"https://{FIREWALL_IP}/api/"</span>
+    params = {
+        <span class="str">"type"</span>    : <span class="str">"keygen"</span>,
+        <span class="str">"user"</span>    : USERNAME,
+        <span class="str">"password"</span>: PASSWORD,
+    }
+    response = requests.<span class="fn">get</span>(url, params=params, verify=VERIFY_SSL)
+    data     = xmltodict.<span class="fn">parse</span>(response.text)
+
+    <span class="kw">if</span> data[<span class="str">"response"</span>][<span class="str">"@status"</span>] == <span class="str">"success"</span>:
+        api_key = data[<span class="str">"response"</span>][<span class="str">"result"</span>][<span class="str">"key"</span>]
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"[+] Key: {api_key[:20]}..."</span>)
+        <span class="fn">print</span>(<span class="str">"[!] Paste into config.py -> API_KEY"</span>)
+        <span class="kw">return</span> api_key
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">"[-] Failed:"</span>, data)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">get_api_key</span>()</pre>
+    </div>
+    <div class="section-title">Expected Response</div>
+    <div class="response-block">&lt;response status="success"&gt;
+  &lt;result&gt;
+    &lt;key&gt;LUFRPT14MW5xOEo1R09KVlBZNnpnemh0VHRBOWl6TGM9...&lt;/key&gt;
+  &lt;/result&gt;
+&lt;/response&gt;</div>
+  </div>
+
+  <!-- LAB 2 -->
+  <div class="section" id="lab2">
+    <div class="page-header">
+      <div class="page-tag">Lab 2</div>
+      <h2>Get Interface Details</h2>
+      <div class="lab-meta"><span class="badge badge-get">GET</span><span class="badge badge-info">type=op</span></div>
+    </div>
+    <p class="page-desc">Use an operational command to retrieve all interfaces, their IP addresses, MTU, and link state.</p>
+    <div class="section-title">API URL</div>
+    <div class="url-anatomy">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">op</span>&amp;<span class="url-param">cmd</span>=<span class="url-value">&lt;show&gt;&lt;interface&gt;all&lt;/interface&gt;&lt;/show&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">{API_KEY}</span></div>
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <span><strong>Building the cmd:</strong> CLI is <code>show interface all</code>. Wrap each word in XML tags: <code>&lt;show&gt;&lt;interface&gt;all&lt;/interface&gt;&lt;/show&gt;</code>. The requests library URL-encodes this automatically.</span>
+    </div>
+    <div class="section-title">Script</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">labs/lab2_interfaces.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">from</span> api_client <span class="kw">import</span> api_get
+
+<span class="kw">def</span> <span class="fn">get_interfaces</span>():
+    params = {
+        <span class="str">"type"</span>: <span class="str">"op"</span>,
+        <span class="str">"cmd"</span> : <span class="str">"&lt;show&gt;&lt;interface&gt;all&lt;/interface&gt;&lt;/show&gt;"</span>,
+    }
+    data       = <span class="fn">api_get</span>(params)
+    hw_entries = data[<span class="str">"response"</span>][<span class="str">"result"</span>][<span class="str">"hw"</span>][<span class="str">"entry"</span>]
+    if_entries = data[<span class="str">"response"</span>][<span class="str">"result"</span>][<span class="str">"ifnet"</span>][<span class="str">"entry"</span>]
+
+    <span class="kw">if isinstance</span>(hw_entries, dict): hw_entries = [hw_entries]
+    <span class="kw">if isinstance</span>(if_entries, dict): if_entries = [if_entries]
+
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"\n{'Interface':<15}{'IP':<20}{'State':<10}{'Speed'}"</span>)
+    <span class="fn">print</span>(<span class="str">"-"</span> * <span class="num">55</span>)
+    <span class="kw">for</span> hw <span class="kw">in</span> hw_entries:
+        name  = hw.<span class="fn">get</span>(<span class="str">"@name"</span>, <span class="str">"N/A"</span>)
+        state = hw.<span class="fn">get</span>(<span class="str">"state"</span>, <span class="str">"N/A"</span>)
+        speed = hw.<span class="fn">get</span>(<span class="str">"speed"</span>, <span class="str">"N/A"</span>)
+        ip    = <span class="str">"N/A"</span>
+        <span class="kw">for</span> iface <span class="kw">in</span> if_entries:
+            <span class="kw">if</span> iface.<span class="fn">get</span>(<span class="str">"@name"</span>) == name:
+                ip = iface.<span class="fn">get</span>(<span class="str">"ip"</span>, <span class="str">"N/A"</span>); <span class="kw">break</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"{name:<15}{ip:<20}{state:<10}{speed}"</span>)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">get_interfaces</span>()</pre>
+    </div>
+    <div class="section-title">Sample Output</div>
+    <div class="response-block">Interface      IP Address           State      Speed
+------------------------------------------------------
+ethernet1/1    192.168.10.1/24      up         1Gbps
+ethernet1/2    10.0.0.1/30          up         1Gbps
+ethernet1/3    N/A                  down       N/A
+management     192.168.1.1/24       up         1Gbps</div>
+  </div>
+
+  <!-- LAB 3 -->
+  <div class="section" id="lab3">
+    <div class="page-header">
+      <div class="page-tag">Lab 3</div>
+      <h2>Get Security Policies</h2>
+      <div class="lab-meta"><span class="badge badge-get">GET</span><span class="badge badge-info">type=config &amp; action=get</span></div>
+    </div>
+    <p class="page-desc">Read the security rulebase from the candidate configuration using an XPath query.</p>
+    <div class="section-title">API URL</div>
+    <div class="url-anatomy">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">config</span>&amp;<span class="url-param">action</span>=<span class="url-value">get</span>&amp;<span class="url-param">xpath</span>=<span class="url-value">/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/rulebase/security/rules</span>&amp;<span class="url-param">key</span>=<span class="url-value">{API_KEY}</span></div>
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <span><strong>XPath tip:</strong> Use <code>action=get</code> to read candidate config and <code>action=show</code> for running config. For automation, <code>get</code> is preferred.</span>
+    </div>
+    <div class="section-title">Script</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">labs/lab3_security_policy.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">from</span> api_client <span class="kw">import</span> api_get
+
+SECURITY_XPATH = (
+    <span class="str">"/config/devices/entry[@name='localhost.localdomain']"</span>
+    <span class="str">"/vsys/entry[@name='vsys1']/rulebase/security/rules"</span>
+)
+
+<span class="kw">def</span> <span class="fn">get_security_policies</span>():
+    params = {
+        <span class="str">"type"</span>  : <span class="str">"config"</span>,
+        <span class="str">"action"</span>: <span class="str">"get"</span>,
+        <span class="str">"xpath"</span> : SECURITY_XPATH,
+    }
+    data  = <span class="fn">api_get</span>(params)
+    rules = data[<span class="str">"response"</span>][<span class="str">"result"</span>][<span class="str">"rules"</span>][<span class="str">"entry"</span>]
+    <span class="kw">if isinstance</span>(rules, dict): rules = [rules]
+
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"\n[+] Found {len(rules)} rule(s)\n"</span>)
+
+    <span class="kw">for</span> i, rule <span class="kw">in</span> <span class="fn">enumerate</span>(rules, <span class="num">1</span>):
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"Rule #{i}: {rule['@name']}"</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"  Src Zone: {rule['from']['member']}"</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"  Dst Zone: {rule['to']['member']}"</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"  App    : {rule['application']['member']}"</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"  Action : {rule.get('action','N/A').upper()}"</span>)
+        <span class="fn">print</span>(<span class="str">"-"</span> * <span class="num">45</span>)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">get_security_policies</span>()</pre>
+    </div>
+  </div>
+
+  <!-- LAB 4 -->
+  <div class="section" id="lab4">
+    <div class="page-header">
+      <div class="page-tag">Lab 4</div>
+      <h2>Create Address Object</h2>
+      <div class="lab-meta"><span class="badge badge-post">POST</span><span class="badge badge-info">type=config &amp; action=set</span></div>
+    </div>
+    <p class="page-desc">Push a new address object into the candidate configuration. Changes go live only after a commit (Lab 5).</p>
+    <div class="section-title">API URL</div>
+    <div class="url-anatomy">POST https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">config</span>&amp;<span class="url-param">action</span>=<span class="url-value">set</span>&amp;<span class="url-param">xpath</span>=<span class="url-value">/config/devices/entry/vsys/entry[@name='vsys1']/address</span>&amp;<span class="url-param">element</span>=<span class="url-value">&lt;entry name="WEB-SERVER-01"&gt;...&lt;/entry&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">{API_KEY}</span></div>
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠</span>
+      <span>The <code>element</code> XML is a POST parameter, not the request body. Use <code>data={}</code> in requests, not <code>json={}</code>.</span>
+    </div>
+    <div class="section-title">Script</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">labs/lab4_address_object.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">import</span> requests, xmltodict, urllib3
+<span class="kw">from</span> config <span class="kw">import</span> API_KEY, BASE_URL, VERIFY_SSL
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+ADDR_XPATH = (
+    <span class="str">"/config/devices/entry[@name='localhost.localdomain']"</span>
+    <span class="str">"/vsys/entry[@name='vsys1']/address"</span>
+)
+
+<span class="kw">def</span> <span class="fn">create_address_object</span>(name, ip, description=<span class="str">""</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"[*] Creating: {name} ({ip})"</span>)
+    element = <span class="fn">f</span><span class="str">"""&lt;entry name="{name}"&gt;
+    &lt;ip-netmask&gt;{ip}&lt;/ip-netmask&gt;
+    &lt;description&gt;{description}&lt;/description&gt;
+&lt;/entry&gt;"""</span>
+
+    params = {
+        <span class="str">"type"</span>   : <span class="str">"config"</span>, <span class="str">"action"</span>: <span class="str">"set"</span>,
+        <span class="str">"xpath"</span>  : ADDR_XPATH,
+        <span class="str">"element"</span>: element,   <span class="str">"key"</span>   : API_KEY,
+    }
+    resp = requests.<span class="fn">post</span>(BASE_URL, params=params, verify=VERIFY_SSL)
+    data = xmltodict.<span class="fn">parse</span>(resp.text)
+
+    <span class="kw">if</span> data[<span class="str">"response"</span>][<span class="str">"@status"</span>] == <span class="str">"success"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"[+] '{name}' created! Run lab5_commit.py to activate."</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">"[-] Failed:"</span>, data[<span class="str">"response"</span>])
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">create_address_object</span>(
+        name=<span class="str">"WEB-SERVER-01"</span>,
+        ip=<span class="str">"10.10.10.100/32"</span>,
+        description=<span class="str">"Web server in DMZ - created via API"</span>
+    )</pre>
+    </div>
+  </div>
+
+  <!-- LAB 5 -->
+  <div class="section" id="lab5">
+    <div class="page-header">
+      <div class="page-tag">Lab 5</div>
+      <h2>Commit Configuration</h2>
+      <div class="lab-meta"><span class="badge badge-post">POST</span><span class="badge badge-info">type=commit</span></div>
+    </div>
+    <p class="page-desc">Push candidate config to running config. Equivalent of clicking "Commit" in the GUI. Polls for job completion automatically.</p>
+    <div class="section-title">API URL</div>
+    <div class="url-anatomy">POST https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">commit</span>&amp;<span class="url-param">cmd</span>=<span class="url-value">&lt;commit&gt;&lt;/commit&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">{API_KEY}</span></div>
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <span>Commit returns a <strong>Job ID</strong> immediately. The actual commit runs async — poll until status is <code>FIN</code>.</span>
+    </div>
+    <div class="section-title">Script</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">labs/lab5_commit.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">import</span> requests, xmltodict, urllib3, time
+<span class="kw">from</span> config <span class="kw">import</span> API_KEY, BASE_URL, VERIFY_SSL
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+<span class="kw">def</span> <span class="fn">commit_config</span>():
+    params = {
+        <span class="str">"type"</span>: <span class="str">"commit"</span>,
+        <span class="str">"cmd"</span> : <span class="str">"&lt;commit&gt;&lt;/commit&gt;"</span>,
+        <span class="str">"key"</span> : API_KEY,
+    }
+    resp = requests.<span class="fn">post</span>(BASE_URL, params=params, verify=VERIFY_SSL)
+    data = xmltodict.<span class="fn">parse</span>(resp.text)
+
+    <span class="kw">if</span> data[<span class="str">"response"</span>][<span class="str">"@status"</span>] != <span class="str">"success"</span>:
+        <span class="fn">print</span>(<span class="str">"[-] Commit failed:"</span>, data); <span class="kw">return</span>
+
+    job_id = data[<span class="str">"response"</span>][<span class="str">"result"</span>][<span class="str">"job"</span>]
+    <span class="fn">print</span>(<span class="fn">f</span><span class="str">"[+] Commit started — Job ID: {job_id}"</span>)
+    <span class="fn">poll_job</span>(job_id)
+
+<span class="kw">def</span> <span class="fn">poll_job</span>(job_id, interval=<span class="num">5</span>, max_wait=<span class="num">120</span>):
+    elapsed = <span class="num">0</span>
+    <span class="kw">while</span> elapsed < max_wait:
+        params = {
+            <span class="str">"type"</span>: <span class="str">"op"</span>,
+            <span class="str">"cmd"</span> : <span class="fn">f</span><span class="str">"&lt;show&gt;&lt;jobs&gt;&lt;id&gt;{job_id}&lt;/id&gt;&lt;/jobs&gt;&lt;/show&gt;"</span>,
+            <span class="str">"key"</span> : API_KEY,
+        }
+        resp   = requests.<span class="fn">get</span>(BASE_URL, params=params, verify=VERIFY_SSL)
+        data   = xmltodict.<span class="fn">parse</span>(resp.text)
+        job    = data[<span class="str">"response"</span>][<span class="str">"result"</span>][<span class="str">"job"</span>]
+        status = job.<span class="fn">get</span>(<span class="str">"status"</span>, <span class="str">"PEND"</span>)
+        prog   = job.<span class="fn">get</span>(<span class="str">"progress"</span>, <span class="str">"0"</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"    {status} | {prog}%"</span>)
+        <span class="kw">if</span> status == <span class="str">"FIN"</span>:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="str">"[+] Complete — {job.get('result','OK')}"</span>)
+            <span class="kw">return</span>
+        time.<span class="fn">sleep</span>(interval)
+        elapsed += interval
+    <span class="fn">print</span>(<span class="str">"[-] Timed out."</span>)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">commit_config</span>()</pre>
+    </div>
+  </div>
+
+  <!-- LAB 6 -->
+  <div class="section" id="lab6">
+    <div class="page-header">
+      <div class="page-tag">Lab 6</div>
+      <h2>Get System Information</h2>
+      <div class="lab-meta"><span class="badge badge-get">GET</span><span class="badge badge-info">type=op</span></div>
+    </div>
+    <p class="page-desc">Pull device-level information including hostname, model, serial number, PAN-OS version, and uptime.</p>
+    <div class="section-title">API URL</div>
+    <div class="url-anatomy">https://<span class="url-host">{FW_IP}</span>/api/?<span class="url-param">type</span>=<span class="url-value">op</span>&amp;<span class="url-param">cmd</span>=<span class="url-value">&lt;show&gt;&lt;system&gt;&lt;info/&gt;&lt;/system&gt;&lt;/show&gt;</span>&amp;<span class="url-param">key</span>=<span class="url-value">{API_KEY}</span></div>
+    <div class="section-title">Script</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">labs/lab6_system_info.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">from</span> api_client <span class="kw">import</span> api_get
+
+<span class="kw">def</span> <span class="fn">get_system_info</span>():
+    params = {
+        <span class="str">"type"</span>: <span class="str">"op"</span>,
+        <span class="str">"cmd"</span> : <span class="str">"&lt;show&gt;&lt;system&gt;&lt;info/&gt;&lt;/system&gt;&lt;/show&gt;"</span>,
+    }
+    data = <span class="fn">api_get</span>(params)
+    info = data[<span class="str">"response"</span>][<span class="str">"result"</span>][<span class="str">"system"</span>]
+
+    fields = [
+        (<span class="str">"Hostname"</span>,       <span class="str">"hostname"</span>),
+        (<span class="str">"Model"</span>,          <span class="str">"model"</span>),
+        (<span class="str">"Serial Number"</span>,  <span class="str">"serial"</span>),
+        (<span class="str">"PAN-OS Version"</span>, <span class="str">"sw-version"</span>),
+        (<span class="str">"IP Address"</span>,     <span class="str">"ip-address"</span>),
+        (<span class="str">"Uptime"</span>,         <span class="str">"uptime"</span>),
+        (<span class="str">"Threat Version"</span>, <span class="str">"threat-version"</span>),
+        (<span class="str">"App Version"</span>,    <span class="str">"app-version"</span>),
+    ]
+
+    <span class="fn">print</span>(<span class="str">"\n" + "=" * 40</span>)
+    <span class="fn">print</span>(<span class="str">"  FIREWALL SYSTEM INFORMATION"</span>)
+    <span class="fn">print</span>(<span class="str">"=" * 40</span>)
+    <span class="kw">for</span> label, key <span class="kw">in</span> fields:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="str">"  {label:<18}: {info.get(key,'N/A')}"</span>)
+    <span class="fn">print</span>(<span class="str">"=" * 40</span>)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">get_system_info</span>()</pre>
+    </div>
+    <div class="section-title">Sample Output</div>
+    <div class="response-block">========================================
+  FIREWALL SYSTEM INFORMATION
+========================================
+  Hostname          : PA-220-LAB
+  Model             : PA-220
+  Serial Number     : 012301234567
+  PAN-OS Version    : 10.2.4
+  IP Address        : 192.168.1.1
+  Uptime            : 2 days, 3:42:17
+  Threat Version    : 8648-7587
+  App Version       : 8648-7587
+========================================</div>
+  </div>
+
+  <!-- REFERENCE -->
+  <div class="section" id="reference">
+    <div class="page-header">
+      <div class="page-tag">Reference</div>
+      <h2>Quick Reference</h2>
+      <p class="page-desc">Common XPath patterns, URL templates, and API parameter combinations for building new labs.</p>
+    </div>
+    <div class="section-title">Common XPath Locations</div>
+    <div class="table-wrap">
+      <table class="param-table">
+        <thead><tr><th>Config Object</th><th>XPath</th></tr></thead>
+        <tbody>
+          <tr><td class="param-desc">Address Objects</td><td><span class="param-val">/config/devices/entry/vsys/entry[@name='vsys1']/address</span></td></tr>
+          <tr><td class="param-desc">Address Groups</td><td><span class="param-val">/config/devices/entry/vsys/entry[@name='vsys1']/address-group</span></td></tr>
+          <tr><td class="param-desc">Security Rules</td><td><span class="param-val">/config/devices/entry/vsys/entry[@name='vsys1']/rulebase/security/rules</span></td></tr>
+          <tr><td class="param-desc">NAT Rules</td><td><span class="param-val">/config/devices/entry/vsys/entry[@name='vsys1']/rulebase/nat/rules</span></td></tr>
+          <tr><td class="param-desc">Zones</td><td><span class="param-val">/config/devices/entry/vsys/entry[@name='vsys1']/zone</span></td></tr>
+          <tr><td class="param-desc">Interfaces</td><td><span class="param-val">/config/devices/entry/network/interface</span></td></tr>
+          <tr><td class="param-desc">Virtual Router</td><td><span class="param-val">/config/devices/entry/network/virtual-router</span></td></tr>
+          <tr><td class="param-desc">Service Objects</td><td><span class="param-val">/config/devices/entry/vsys/entry[@name='vsys1']/service</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-title">Operational cmd XML Cheatsheet</div>
+    <div class="table-wrap">
+      <table class="param-table">
+        <thead><tr><th>Goal</th><th>cmd XML</th></tr></thead>
+        <tbody>
+          <tr><td class="param-desc">Show all interfaces</td><td><span class="param-val">&lt;show&gt;&lt;interface&gt;all&lt;/interface&gt;&lt;/show&gt;</span></td></tr>
+          <tr><td class="param-desc">Show system info</td><td><span class="param-val">&lt;show&gt;&lt;system&gt;&lt;info/&gt;&lt;/system&gt;&lt;/show&gt;</span></td></tr>
+          <tr><td class="param-desc">Show routing table</td><td><span class="param-val">&lt;show&gt;&lt;routing&gt;&lt;route/&gt;&lt;/routing&gt;&lt;/show&gt;</span></td></tr>
+          <tr><td class="param-desc">Show session table</td><td><span class="param-val">&lt;show&gt;&lt;session&gt;&lt;all/&gt;&lt;/session&gt;&lt;/show&gt;</span></td></tr>
+          <tr><td class="param-desc">Show HA state</td><td><span class="param-val">&lt;show&gt;&lt;high-availability&gt;&lt;state/&gt;&lt;/high-availability&gt;&lt;/show&gt;</span></td></tr>
+          <tr><td class="param-desc">Poll commit job</td><td><span class="param-val">&lt;show&gt;&lt;jobs&gt;&lt;id&gt;{JOB_ID}&lt;/id&gt;&lt;/jobs&gt;&lt;/show&gt;</span></td></tr>
+          <tr><td class="param-desc">Reboot firewall</td><td><span class="param-val">&lt;request&gt;&lt;restart&gt;&lt;system/&gt;&lt;/restart&gt;&lt;/request&gt;</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-title">3-Step Formula for Any New Lab</div>
+    <div class="card">
+      <h3>Building a New API URL</h3>
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h4>Find the CLI command</h4>
+            <p>SSH to the firewall and run the CLI command you want to automate. Example: <code>show arp all</code></p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h4>Convert CLI → XML tags</h4>
+            <p>Each word becomes an XML tag. <code>show arp all</code> → <code>&lt;show&gt;&lt;arp&gt;&lt;entry name='all'/&gt;&lt;/arp&gt;&lt;/show&gt;</code></p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h4>Plug into URL template</h4>
+            <p>Use <code>type=op</code> for read-only commands. Use <code>type=config&amp;action=set</code> for config changes. Pass <code>cmd</code> or <code>xpath+element</code> accordingly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-success">
+      <span class="alert-icon">✦</span>
+      <span><strong>Pro tip:</strong> The PAN-OS API browser at <code>https://{FW_IP}/api</code> shows all available XPaths and lets you test commands interactively before scripting them.</span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('overlay');
+  const hamburger = document.getElementById('hamburger');
+
+  function openNav() {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    hamburger.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeNav() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    hamburger.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', () =>
+    sidebar.classList.contains('open') ? closeNav() : openNav()
+  );
+  overlay.addEventListener('click', closeNav);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNav(); });
+
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (el) el.classList.add('active');
+    if (window.innerWidth <= 768) {
+      closeNav();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function copyCode(btn) {
+    const pre  = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => flash(btn));
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); flash(btn);
+    }
+  }
+
+  function flash(btn) {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  }
+</script>
+</body>
+</html>
