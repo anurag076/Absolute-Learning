@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Functions in Python – Network Automation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--sb:#161b22;--sur:#1f2937;--bdr:#30363d;
+  --txt:#c9d1d9;--mut:#8b949e;--brt:#e6edf3;
+  --blu:#58a6ff;--grn:#3fb950;--yel:#e3b341;--red:#f85149;--pur:#d2a8ff;
+  --org:#ffa657;--eve:#00d4aa;--fnc:#e06c75;--sw:278px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+.topnav{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--sb);border-bottom:1px solid var(--bdr);min-height:50px;flex-shrink:0}
+.hbg{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;border:none;background:none;flex-shrink:0}
+.hbg span{display:block;width:20px;height:2px;background:var(--txt);border-radius:2px}
+.topnav h1{font-size:13px;font-weight:700;color:var(--fnc);letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.eve-badge{background:#0d2d25;color:var(--eve);font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid var(--eve);font-weight:700;white-space:nowrap;flex-shrink:0}
+.topnav .sep{color:var(--bdr)}
+.topnav h2{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layout{display:flex;flex:1;overflow:hidden;position:relative}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--sb);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:transform .25s,box-shadow .25s;flex-shrink:0}
+.sb-inner{flex:1;overflow-y:auto}
+.sb-head{padding:12px 14px;border-bottom:1px solid var(--bdr);background:var(--bg)}
+.sb-head p{font-size:11px;color:var(--mut);margin-top:2px}
+.sb-head strong{color:var(--fnc)}
+.ti{padding:9px 14px;cursor:pointer;border-left:3px solid transparent;display:flex;align-items:flex-start;gap:8px;transition:all .15s}
+.ti:hover{background:var(--sur)}
+.ti.active{background:var(--sur);border-left-color:var(--fnc)}
+.ti .tn{font-size:10px;color:var(--mut);min-width:20px;font-weight:700;padding-top:2px;flex-shrink:0}
+.ti .tt{font-size:12px;line-height:1.4;flex:1;color:var(--txt)}
+.ti.active .tt{color:var(--fnc)}
+.lbg{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.lb-basic{background:#0d3b2e;color:#3fb950}
+.lb-intermediate{background:#2d1f0e;color:#e3b341}
+.lb-advanced{background:#2d1225;color:#f778ba}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bdr);font-size:11px;color:var(--mut)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tabs{display:flex;padding:0 4px;background:var(--bg);border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 12px;cursor:pointer;font-size:12px;color:var(--mut);border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--fnc);border-bottom-color:var(--fnc)}
+.content{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
+.sec{display:none}.sec.active{display:block}
+h3{font-size:15px;font-weight:600;color:var(--brt);margin-bottom:10px;margin-top:22px}
+h3:first-child{margin-top:0}
+h4{font-size:12.5px;font-weight:600;color:var(--blu);margin:14px 0 6px}
+p{line-height:1.7;color:var(--txt);margin-bottom:10px}
+ul,ol{padding-left:18px;margin-bottom:10px}
+li{line-height:1.9}
+code{background:var(--sur);color:var(--org);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+strong{color:var(--brt);font-weight:600}
+.note{background:var(--sb);border-left:3px solid var(--blu);padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0}
+.note.g{border-left-color:var(--grn)}.note.y{border-left-color:var(--yel)}.note.r{border-left-color:var(--red)}.note.e{border-left-color:var(--eve)}.note.f{border-left-color:var(--fnc)}
+.note p{margin:0;font-size:13px;line-height:1.7}
+.cb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ch{background:var(--sur);padding:6px 14px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.ch .lg{font-size:11px;font-weight:700;font-family:monospace}
+.ch .lg.py{color:#4584b6}.ch .lg.sh{color:var(--grn)}.ch .lg.ev{color:var(--eve)}.ch .lg.ym{color:#56b6c2}
+.ch .fn{font-size:10px;color:var(--mut)}
+.etag{background:#0d2d25;color:var(--eve);font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid var(--eve);font-weight:700}
+pre{padding:14px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;line-height:1.9;color:var(--brt)}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.cm{color:#8b949e;font-style:italic}.nm{color:#79c0ff}.vr{color:#ffa657}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+.tbl th{background:var(--sur);color:var(--mut);font-weight:600;text-align:left;padding:7px 10px;border:1px solid var(--bdr);font-size:11px;text-transform:uppercase}
+.tbl td{padding:7px 10px;border:1px solid var(--bdr);vertical-align:top;line-height:1.6}
+.tbl tr:nth-child(even) td{background:var(--sb)}
+.fb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin:10px 0}
+.fr{display:flex;align-items:flex-start;gap:6px;margin:5px 0;flex-wrap:wrap}
+.fn2{background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--brt);line-height:1.4}
+.fn2.b{border-color:#388bfd;color:var(--blu);background:#0d2038}
+.fn2.g{border-color:var(--grn);color:var(--grn);background:#0d2d1a}
+.fn2.y{border-color:var(--yel);color:var(--yel);background:#2d2008}
+.fn2.r{border-color:var(--red);color:var(--red);background:#2d0f0f}
+.fn2.e{border-color:var(--eve);color:var(--eve);background:#0d2d25}
+.fn2.f{border-color:var(--fnc);color:var(--fnc);background:#2d1215}
+.fa{color:var(--mut);font-size:14px;padding-top:5px;flex-shrink:0}
+.fl{font-size:10px;color:var(--mut);margin-top:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.card{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px}
+.card h5{font-size:12px;font-weight:700;margin-bottom:6px;color:var(--fnc)}
+.card.g h5{color:var(--grn)}.card.y h5{color:var(--yel)}.card.e h5{color:var(--eve)}.card.b h5{color:var(--blu)}
+.card p{font-size:12px;margin:0;line-height:1.6}
+.pi{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ph{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.ph:hover{background:var(--sur)}
+.pn{color:var(--fnc);font-weight:700;font-size:12.5px}
+.pt{font-size:10px;color:var(--mut);margin-top:2px}
+.pb{padding:0 14px 14px;border-top:1px solid var(--bdr)}
+.pb p{margin:8px 0 0;font-size:13px;line-height:1.7}
+.stb{background:none;border:1px solid var(--bdr);color:var(--mut);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px;margin-top:10px;display:inline-block;transition:all .15s}
+.stb:hover{border-color:var(--grn);color:var(--grn)}
+.sb2{display:none;margin-top:10px;background:var(--bg);border:1px solid var(--grn);border-radius:6px;padding:12px}
+.sb2.open{display:block}
+.sb2 p{margin:0;font-size:12.5px;color:var(--txt);line-height:1.8}
+.chv{font-size:10px;color:var(--mut);transition:transform .2s}
+.chv.op{transform:rotate(180deg)}
+.eve-box{background:#071a14;border:1px solid var(--eve);border-radius:8px;padding:14px;margin:10px 0}
+.eve-box .eve-hdr{color:var(--eve);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.eve-box p{font-size:13px;margin:0;line-height:1.7}
+@media(max-width:768px){
+  .hbg{display:flex}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:10;transform:translateX(-100%);width:min(var(--sw),88vw);min-width:0}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.5)}
+  .overlay.open{display:block}
+  .g2,.g3{grid-template-columns:1fr}
+  .content{padding:14px}
+  .tbl{font-size:11px}.tbl th,.tbl td{padding:5px 7px}
+  pre{font-size:11px;padding:12px}
+  .tabs .tab{font-size:11px;padding:8px 9px}
+  .topnav h2{font-size:12px}
+  .eve-badge{display:none}
+}
+@media(max-width:380px){.topnav h1{font-size:11px}.topnav h2{display:none}}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+  <h1>🔧 Functions</h1>
+  <span class="sep">·</span>
+  <h2 id="ttl">Network Automation</h2>
+  <span class="eve-badge">EVE-NG Lab</span>
+  <span class="lbg lb-basic" id="tlvl" style="display:none"></span>
+</div>
+<div class="layout">
+  <div class="overlay" id="ovl"></div>
+  <div class="sidebar" id="sb">
+    <div class="sb-inner">
+      <div class="sb-head">
+        <p><strong>Python for Network Automation</strong></p>
+        <p style="margin-top:4px">Module 8 &mdash; Functions in Python</p>
+      </div>
+      <div id="tlist"></div>
+    </div>
+    <div class="sb-foot" id="sft">Select a topic</div>
+  </div>
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" data-tab="theory">📖 Theory</div>
+      <div class="tab" data-tab="industry">🏭 Industry</div>
+      <div class="tab" data-tab="practical">💻 Practical</div>
+      <div class="tab" data-tab="flow">🔄 Flow</div>
+      <div class="tab" data-tab="practice">📝 Practice</div>
+    </div>
+    <div class="content" id="ct">
+      <div id="theory"    class="sec active"></div>
+      <div id="industry"  class="sec"></div>
+      <div id="practical" class="sec"></div>
+      <div id="flow"      class="sec"></div>
+      <div id="practice"  class="sec"></div>
+    </div>
+  </div>
+</div>
+<!-- ═══ TOPIC 1 ═══ -->
+<script type="text/x-tmpl" id="m1-theory">
+<h3>What is a Function and Why Do You Need One?</h3>
+<p>A function is a named block of code you can call whenever you need it. Instead of writing the same SSH connection code 20 times in your script, you write it once as a function and call it 20 times. That's the entire point.</p>
+<p>Think of it like this — in your network job you have standard procedures. "To configure a switch port, do steps 1, 2, 3." You don't invent the steps every time. You follow the procedure. A function is the same thing in code.</p>
+<h4>Before and After Functions</h4>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">without_functions.py — messy, repetitive</span></div><pre><span class="cm"># Connecting to R1</span>
+conn_R1 = {<span class="st">"device_type"</span>:<span class="st">"cisco_ios"</span>,<span class="st">"host"</span>:<span class="st">"10.1.1.1"</span>,<span class="st">"username"</span>:<span class="st">"admin"</span>,<span class="st">"password"</span>:<span class="st">"admin123"</span>}
+<span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn_R1) <span class="kw">as</span> net: out1 = net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)
+
+<span class="cm"># Connecting to R2 — same code, different IP</span>
+conn_R2 = {<span class="st">"device_type"</span>:<span class="st">"cisco_ios"</span>,<span class="st">"host"</span>:<span class="st">"10.1.1.2"</span>,<span class="st">"username"</span>:<span class="st">"admin"</span>,<span class="st">"password"</span>:<span class="st">"admin123"</span>}
+<span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn_R2) <span class="kw">as</span> net: out2 = net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)
+
+<span class="cm"># You copy-pasted this for EVERY device. Bug in one = bug in all.</span></pre></div>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">with_functions.py — clean, reusable</span></div><pre><span class="kw">def</span> <span class="fn">get_version</span>(ip, username=<span class="st">"admin"</span>, password=<span class="st">"admin123"</span>):
+    <span class="st">"""Get show version output from a Cisco IOS device."""</span>
+    conn = {<span class="st">"device_type"</span>:<span class="st">"cisco_ios"</span>,<span class="st">"host"</span>:ip,
+            <span class="st">"username"</span>:username,<span class="st">"password"</span>:password}
+    <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+        <span class="kw">return</span> net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)
+
+<span class="cm"># Now reuse for every device — one line each</span>
+out1 = <span class="fn">get_version</span>(<span class="st">"10.1.1.1"</span>)
+out2 = <span class="fn">get_version</span>(<span class="st">"10.1.1.2"</span>)
+out3 = <span class="fn">get_version</span>(<span class="st">"10.1.1.3"</span>)</pre></div>
+<div class="note f"><p><strong>Senior engineer take:</strong> If you're copying and pasting code, that's a signal you need a function. Any time you write the same logic twice, extract it into a function.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-industry">
+<h3>Functions Are the Backbone of Every Production Script</h3>
+<p>Every serious network automation script is built from small, focused functions. The main script just calls them in order. This makes scripts easy to test, debug, update, and share with teammates.</p>
+<h4>What Functions Give You</h4>
+<table class="tbl"><thead><tr><th>Benefit</th><th>In Practice</th></tr></thead><tbody>
+<tr><td><strong>Reusability</strong></td><td>Write <code>check_bgp()</code> once, call it for 200 routers</td></tr>
+<tr><td><strong>Readability</strong></td><td><code>get_version(ip)</code> is self-documenting — you know what it does</td></tr>
+<tr><td><strong>Maintainability</strong></td><td>Bug in connection logic? Fix in one place, all callers benefit</td></tr>
+<tr><td><strong>Testability</strong></td><td>Test one function in isolation before putting it in a big script</td></tr>
+<tr><td><strong>Collaboration</strong></td><td>Teammates can use your functions without understanding the internals</td></tr>
+</tbody></table>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab</div><p>In your EVE-NG lab, you'll write functions like <code>connect_to_device()</code>, <code>run_command()</code>, <code>backup_config()</code>, <code>check_interface()</code>. These become your personal automation toolkit — reused in every lab scenario.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-practical">
+<h3>Anatomy of a Python Function</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">function_anatomy.py</span></div><pre><span class="cm"># def keyword + name + parentheses + colon</span>
+<span class="kw">def</span> <span class="fn">function_name</span>(parameter1, parameter2):
+    <span class="st">"""Docstring — explains what the function does."""</span>
+    <span class="cm"># function body — indented</span>
+    result = parameter1 + parameter2
+    <span class="kw">return</span> result    <span class="cm"># optional — sends value back to caller</span>
+
+<span class="cm"># Calling the function</span>
+answer = <span class="fn">function_name</span>(<span class="nm">10</span>, <span class="nm">20</span>)
+<span class="fn">print</span>(answer)   <span class="cm"># 30</span>
+
+<span class="cm"># ─── Real network examples ──────────────────</span>
+<span class="kw">def</span> <span class="fn">ping_device</span>(ip):
+    <span class="st">"""Returns True if device responds to ping."""</span>
+    <span class="kw">import</span> subprocess
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">make_report_line</span>(hostname, ip, status):
+    <span class="st">"""Build a formatted report line string."""</span>
+    icon = <span class="st">"✓"</span> <span class="kw">if</span> status == <span class="st">"UP"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="kw">return</span> f<span class="st">"{icon} {hostname:15} {ip:18} [{status}]"</span>
+
+<span class="cm"># Using both functions</span>
+devices = [(<span class="st">"R1"</span>,<span class="st">"10.1.1.1"</span>),(<span class="st">"R2"</span>,<span class="st">"10.1.1.2"</span>)]
+<span class="kw">for</span> name, ip <span class="kw">in</span> devices:
+    up     = <span class="fn">ping_device</span>(ip)
+    status = <span class="st">"UP"</span> <span class="kw">if</span> up <span class="kw">else</span> <span class="st">"DOWN"</span>
+    <span class="fn">print</span>(<span class="fn">make_report_line</span>(name, ip, status))</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-flow">
+<h3>How a Function Call Works</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 f">Script calls: result = get_version("10.1.1.1")</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">Python jumps to function definition</div></div>
+  <div style="height:4px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 b">ip = "10.1.1.1" (parameter assigned)</div></div>
+  <div style="height:4px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2">Function body executes — SSH, run command</div></div>
+  <div style="height:4px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 g">return "IOS XE Software, Version 17.3..."</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 f">result = "IOS XE Software..." — script continues</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m1-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Write Your First Function</div><div class="pt">Basic function syntax</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a function <code>device_header(hostname, ip)</code> that returns a formatted string like <code>"=== R1 (10.1.1.1) ==="</code>. Call it for 3 different devices and print each result.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def device_header(hostname, ip):</code><br>&nbsp;&nbsp;<code>"""Return a formatted section header for a device."""</code><br>&nbsp;&nbsp;<code>return f"=== {hostname} ({ip}) ==="</code><br><br><code>devices = [("R1","10.1.1.1"),("SW-01","10.1.1.10"),("FW-01","10.1.1.254")]</code><br><br><code>for name, ip in devices:</code><br>&nbsp;&nbsp;<code>print(device_header(name, ip))</code><br><br><strong>Output:</strong><br><code>=== R1 (10.1.1.1) ===</code><br><code>=== SW-01 (10.1.1.10) ===</code><br><code>=== FW-01 (10.1.1.254) ===</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Refactor Repeated Code</div><div class="pt">Extract into function</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Look at this repeated code and refactor it into a function:<br><code>print("--- R1 ---"); print("IP: 10.1.1.1"); print("Type: router")</code><br><code>print("--- SW-01 ---"); print("IP: 10.1.1.10"); print("Type: switch")</code></p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def print_device_info(name, ip, device_type):</code><br>&nbsp;&nbsp;<code>"""Print a standard device info block."""</code><br>&nbsp;&nbsp;<code>print(f"--- {name} ---")</code><br>&nbsp;&nbsp;<code>print(f"IP: {ip}")</code><br>&nbsp;&nbsp;<code>print(f"Type: {device_type}")</code><br><br><code>print_device_info("R1",    "10.1.1.1",  "router")</code><br><code>print_device_info("SW-01", "10.1.1.10", "switch")</code><br><br>Now if you need to change the format, you change it in ONE place instead of everywhere.</p></div>
+  </div>
+</div>
+</script>
+<!-- ═══ TOPIC 2 ═══ -->
+<script type="text/x-tmpl" id="m2-theory">
+<h3>Parameters and Arguments — Passing Data In</h3>
+<p>Parameters are the variables inside the function parentheses. Arguments are the actual values you pass when you call it. Understanding the different ways to pass data into a function makes your code much more flexible.</p>
+<h4>Four Ways to Pass Arguments</h4>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">parameters_and_arguments.py</span></div><pre><span class="cm"># 1. Positional — order matters</span>
+<span class="kw">def</span> <span class="fn">connect</span>(host, username, password):
+    <span class="fn">print</span>(f<span class="st">"Connecting to {host} as {username}"</span>)
+
+<span class="fn">connect</span>(<span class="st">"10.1.1.1"</span>, <span class="st">"admin"</span>, <span class="st">"admin123"</span>)  <span class="cm"># positional</span>
+
+<span class="cm"># 2. Keyword — order doesn't matter</span>
+<span class="fn">connect</span>(username=<span class="st">"admin"</span>, host=<span class="st">"10.1.1.1"</span>, password=<span class="st">"admin123"</span>)
+
+<span class="cm"># 3. Default values — parameter is optional</span>
+<span class="kw">def</span> <span class="fn">connect</span>(host, username=<span class="st">"admin"</span>, password=<span class="st">"admin123"</span>, timeout=<span class="nm">10</span>):
+    <span class="fn">print</span>(f<span class="st">"Connecting to {host} as {username}, timeout={timeout}"</span>)
+
+<span class="fn">connect</span>(<span class="st">"10.1.1.1"</span>)                     <span class="cm"># uses all defaults</span>
+<span class="fn">connect</span>(<span class="st">"10.1.1.2"</span>, timeout=<span class="nm">30</span>)         <span class="cm"># override just timeout</span>
+<span class="fn">connect</span>(<span class="st">"10.1.1.3"</span>, password=<span class="st">"newpass"</span>) <span class="cm"># override just password</span>
+
+<span class="cm"># 4. **kwargs — accept any keyword arguments</span>
+<span class="kw">def</span> <span class="fn">build_conn</span>(host, **kwargs):
+    conn = {<span class="st">"host"</span>: host}
+    conn.<span class="fn">update</span>(kwargs)
+    <span class="kw">return</span> conn
+
+params = <span class="fn">build_conn</span>(<span class="st">"10.1.1.1"</span>, username=<span class="st">"admin"</span>, device_type=<span class="st">"cisco_ios"</span>)
+<span class="fn">print</span>(params)   <span class="cm"># {"host":"10.1.1.1","username":"admin","device_type":"cisco_ios"}</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-industry">
+<h3>Default Parameters in Network Functions</h3>
+<p>Default parameters are extremely useful in network automation — most of your devices share the same credentials, platform type, and timeout. You set sensible defaults and only override when needed.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">Realistic default parameter usage</span></div><pre><span class="kw">def</span> <span class="fn">ssh_connect</span>(host,
+               device_type=<span class="st">"cisco_ios"</span>,
+               username=<span class="st">"admin"</span>,
+               password=<span class="st">"admin123"</span>,
+               timeout=<span class="nm">10</span>,
+               port=<span class="nm">22</span>):
+    <span class="st">"""Build netmiko connection dict with sensible defaults."""</span>
+    <span class="kw">return</span> {
+        <span class="st">"device_type"</span>: device_type,
+        <span class="st">"host"</span>       : host,
+        <span class="st">"username"</span>   : username,
+        <span class="st">"password"</span>   : password,
+        <span class="st">"timeout"</span>    : timeout,
+        <span class="st">"port"</span>       : port,
+    }
+
+<span class="cm"># Most devices — just pass the IP</span>
+conn1 = <span class="fn">ssh_connect</span>(<span class="st">"10.1.1.1"</span>)
+
+<span class="cm"># Juniper device — override platform</span>
+conn2 = <span class="fn">ssh_connect</span>(<span class="st">"10.1.1.5"</span>, device_type=<span class="st">"juniper_junos"</span>)
+
+<span class="cm"># Non-standard SSH port</span>
+conn3 = <span class="fn">ssh_connect</span>(<span class="st">"10.1.1.6"</span>, port=<span class="nm">2222</span>)</pre></div>
+<div class="note g"><p><strong>Clean rule:</strong> Put required parameters first (the ones that always change, like <code>host</code>). Put optional/default parameters after. This way callers only need to specify what's different from the standard.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-practical">
+<h3>Parameters in Real Network Functions</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">network_functions_params.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> subprocess
+
+<span class="kw">def</span> <span class="fn">ping_device</span>(ip, count=<span class="nm">1</span>, timeout=<span class="nm">2</span>):
+    <span class="st">"""Ping a device. Returns True if reachable."""</span>
+    r = subprocess.<span class="fn">run</span>(
+        [<span class="st">"ping"</span>, <span class="st">"-c"</span>, <span class="fn">str</span>(count), <span class="st">"-W"</span>, <span class="fn">str</span>(timeout), ip],
+        capture_output=<span class="kw">True</span>
+    )
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">check_device</span>(hostname, ip, expected_type=<span class="st">"router"</span>):
+    <span class="st">"""Check if a device is reachable and print a report line."""</span>
+    reachable = <span class="fn">ping_device</span>(ip)
+    status    = <span class="st">"UP"</span> <span class="kw">if</span> reachable <span class="kw">else</span> <span class="st">"DOWN"</span>
+    icon      = <span class="st">"✓"</span> <span class="kw">if</span> reachable <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(f<span class="st">"{icon} {hostname:12} {ip:18} [{expected_type:8}] [{status}]"</span>)
+    <span class="kw">return</span> reachable
+
+<span class="cm"># EVE-NG lab device checks</span>
+lab_devices = [
+    (<span class="st">"R1"</span>,    <span class="st">"192.168.100.1"</span>,  <span class="st">"router"</span>),
+    (<span class="st">"R2"</span>,    <span class="st">"192.168.100.2"</span>,  <span class="st">"router"</span>),
+    (<span class="st">"SW-01"</span>, <span class="st">"192.168.100.10"</span>, <span class="st">"switch"</span>),
+]
+
+<span class="fn">print</span>(f<span class="st">"{'Device':12} {'IP':18} {'Type':10} {'Status'}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nm">55</span>)
+
+up_count = <span class="nm">0</span>
+<span class="kw">for</span> name, ip, dtype <span class="kw">in</span> lab_devices:
+    <span class="kw">if</span> <span class="fn">check_device</span>(name, ip, dtype):
+        up_count += <span class="nm">1</span>
+
+<span class="fn">print</span>(f<span class="st">"\n{up_count}/{len(lab_devices)} devices reachable"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-flow">
+<h3>Parameter Types Cheat Sheet</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 f">def connect(host, username="admin", **kwargs):</div></div>
+  <div style="height:8px"></div>
+  <div class="fr">
+    <div class="fn2 b">host<br><span class="fl">Required positional<br>Must always be provided</span></div>
+    <div class="fn2 g">username="admin"<br><span class="fl">Optional with default<br>Override when needed</span></div>
+    <div class="fn2 y">**kwargs<br><span class="fl">Any extra keyword args<br>Collected as a dict</span></div>
+  </div>
+</div>
+<h4>Calling Examples</h4>
+<table class="tbl"><thead><tr><th>Call</th><th>host</th><th>username</th></tr></thead><tbody>
+<tr><td><code>connect("10.1.1.1")</code></td><td>10.1.1.1</td><td>admin (default)</td></tr>
+<tr><td><code>connect("10.1.1.1", "netops")</code></td><td>10.1.1.1</td><td>netops</td></tr>
+<tr><td><code>connect("10.1.1.1", username="netops")</code></td><td>10.1.1.1</td><td>netops</td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m2-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Default Parameters</div><div class="pt">Optional arguments</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a function <code>build_device_dict(host, platform="cisco_ios", username="admin", password="admin123", timeout=10)</code>. Call it 3 times: once with only host, once overriding platform to "juniper_junos", once overriding username and timeout.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def build_device_dict(host, platform="cisco_ios", username="admin", password="admin123", timeout=10):</code><br>&nbsp;&nbsp;<code>return {"device_type":platform,"host":host,"username":username,"password":password,"timeout":timeout}</code><br><br><code>d1 = build_device_dict("10.1.1.1")</code><br><code>d2 = build_device_dict("10.1.1.2", platform="juniper_junos")</code><br><code>d3 = build_device_dict("10.1.1.3", username="netops", timeout=30)</code><br><br><code>print(d1)  # cisco_ios, admin, 10s</code><br><code>print(d2)  # juniper_junos, admin, 10s</code><br><code>print(d3)  # cisco_ios, netops, 30s</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — kwargs Pattern</div><div class="pt">Flexible arguments</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a function <code>make_connection(**kwargs)</code> that takes any keyword arguments and prints them as a "Connection Profile" table. Test it with different combinations of host, username, device_type, timeout.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def make_connection(**kwargs):</code><br>&nbsp;&nbsp;<code>print("Connection Profile:")</code><br>&nbsp;&nbsp;<code>for key, val in kwargs.items():</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"  {key:15} = {val}")</code><br>&nbsp;&nbsp;<code>return kwargs</code><br><br><code>make_connection(host="10.1.1.1", username="admin", device_type="cisco_ios")</code><br><code>make_connection(host="10.1.1.5", device_type="juniper_junos", timeout=30, port=22)</code></p></div>
+  </div>
+</div>
+</script>
+<!-- ═══ TOPIC 3 ═══ -->
+<script type="text/x-tmpl" id="m3-theory">
+<h3>Return Values — Getting Data Out of a Function</h3>
+<p>A function does work and usually gives something back — a result, a status, some data. The <code>return</code> keyword sends a value back to whoever called the function. Without a <code>return</code>, a function returns <code>None</code>.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">return_values.py</span></div><pre><span class="cm"># Return a single value</span>
+<span class="kw">def</span> <span class="fn">is_reachable</span>(ip):
+    <span class="kw">import</span> subprocess
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>    <span class="cm"># returns True or False</span>
+
+<span class="cm"># Return a dict (most common in network automation)</span>
+<span class="kw">def</span> <span class="fn">check_device</span>(hostname, ip):
+    up = <span class="fn">is_reachable</span>(ip)
+    <span class="kw">return</span> {
+        <span class="st">"hostname"</span>: hostname,
+        <span class="st">"ip"</span>      : ip,
+        <span class="st">"status"</span>  : <span class="st">"UP"</span> <span class="kw">if</span> up <span class="kw">else</span> <span class="st">"DOWN"</span>,
+        <span class="st">"reachable"</span>: up
+    }
+
+<span class="cm"># Return multiple values (Python packs them as a tuple)</span>
+<span class="kw">def</span> <span class="fn">get_counts</span>(devices):
+    up   = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> d[<span class="st">"status"</span>] == <span class="st">"UP"</span>)
+    down = <span class="fn">len</span>(devices) - up
+    <span class="kw">return</span> up, down   <span class="cm"># returns a tuple</span>
+
+<span class="cm"># Unpack multiple return values</span>
+result  = <span class="fn">check_device</span>(<span class="st">"R1"</span>, <span class="st">"10.1.1.1"</span>)
+<span class="fn">print</span>(result[<span class="st">"status"</span>])
+
+up_cnt, down_cnt = <span class="fn">get_counts</span>(all_devices)   <span class="cm"># unpacking</span>
+<span class="fn">print</span>(f<span class="st">"Up: {up_cnt} | Down: {down_cnt}"</span>)</pre></div>
+<div class="note f"><p><strong>Best practice:</strong> Return a dict when you have multiple related values to return. Dicts are self-documenting — <code>result["status"]</code> is clearer than <code>result[0]</code>.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-industry">
+<h3>Return Values in Real Automation Scripts</h3>
+<p>Every function that checks, collects, or processes data should return something useful. Your main loop calls the function, gets back the result, and decides what to do with it.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">Return patterns in production</span></div><pre><span class="cm"># Pattern 1: Return status dict — most flexible</span>
+<span class="kw">def</span> <span class="fn">run_command</span>(net_connection, command):
+    <span class="kw">try</span>:
+        output = net_connection.<span class="fn">send_command</span>(command)
+        <span class="kw">return</span> {<span class="st">"ok"</span>: <span class="kw">True</span>, <span class="st">"output"</span>: output, <span class="st">"error"</span>: <span class="kw">None</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>: <span class="kw">False</span>, <span class="st">"output"</span>: <span class="kw">None</span>, <span class="st">"error"</span>: <span class="fn">str</span>(e)}
+
+<span class="cm"># Caller checks the result</span>
+result = <span class="fn">run_command</span>(net, <span class="st">"show version"</span>)
+<span class="kw">if</span> result[<span class="st">"ok"</span>]:
+    <span class="fn">print</span>(result[<span class="st">"output"</span>])
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Error:"</span>, result[<span class="st">"error"</span>])
+
+<span class="cm"># Pattern 2: Early return on failure</span>
+<span class="kw">def</span> <span class="fn">get_interfaces</span>(ip, auth):
+    <span class="kw">if not</span> <span class="fn">is_reachable</span>(ip):
+        <span class="kw">return</span> <span class="kw">None</span>             <span class="cm"># early return — device down</span>
+    <span class="cm"># Only gets here if device is up</span>
+    <span class="kw">return</span> <span class="fn">fetch_interfaces_via_api</span>(ip, auth)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-practical">
+<h3>Return Values — Full Examples</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">return_examples.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> subprocess, json
+
+<span class="kw">def</span> <span class="fn">ping_check</span>(hostname, ip):
+    <span class="st">"""Returns a result dict with device info and ping outcome."""</span>
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"2"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],capture_output=<span class="kw">True</span>)
+    up = r.returncode == <span class="nm">0</span>
+    <span class="kw">return</span> {
+        <span class="st">"hostname"</span>  : hostname,
+        <span class="st">"ip"</span>        : ip,
+        <span class="st">"reachable"</span> : up,
+        <span class="st">"status"</span>    : <span class="st">"UP"</span> <span class="kw">if</span> up <span class="kw">else</span> <span class="st">"DOWN"</span>
+    }
+
+<span class="kw">def</span> <span class="fn">scan_lab</span>(devices):
+    <span class="st">"""Scan all devices and return summary report."""</span>
+    results = [<span class="fn">ping_check</span>(d[<span class="st">"hostname"</span>], d[<span class="st">"ip"</span>]) <span class="kw">for</span> d <span class="kw">in</span> devices]
+    up      = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"reachable"</span>]]
+    down    = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if not</span> r[<span class="st">"reachable"</span>]]
+    <span class="kw">return</span> {<span class="st">"total"</span>:len(results), <span class="st">"up"</span>:len(up), <span class="st">"down"</span>:len(down), <span class="st">"results"</span>:results}
+
+<span class="cm"># EVE-NG lab</span>
+lab_devices = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,   <span class="st">"ip"</span>:<span class="st">"192.168.100.1"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,   <span class="st">"ip"</span>:<span class="st">"192.168.100.2"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>,<span class="st">"ip"</span>:<span class="st">"192.168.100.10"</span>},
+]
+
+report = <span class="fn">scan_lab</span>(lab_devices)
+<span class="fn">print</span>(f<span class="st">"Lab Scan: {report['up']}/{report['total']} UP"</span>)
+<span class="kw">for</span> r <span class="kw">in</span> report[<span class="st">"results"</span>]:
+    icon = <span class="st">"✓"</span> <span class="kw">if</span> r[<span class="st">"reachable"</span>] <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(f<span class="st">"  {icon} {r['hostname']:10} {r['ip']:18} {r['status']}"</span>)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"scan_report.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(report, f, indent=<span class="nm">2</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-flow">
+<h3>Return Value Patterns</h3>
+<div class="fb">
+  <div class="g2">
+    <div>
+      <p style="color:var(--grn);font-size:12px;font-weight:600;margin-bottom:4px">Return True/False</p>
+      <div class="fn2 g">Best for: yes/no checks<br><code>is_reachable(ip)</code><br><code>vlan_exists(sw, vid)</code></div>
+    </div>
+    <div>
+      <p style="color:var(--blu);font-size:12px;font-weight:600;margin-bottom:4px">Return a dict</p>
+      <div class="fn2 b">Best for: multiple related values<br><code>{"ok":True,"data":...}</code><br><code>{"status":"UP","ip":...}</code></div>
+    </div>
+    <div>
+      <p style="color:var(--yel);font-size:12px;font-weight:600;margin-bottom:4px">Return a list</p>
+      <div class="fn2 y">Best for: collections<br><code>[dev1, dev2, dev3]</code><br><code>["GigE0/0","GigE0/1"]</code></div>
+    </div>
+    <div>
+      <p style="color:var(--mut);font-size:12px;font-weight:600;margin-bottom:4px">Return None</p>
+      <div class="fn2">Best for: failure / not found<br><code>return None</code> early<br>Caller checks: <code>if result:</code></div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m3-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Return a Dict</div><div class="pt">Status result pattern</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a function <code>check_vlan(switch_name, vlan_id, expected_name)</code> that returns a dict with: switch, vlan_id, expected_name, compliant (True/False), and message. Test it with 3 different VLAN scenarios.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def check_vlan(switch_name, vlan_id, expected_name):</code><br>&nbsp;&nbsp;<code>"""Simulate checking a VLAN exists with the right name."""</code><br>&nbsp;&nbsp;<code># Simulate: pretend VLANs 10 and 20 exist correctly</code><br>&nbsp;&nbsp;<code>existing = {10:"USERS", 20:"SERVERS"}</code><br>&nbsp;&nbsp;<code>actual = existing.get(vlan_id)</code><br>&nbsp;&nbsp;<code>compliant = actual == expected_name</code><br>&nbsp;&nbsp;<code>return {</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"switch"       : switch_name,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"vlan_id"      : vlan_id,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"expected_name": expected_name,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"actual_name"  : actual,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"compliant"    : compliant,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"message"      : "OK" if compliant else f"Expected '{expected_name}' got '{actual}'"</code><br>&nbsp;&nbsp;<code>}</code><br><br><code>print(check_vlan("SW-01", 10, "USERS"))    # compliant</code><br><code>print(check_vlan("SW-01", 20, "VOICE"))    # not compliant</code><br><code>print(check_vlan("SW-01", 99, "MGMT"))     # vlan missing</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Early Return</div><div class="pt">Guard clauses</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a function <code>get_device_data(hostname, ip)</code> that first checks if the device is reachable (simulate with a check on the IP). If not reachable, return None immediately. If reachable, return a dict with hostname, ip, and some data.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def get_device_data(hostname, ip):</code><br>&nbsp;&nbsp;<code>"""Fetch device data — returns None if unreachable."""</code><br>&nbsp;&nbsp;<code># Simulate: IPs ending in .1 or .2 are reachable</code><br>&nbsp;&nbsp;<code>if not ip.endswith(".1") and not ip.endswith(".2"):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"[SKIP] {hostname} unreachable")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return None   # early return — stop here</code><br>&nbsp;&nbsp;<code># Only reaches here if device is up</code><br>&nbsp;&nbsp;<code>return {"hostname":hostname,"ip":ip,"platform":"cisco_ios","status":"UP"}</code><br><br><code>data1 = get_device_data("R1","10.1.1.1")    # returns dict</code><br><code>data2 = get_device_data("R2","10.1.1.99")   # returns None</code><br><br><code>if data1: print(f"Got data for {data1['hostname']}")</code><br><code>if data2 is None: print("data2 is None — device unreachable")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 4 ═══ -->
+<script type="text/x-tmpl" id="m4-theory">
+<h3>Scope — Where Variables Live</h3>
+<p>Scope defines where a variable can be seen. Variables inside a function stay inside that function. Variables at the top of a script are global. Getting this wrong causes confusing bugs where you think a variable should be available but Python can't find it.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">scope_explained.py</span></div><pre><span class="cm"># Global scope — available everywhere in the file</span>
+DEFAULT_USERNAME = <span class="st">"admin"</span>
+DEFAULT_PASSWORD = <span class="st">"admin123"</span>
+
+<span class="kw">def</span> <span class="fn">connect_device</span>(host):
+    <span class="cm"># Local scope — only exists inside this function</span>
+    conn_params = {
+        <span class="st">"host"</span>    : host,
+        <span class="st">"username"</span>: DEFAULT_USERNAME,   <span class="cm"># reading global is fine</span>
+        <span class="st">"password"</span>: DEFAULT_PASSWORD,
+    }
+    <span class="kw">return</span> conn_params
+
+<span class="cm"># conn_params does NOT exist here — it's local to the function</span>
+<span class="cm"># print(conn_params)  # NameError: name 'conn_params' is not defined</span>
+
+result = <span class="fn">connect_device</span>(<span class="st">"10.1.1.1"</span>)   <span class="cm"># result exists here — it's the return value</span>
+<span class="fn">print</span>(result)                           <span class="cm"># works fine</span></pre></div>
+<div class="note y"><p><strong>The rule:</strong> Don't use global variables for data inside functions. Pass data as parameters and receive it back via return. Functions should be self-contained — they work on their inputs, return their outputs.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-industry">
+<h3>Scope in Production — Best Practices</h3>
+<h4>Constants Are OK as Globals</h4>
+<p>It's fine to have global constants at the top of your script — things that don't change: <code>DEFAULT_TIMEOUT = 10</code>, <code>LOG_FILE = "network_audit.log"</code>. The key word is <em>constant</em>. Don't modify them inside functions.</p>
+<h4>Don't Mutate Globals Inside Functions</h4>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">scope_good_vs_bad.py</span></div><pre><span class="cm"># BAD — function secretly modifies global list</span>
+all_results = []
+<span class="kw">def</span> <span class="fn">bad_check</span>(ip):
+    all_results.<span class="fn">append</span>(ip)   <span class="cm"># modifying global — confusing!</span>
+
+<span class="cm"># GOOD — function returns result, caller decides what to do</span>
+<span class="kw">def</span> <span class="fn">good_check</span>(ip):
+    <span class="kw">return</span> {<span class="st">"ip"</span>: ip, <span class="st">"reachable"</span>: <span class="kw">True</span>}
+
+all_results = []
+<span class="kw">for</span> ip <span class="kw">in</span> device_ips:
+    result = <span class="fn">good_check</span>(ip)    <span class="cm"># caller controls the list</span>
+    all_results.<span class="fn">append</span>(result)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-practical">
+<h3>Scope in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">scope_network_script.py</span></div><pre><span class="cm"># Module-level constants — global and that's fine</span>
+DEFAULT_TIMEOUT  = <span class="nm">10</span>
+DEFAULT_PLATFORM = <span class="st">"cisco_ios"</span>
+LOG_FILE         = <span class="st">"audit.log"</span>
+
+<span class="kw">def</span> <span class="fn">build_conn</span>(host, username, password, timeout=<span class="kw">None</span>):
+    <span class="st">"""Build a connection dict. Uses DEFAULT_TIMEOUT if not specified."""</span>
+    <span class="kw">return</span> {
+        <span class="st">"device_type"</span>: DEFAULT_PLATFORM,     <span class="cm"># reading constant is fine</span>
+        <span class="st">"host"</span>       : host,
+        <span class="st">"username"</span>   : username,
+        <span class="st">"password"</span>   : password,
+        <span class="st">"timeout"</span>    : timeout <span class="kw">or</span> DEFAULT_TIMEOUT
+    }
+
+<span class="kw">def</span> <span class="fn">log_result</span>(hostname, status, message=<span class="st">""</span>):
+    <span class="st">"""Append a result line to the log file."""</span>
+    <span class="kw">with</span> <span class="fn">open</span>(LOG_FILE, <span class="st">"a"</span>) <span class="kw">as</span> f:              <span class="cm"># reading global constant</span>
+        f.<span class="fn">write</span>(f<span class="st">"{hostname},{status},{message}\n"</span>)
+
+<span class="cm"># Main script</span>
+devices = [(<span class="st">"R1"</span>,<span class="st">"10.1.1.1"</span>),(<span class="st">"R2"</span>,<span class="st">"10.1.1.2"</span>)]
+<span class="kw">for</span> name, ip <span class="kw">in</span> devices:
+    conn = <span class="fn">build_conn</span>(ip, <span class="st">"admin"</span>, <span class="st">"admin123"</span>)
+    <span class="fn">log_result</span>(name, <span class="st">"OK"</span>)
+    <span class="fn">print</span>(f<span class="st">"Built conn for {name}: {conn}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-flow">
+<h3>Scope Diagram</h3>
+<div class="fb">
+  <div class="fn2 b" style="width:100%;margin-bottom:8px">Global scope: DEFAULT_TIMEOUT = 10, LOG_FILE = "audit.log"</div>
+  <div class="fr">
+    <div style="flex:1">
+      <div class="fn2 f">def build_conn(host, ...):<br>&nbsp;&nbsp;<code>conn = {...}</code>  ← local<br>&nbsp;&nbsp;<code>return conn</code></div>
+      <p style="font-size:10px;color:var(--mut);margin-top:4px">conn only lives here</p>
+    </div>
+    <div style="flex:1">
+      <div class="fn2 g">def log_result(name, status):<br>&nbsp;&nbsp;<code>open(LOG_FILE)</code>  ← reads global<br>&nbsp;&nbsp;<code>f.write(...)</code></div>
+      <p style="font-size:10px;color:var(--mut);margin-top:4px">LOG_FILE is readable</p>
+    </div>
+  </div>
+  <div class="fn2" style="width:100%;margin-top:8px">Main script: calls functions, receives return values</div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m4-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Spot the Scope Bug</div><div class="pt">Debug scope error</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>What is wrong with this code? Fix it:<br><code>def get_report(): lines = []; lines.append("Header")</code><br><code>get_report()</code><br><code>print(lines)  # NameError</code></p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Problem:</strong> <code>lines</code> is a local variable inside <code>get_report()</code>. It doesn't exist outside the function. Accessing it after the call causes <code>NameError</code>.<br><br><strong>Fix — return it:</strong><br><code>def get_report():</code><br>&nbsp;&nbsp;<code>lines = []</code><br>&nbsp;&nbsp;<code>lines.append("Header")</code><br>&nbsp;&nbsp;<code>return lines   # send it back</code><br><br><code>report = get_report()  # capture the return value</code><br><code>print(report)          # ['Header'] — works</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Constants Pattern</div><div class="pt">Module-level config</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Set up a script with global constants: <code>LAB_USERNAME</code>, <code>LAB_PASSWORD</code>, <code>DEFAULT_TIMEOUT</code>, <code>REPORT_FILE</code>. Write two functions that use these constants. Show how changing the constant at the top updates behaviour everywhere.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>LAB_USERNAME   = "admin"</code><br><code>LAB_PASSWORD   = "admin123"</code><br><code>DEFAULT_TIMEOUT = 10</code><br><code>REPORT_FILE    = "eve_report.log"</code><br><br><code>def get_conn(host, timeout=None):</code><br>&nbsp;&nbsp;<code>return {"host":host,"username":LAB_USERNAME,"password":LAB_PASSWORD,"timeout":timeout or DEFAULT_TIMEOUT}</code><br><br><code>def save_result(msg):</code><br>&nbsp;&nbsp;<code>with open(REPORT_FILE,"a") as f: f.write(msg+"\n")</code><br><br><code>conn = get_conn("10.1.1.1")</code><br><code>save_result(f"Connected to {conn['host']}")</code><br><br>Change <code>LAB_USERNAME = "netops"</code> at top → both functions automatically use the new value. That's the power of constants.</p></div>
+  </div>
+</div>
+</script>
+<!-- ═══ TOPIC 5 ═══ -->
+<script type="text/x-tmpl" id="m5-theory">
+<h3>Docstrings and Type Hints — Writing Functions Others Can Use</h3>
+<p>A function you wrote 6 months ago that has no documentation is basically a function someone else wrote. Docstrings and type hints make your functions self-explanatory — your team can use them without asking you what parameters to pass.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">documented_functions.py</span></div><pre><span class="cm"># Type hints — what type each parameter expects</span>
+<span class="cm"># and what the function returns</span>
+<span class="kw">def</span> <span class="fn">ping_device</span>(ip: str, count: int = <span class="nm">1</span>, timeout: int = <span class="nm">2</span>) -> bool:
+    <span class="st">"""Check if a device responds to ping.
+
+    Args:
+        ip      : Management IP address of the device.
+        count   : Number of ping packets to send.
+        timeout : Seconds to wait for each reply.
+
+    Returns:
+        True if device is reachable, False otherwise.
+
+    Example:
+        >>> ping_device("10.1.1.1")
+        True
+    """</span>
+    <span class="kw">import</span> subprocess
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="fn">str</span>(count),<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],
+                        capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="cm"># Reading the docstring</span>
+<span class="fn">print</span>(<span class="fn">ping_device</span>.__doc__)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-industry">
+<h3>Why Documentation Matters on a Team</h3>
+<p>When you build a library of network automation functions, other engineers on your team will use them. If your functions have proper docstrings and type hints, they can use them without reading the implementation.</p>
+<div class="note e"><p><strong>Industry standard:</strong> Most enterprise network automation teams follow the Google or NumPy docstring style. IDEs like VS Code and PyCharm show the docstring as a tooltip when you hover over a function call — extremely useful.</p></div>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">Well-documented network functions</span></div><pre><span class="kw">from</span> typing <span class="kw">import</span> Optional, List, Dict
+
+<span class="kw">def</span> <span class="fn">build_connection</span>(
+    host     : str,
+    platform : str = <span class="st">"cisco_ios"</span>,
+    username : str = <span class="st">"admin"</span>,
+    password : str = <span class="st">"admin123"</span>,
+    timeout  : int = <span class="nm">10</span>
+) -> Dict:
+    <span class="st">"""Build a Netmiko connection parameter dict.
+
+    Args:
+        host     : Device IP or hostname.
+        platform : Netmiko device_type string.
+        username : SSH username.
+        password : SSH password.
+        timeout  : Connection timeout in seconds.
+
+    Returns:
+        Dict ready to pass to ConnectHandler(**conn).
+    """</span>
+    <span class="kw">return</span> {<span class="st">"device_type"</span>:platform,<span class="st">"host"</span>:host,
+            <span class="st">"username"</span>:username,<span class="st">"password"</span>:password,<span class="st">"timeout"</span>:timeout}
+
+<span class="kw">def</span> <span class="fn">get_unreachable</span>(devices: List[Dict]) -> List[str]:
+    <span class="st">"""Return hostnames of devices that failed ping check."""</span>
+    <span class="kw">return</span> [d[<span class="st">"hostname"</span>] <span class="kw">for</span> d <span class="kw">in</span> devices
+            <span class="kw">if not</span> <span class="fn">ping_device</span>(d[<span class="st">"ip"</span>])]</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-practical">
+<h3>Documenting Your EVE-NG Automation Functions</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">eve_toolkit.py — documented function library</span><span class="etag">EVE-NG</span></div><pre><span class="st">"""
+eve_toolkit.py
+==============
+Reusable functions for EVE-NG lab automation.
+Import this in your scripts: from eve_toolkit import *
+"""</span>
+<span class="kw">import</span> subprocess, yaml, json
+<span class="kw">from</span> typing <span class="kw">import</span> Dict, List, Optional
+
+<span class="kw">def</span> <span class="fn">load_inventory</span>(path: str = <span class="st">"eve_inventory.yaml"</span>) -> Dict:
+    <span class="st">"""Load EVE-NG device inventory from YAML file.
+
+    Args:
+        path: Path to YAML inventory file.
+
+    Returns:
+        Dict with lab_name and devices list, or empty dict on error.
+    """</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f:
+            <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+    <span class="kw">except</span> FileNotFoundError:
+        <span class="fn">print</span>(f<span class="st">"Inventory file not found: {path}"</span>)
+        <span class="kw">return</span> {}
+
+<span class="kw">def</span> <span class="fn">is_reachable</span>(ip: str, timeout: int = <span class="nm">1</span>) -> bool:
+    <span class="st">"""Ping a device once and return True if it responds.
+
+    Args:
+        ip      : IP address to ping.
+        timeout : Wait seconds per ping packet.
+
+    Returns:
+        True if reachable, False if not.
+    """</span>
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],
+                        capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">save_report</span>(data, filename: str = <span class="st">"report.json"</span>) -> None:
+    <span class="st">"""Save data to a JSON file.
+
+    Args:
+        data     : Dict or list to serialise.
+        filename : Output file path.
+    """</span>
+    <span class="kw">with</span> <span class="fn">open</span>(filename, <span class="st">"w"</span>) <span class="kw">as</span> f:
+        json.<span class="fn">dump</span>(data, f, indent=<span class="nm">2</span>)
+    <span class="fn">print</span>(f<span class="st">"Saved: {filename}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-flow">
+<h3>Docstring Structure</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">docstring_template.py</span></div><pre><span class="kw">def</span> <span class="fn">function_name</span>(param1: str, param2: int = <span class="nm">0</span>) -> bool:
+    <span class="st">"""One-line summary of what this function does.
+
+    Longer description if needed — what it does,
+    any important side effects or caveats.
+
+    Args:
+        param1 : Description of param1.
+        param2 : Description of param2. Defaults to 0.
+
+    Returns:
+        Description of return value and type.
+
+    Raises:
+        ValueError : If param1 is empty.
+    """</span>
+    <span class="kw">pass</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Add Docstrings</div><div class="pt">Document existing functions</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Take the <code>ping_check(hostname, ip)</code> and <code>scan_lab(devices)</code> functions from Topic 3. Add full docstrings (one-line summary, Args, Returns) and type hints to both.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>from typing import Dict, List</code><br><br><code>def ping_check(hostname: str, ip: str) -> Dict:</code><br>&nbsp;&nbsp;<code>"""Ping a device and return status result.</code><br><br>&nbsp;&nbsp;<code>Args:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>hostname : Device name for the report.</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ip       : Management IP to ping.</code><br><br>&nbsp;&nbsp;<code>Returns:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>Dict with hostname, ip, reachable (bool), status (str).</code><br>&nbsp;&nbsp;<code>"""</code><br>&nbsp;&nbsp;<code>import subprocess</code><br>&nbsp;&nbsp;<code>r = subprocess.run(["ping","-c","1","-W","1",ip],capture_output=True)</code><br>&nbsp;&nbsp;<code>up = r.returncode == 0</code><br>&nbsp;&nbsp;<code>return {"hostname":hostname,"ip":ip,"reachable":up,"status":"UP" if up else "DOWN"}</code><br><br><code>def scan_lab(devices: List[Dict]) -> Dict:</code><br>&nbsp;&nbsp;<code>"""Scan all lab devices and return summary.</code><br><br>&nbsp;&nbsp;<code>Args:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>devices : List of device dicts with hostname and ip keys.</code><br><br>&nbsp;&nbsp;<code>Returns:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>Dict with total, up, down counts and full results list.</code><br>&nbsp;&nbsp;<code>"""</code><br>&nbsp;&nbsp;<code>results = [ping_check(d["hostname"],d["ip"]) for d in devices]</code><br>&nbsp;&nbsp;<code>return {"total":len(results),"up":sum(1 for r in results if r["reachable"]),"results":results}</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 6 ═══ -->
+<script type="text/x-tmpl" id="m6-theory">
+<h3>Lambda Functions — Quick One-Liners</h3>
+<p>A lambda is a small anonymous function you can write in one line. You don't give it a name with <code>def</code>. It's useful when you need a simple function just once — most commonly when sorting or filtering data.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">lambda_demo.py</span></div><pre><span class="cm"># Normal function</span>
+<span class="kw">def</span> <span class="fn">get_hostname</span>(device):
+    <span class="kw">return</span> device[<span class="st">"hostname"</span>]
+
+<span class="cm"># Same thing as lambda</span>
+get_hostname = <span class="kw">lambda</span> device: device[<span class="st">"hostname"</span>]
+
+<span class="cm"># Most useful: sorting a list of dicts</span>
+devices = [
+    {<span class="st">"hostname"</span>:<span class="st">"SW-02"</span>, <span class="st">"ip"</span>:<span class="st">"10.1.1.12"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,    <span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>, <span class="st">"ip"</span>:<span class="st">"10.1.1.11"</span>},
+]
+
+<span class="cm"># Sort by hostname alphabetically</span>
+sorted_by_name = <span class="fn">sorted</span>(devices, key=<span class="kw">lambda</span> d: d[<span class="st">"hostname"</span>])
+
+<span class="cm"># Sort by IP address</span>
+sorted_by_ip   = <span class="fn">sorted</span>(devices, key=<span class="kw">lambda</span> d: d[<span class="st">"ip"</span>])
+
+<span class="cm"># Filter — keep only devices with IP starting with 10.1.1.1x</span>
+switches = <span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> d: d[<span class="st">"hostname"</span>].<span class="fn">startswith</span>(<span class="st">"SW"</span>), devices))</pre></div>
+<div class="note"><p><strong>When to use lambda vs def:</strong> Use lambda for simple one-expression functions used as arguments (key=, filter=). Use def when the logic is more than one expression or you'll reuse the function.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-industry">
+<h3>Lambda in Network Automation — Real Use Cases</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">lambda_network_uses.py</span></div><pre>devices = [
+    {<span class="st">"hostname"</span>:<span class="st">"FW-01"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.254"</span>,<span class="st">"type"</span>:<span class="st">"firewall"</span>,<span class="st">"status"</span>:<span class="st">"UP"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,   <span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>,  <span class="st">"type"</span>:<span class="st">"router"</span>,   <span class="st">"status"</span>:<span class="st">"UP"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.10"</span>, <span class="st">"type"</span>:<span class="st">"switch"</span>,   <span class="st">"status"</span>:<span class="st">"DOWN"</span>},
+]
+
+<span class="cm"># Sort by type, then by hostname within each type</span>
+sorted_devs = <span class="fn">sorted</span>(devices, key=<span class="kw">lambda</span> d: (d[<span class="st">"type"</span>], d[<span class="st">"hostname"</span>]))
+
+<span class="cm"># Filter: only UP devices</span>
+up_only = <span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> d: d[<span class="st">"status"</span>] == <span class="st">"UP"</span>, devices))
+
+<span class="cm"># Find the device with the lowest IP (min by IP)</span>
+lowest_ip = <span class="fn">min</span>(devices, key=<span class="kw">lambda</span> d: d[<span class="st">"ip"</span>])
+
+<span class="cm"># Sort VLANs by ID</span>
+vlans = [<span class="st">"VLAN100"</span>,<span class="st">"VLAN10"</span>,<span class="st">"VLAN20"</span>,<span class="st">"VLAN200"</span>]
+sorted_vlans = <span class="fn">sorted</span>(vlans, key=<span class="kw">lambda</span> v: <span class="fn">int</span>(v.<span class="fn">replace</span>(<span class="st">"VLAN"</span>,<span class="st">""</span>)))
+<span class="cm"># ['VLAN10','VLAN20','VLAN100','VLAN200'] — numeric sort</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-practical">
+<h3>Lambda in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">lambda_sorting_filtering.py</span></div><pre><span class="kw">import</span> json
+
+<span class="cm"># Simulated API response — device list</span>
+devices = [
+    {<span class="st">"hostname"</span>:<span class="st">"SW-CORE-02"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.12"</span>,<span class="st">"type"</span>:<span class="st">"switch"</span>,  <span class="st">"reachable"</span>:<span class="kw">True</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,        <span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>, <span class="st">"type"</span>:<span class="st">"router"</span>,  <span class="st">"reachable"</span>:<span class="kw">True</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-CORE-01"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.11"</span>,<span class="st">"type"</span>:<span class="st">"switch"</span>,  <span class="st">"reachable"</span>:<span class="kw">False</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,        <span class="st">"ip"</span>:<span class="st">"10.1.1.2"</span>, <span class="st">"type"</span>:<span class="st">"router"</span>,  <span class="st">"reachable"</span>:<span class="kw">True</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"FW-01"</span>,     <span class="st">"ip"</span>:<span class="st">"10.1.1.254"</span>,<span class="st">"type"</span>:<span class="st">"firewall"</span>,<span class="st">"reachable"</span>:<span class="kw">True</span>},
+]
+
+<span class="cm"># 1. Alphabetical by hostname</span>
+by_name = <span class="fn">sorted</span>(devices, key=<span class="kw">lambda</span> d: d[<span class="st">"hostname"</span>])
+
+<span class="cm"># 2. Reachable devices only</span>
+reachable = [d <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> d[<span class="st">"reachable"</span>]]
+
+<span class="cm"># 3. Group by type — sort by type first</span>
+by_type = <span class="fn">sorted</span>(devices, key=<span class="kw">lambda</span> d: (d[<span class="st">"type"</span>], d[<span class="st">"hostname"</span>]))
+
+<span class="fn">print</span>(<span class="st">"By hostname:"</span>)
+<span class="kw">for</span> d <span class="kw">in</span> by_name:
+    icon = <span class="st">"✓"</span> <span class="kw">if</span> d[<span class="st">"reachable"</span>] <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(f<span class="st">"  {icon} {d['hostname']:14} {d['type']}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-flow">
+<h3>Lambda Syntax</h3>
+<div class="fb">
+  <p style="color:var(--mut);font-size:12px;margin-bottom:8px">lambda &nbsp;<span style="color:var(--blu)">parameters</span> &nbsp;: &nbsp;<span style="color:var(--grn)">expression</span></p>
+  <div class="fr">
+    <div class="fn2 b">parameters<br><span class="fl">what goes in</span></div>
+    <div class="fn2 g">expression<br><span class="fl">what comes out (auto-returned)</span></div>
+  </div>
+  <div style="height:8px"></div>
+  <div class="fr"><div class="fn2 f">lambda d: d["hostname"]&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;def f(d): return d["hostname"]</div></div>
+  <div class="fr"><div class="fn2 f">lambda d: (d["type"], d["hostname"])&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;sort by type then name</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m6-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Sort and Filter</div><div class="pt">Lambda with sorted/filter</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Given a device list with hostname, ip, type, and status fields: (a) sort by IP, (b) filter to only switches, (c) sort by status (UP first) then hostname. Print each result.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>devices = [{"hostname":"SW-01","ip":"10.1.1.11","type":"switch","status":"DOWN"},{"hostname":"R1","ip":"10.1.1.1","type":"router","status":"UP"},{"hostname":"SW-02","ip":"10.1.1.12","type":"switch","status":"UP"}]</code><br><br><code># a) Sort by IP</code><br><code>by_ip = sorted(devices, key=lambda d: d["ip"])</code><br><br><code># b) Switches only</code><br><code>switches = [d for d in devices if d["type"] == "switch"]</code><br><br><code># c) UP first, then alphabetical — UP sorts before DOWN</code><br><code>by_status = sorted(devices, key=lambda d: (d["status"]=="DOWN", d["hostname"]))</code><br><br><code>for d in by_status: print(f"{d['hostname']:10} {d['status']}")</code></p></div>
+  </div>
+</div>
+</script>
+<!-- ═══ TOPIC 7 ═══ -->
+<script type="text/x-tmpl" id="m7-theory">
+<h3>Error Handling in Functions — try/except Inside Functions</h3>
+<p>Functions in network automation almost always deal with network operations — SSH connections, API calls, file I/O — things that can fail. A function that crashes your whole script when one device is unreachable is a bad function. Error handling inside functions makes them robust.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">error_handling_in_functions.py</span></div><pre><span class="cm"># BAD — one failure crashes everything</span>
+<span class="kw">def</span> <span class="fn">bad_get_version</span>(ip):
+    r = requests.<span class="fn">get</span>(f<span class="st">"https://{ip}/restconf/..."</span>)   <span class="cm"># crashes if offline</span>
+    <span class="kw">return</span> r.<span class="fn">json</span>()
+
+<span class="cm"># GOOD — handles errors, always returns something</span>
+<span class="kw">def</span> <span class="fn">get_version</span>(ip: str, auth: tuple) -> dict:
+    <span class="st">"""Get device version via RESTCONF. Returns status dict."""</span>
+    <span class="kw">import</span> requests
+    requests.packages.urllib3.<span class="fn">disable_warnings</span>()
+    <span class="kw">try</span>:
+        r = requests.<span class="fn">get</span>(
+            f<span class="st">"https://{ip}/restconf/data/Cisco-IOS-XE-native:native/version"</span>,
+            auth=auth,
+            headers={<span class="st">"Accept"</span>:<span class="st">"application/yang-data+json"</span>},
+            verify=<span class="kw">False</span>,
+            timeout=<span class="nm">10</span>
+        )
+        r.<span class="fn">raise_for_status</span>()
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>, <span class="st">"data"</span>:r.<span class="fn">json</span>(), <span class="st">"error"</span>:<span class="kw">None</span>}
+
+    <span class="kw">except</span> requests.exceptions.ConnectTimeout:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"data"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="st">"timeout"</span>}
+    <span class="kw">except</span> requests.exceptions.HTTPError <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"data"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:f<span class="st">"HTTP {e.response.status_code}"</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"data"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="fn">str</span>(e)}</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-industry">
+<h3>Graceful Functions in Production</h3>
+<p>The "ok / error" return dict pattern is used everywhere in professional network automation code. Every function that touches the network should return this structure — the caller can always check <code>if result["ok"]:</code> without worrying about exceptions.</p>
+<div class="note g"><p><strong>Golden pattern:</strong> Network functions should <em>never raise exceptions</em> to the caller. Catch the exception inside, put the error message in the return dict. The caller does a simple <code>if result["ok"]:</code> check. Clean, predictable, testable.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-practical">
+<h3>Robust Function Library for EVE-NG</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">robust_eve_functions.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+<span class="kw">import</span> yaml, json
+<span class="kw">from</span> typing <span class="kw">import</span> Dict, Optional
+
+<span class="kw">def</span> <span class="fn">ssh_run_command</span>(device: Dict, command: str) -> Dict:
+    <span class="st">"""SSH to a device, run one command, return result.
+
+    Args:
+        device  : Dict with host, platform, username, password.
+        command : CLI command to run.
+
+    Returns:
+        Dict with ok (bool), output (str or None), error (str or None).
+    """</span>
+    name = device.<span class="fn">get</span>(<span class="st">"hostname"</span>, device.<span class="fn">get</span>(<span class="st">"host"</span>, <span class="st">"unknown"</span>))
+    <span class="kw">try</span>:
+        conn = {
+            <span class="st">"device_type"</span>: device[<span class="st">"platform"</span>],
+            <span class="st">"host"</span>       : device[<span class="st">"ip"</span>],
+            <span class="st">"username"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+            <span class="st">"password"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"password"</span>],
+            <span class="st">"timeout"</span>    : <span class="nm">10</span>,
+        }
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            output = net.<span class="fn">send_command</span>(command)
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>, <span class="st">"device"</span>:name, <span class="st">"output"</span>:output, <span class="st">"error"</span>:<span class="kw">None</span>}
+
+    <span class="kw">except</span> NetmikoTimeoutException:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"device"</span>:name, <span class="st">"output"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="st">"SSH timeout"</span>}
+    <span class="kw">except</span> NetmikoAuthenticationException:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"device"</span>:name, <span class="st">"output"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="st">"Auth failed"</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"device"</span>:name, <span class="st">"output"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="fn">str</span>(e)}
+
+<span class="cm"># Using the function in a loop — caller is clean</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    result = <span class="fn">ssh_run_command</span>(device, <span class="st">"show version"</span>)
+    <span class="kw">if</span> result[<span class="st">"ok"</span>]:
+        <span class="fn">print</span>(f<span class="st">"✓ {result['device']}: got output"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(f<span class="st">"✗ {result['device']}: {result['error']}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-flow">
+<h3>Error Handling Flow Inside a Function</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 f">def ssh_run_command(device, command):</div></div>
+  <div style="height:5px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 y">try: SSH connect → run command</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 g">success → return {"ok":True, "output":...}</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 r">except Timeout → return {"ok":False, "error":"timeout"}</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 r">except Auth → return {"ok":False, "error":"auth failed"}</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 r">except Exception → return {"ok":False, "error":str(e)}</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">Caller always gets a dict — never an exception</div></div>
+  <div class="fr"><div class="fn2 b">if result["ok"]: → process data</div></div>
+  <div class="fr"><div class="fn2 r">else: → log error, continue</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m7-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Add Error Handling</div><div class="pt">Refactor a fragile function</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Take this fragile function and add proper error handling so it returns a status dict instead of crashing:<br><code>def load_yaml(path): with open(path) as f: return yaml.safe_load(f)</code></p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import yaml</code><br><br><code>def load_yaml(path: str) -> dict:</code><br>&nbsp;&nbsp;<code>"""Load a YAML file safely. Returns status dict."""</code><br>&nbsp;&nbsp;<code>try:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>with open(path) as f:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>data = yaml.safe_load(f)</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return {"ok":True,"data":data,"error":None}</code><br>&nbsp;&nbsp;<code>except FileNotFoundError:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return {"ok":False,"data":None,"error":f"File not found: {path}"}</code><br>&nbsp;&nbsp;<code>except yaml.YAMLError as e:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return {"ok":False,"data":None,"error":f"YAML parse error: {e}"}</code><br><br><code>r = load_yaml("inventory.yaml")</code><br><code>if r["ok"]:  print("Loaded:", r["data"])</code><br><code>else:        print("Error:", r["error"])</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 8 ═══ -->
+<script type="text/x-tmpl" id="m8-theory">
+<h3>Functions Calling Functions — Building a Toolkit</h3>
+<p>The real power of functions comes when you compose them — small, focused functions that call each other to build up more complex behaviour. Each function does one thing. The main script just orchestrates them.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">function_composition.py</span></div><pre><span class="cm"># Small focused functions</span>
+<span class="kw">def</span> <span class="fn">is_reachable</span>(ip): ...      <span class="cm"># returns True/False</span>
+<span class="kw">def</span> <span class="fn">build_conn</span>(device): ...    <span class="cm"># returns conn dict</span>
+<span class="kw">def</span> <span class="fn">run_show</span>(conn, cmd): ...   <span class="cm"># returns output string</span>
+<span class="kw">def</span> <span class="fn">parse_version</span>(output): ... <span class="cm"># returns version string</span>
+<span class="kw">def</span> <span class="fn">save_result</span>(data, f): ...  <span class="cm"># returns None</span>
+
+<span class="cm"># Composed function — calls all the small ones</span>
+<span class="kw">def</span> <span class="fn">audit_device</span>(device):
+    <span class="st">"""Full audit of one device — calls 5 smaller functions."""</span>
+    <span class="kw">if not</span> <span class="fn">is_reachable</span>(device[<span class="st">"ip"</span>]):
+        <span class="kw">return</span> {<span class="st">"ok"</span>: <span class="kw">False</span>, <span class="st">"error"</span>: <span class="st">"unreachable"</span>}
+
+    conn    = <span class="fn">build_conn</span>(device)
+    output  = <span class="fn">run_show</span>(conn, <span class="st">"show version"</span>)
+    version = <span class="fn">parse_version</span>(output)
+
+    result = {<span class="st">"hostname"</span>: device[<span class="st">"hostname"</span>], <span class="st">"version"</span>: version, <span class="st">"ok"</span>: <span class="kw">True</span>}
+    <span class="kw">return</span> result
+
+<span class="cm"># Main script is incredibly clean — just a loop</span>
+results = [<span class="fn">audit_device</span>(d) <span class="kw">for</span> d <span class="kw">in</span> devices]</pre></div>
+<div class="note f"><p><strong>This is how all real automation scripts are built.</strong> The main block is short and readable. All the complexity is hidden in well-named functions. A new teammate can read the main block and understand the script in 30 seconds.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-industry">
+<h3>Function Composition in Production Automation</h3>
+<p>Every well-written automation script has three layers: low-level functions (connect, run command), mid-level functions (audit_device, backup_config), and a main orchestrator (the loop). Each layer only calls the layer below it.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">three_layer_architecture.py</span></div><pre><span class="cm"># ─── Layer 1: Primitives ────────────────────────</span>
+<span class="kw">def</span> <span class="fn">ping</span>(ip): ...
+<span class="kw">def</span> <span class="fn">ssh_connect</span>(device): ...
+<span class="kw">def</span> <span class="fn">run_command</span>(conn, cmd): ...
+
+<span class="cm"># ─── Layer 2: Device operations ─────────────────</span>
+<span class="kw">def</span> <span class="fn">get_interfaces</span>(device):     <span class="cm"># calls ssh_connect + run_command</span>
+    ...
+<span class="kw">def</span> <span class="fn">backup_config</span>(device):      <span class="cm"># calls ssh_connect + run_command + save</span>
+    ...
+<span class="kw">def</span> <span class="fn">check_compliance</span>(device):   <span class="cm"># calls get_interfaces + validate</span>
+    ...
+
+<span class="cm"># ─── Layer 3: Main orchestration ────────────────</span>
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    <span class="kw">if</span> <span class="fn">ping</span>(device[<span class="st">"ip"</span>]):
+        <span class="fn">backup_config</span>(device)
+        <span class="fn">check_compliance</span>(device)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-practical">
+<h3>Building Your EVE-NG Automation Toolkit</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">eve_automation_toolkit.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> subprocess, yaml, json, os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="cm"># ─── Layer 1: Primitives ────────────────────────</span>
+<span class="kw">def</span> <span class="fn">ping</span>(ip: str) -> bool:
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">ssh_run</span>(device: dict, command: str) -> dict:
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>],<span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:device[<span class="st">"credentials"</span>][<span class="st">"password"</span>],<span class="st">"timeout"</span>:<span class="nm">10</span>}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>,<span class="st">"output"</span>:net.<span class="fn">send_command</span>(command),<span class="st">"error"</span>:<span class="kw">None</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>,<span class="st">"output"</span>:<span class="kw">None</span>,<span class="st">"error"</span>:<span class="fn">str</span>(e)}
+
+<span class="cm"># ─── Layer 2: Device operations ─────────────────</span>
+<span class="kw">def</span> <span class="fn">collect_device_info</span>(device: dict) -> dict:
+    <span class="st">"""Collect show version and interface brief from one device."""</span>
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">if not</span> <span class="fn">ping</span>(device[<span class="st">"ip"</span>]):
+        <span class="kw">return</span> {<span class="st">"hostname"</span>:name,<span class="st">"ok"</span>:<span class="kw">False</span>,<span class="st">"error"</span>:<span class="st">"unreachable"</span>}
+
+    ver  = <span class="fn">ssh_run</span>(device, <span class="st">"show version"</span>)
+    intf = <span class="fn">ssh_run</span>(device, <span class="st">"show ip interface brief"</span>)
+    <span class="kw">return</span> {
+        <span class="st">"hostname"</span>   : name,
+        <span class="st">"ip"</span>         : device[<span class="st">"ip"</span>],
+        <span class="st">"ok"</span>         : ver[<span class="st">"ok"</span>] <span class="kw">and</span> intf[<span class="st">"ok"</span>],
+        <span class="st">"version"</span>    : ver[<span class="st">"output"</span>],
+        <span class="st">"interfaces"</span> : intf[<span class="st">"output"</span>],
+        <span class="st">"error"</span>      : ver[<span class="st">"error"</span>] <span class="kw">or</span> intf[<span class="st">"error"</span>]
+    }
+
+<span class="cm"># ─── Layer 3: Main orchestration ────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+results = [<span class="fn">collect_device_info</span>(d) <span class="kw">for</span> d <span class="kw">in</span> devices]
+
+ok   = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"ok"</span>]]
+fail = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if not</span> r[<span class="st">"ok"</span>]]
+<span class="fn">print</span>(f<span class="st">"Done: {len(ok)} OK | {len(fail)} failed"</span>)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"audit.json"</span>,<span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(results,f,indent=<span class="nm">2</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-flow">
+<h3>Three-Layer Function Architecture</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 f" style="width:100%;text-align:center">Layer 3 — Main script (orchestration)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 y" style="width:100%;text-align:center">Layer 2 — Device operations (collect_device_info, backup_config)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 b" style="width:100%;text-align:center">Layer 1 — Primitives (ping, ssh_run, load_file, save_json)</div></div>
+  <div style="height:8px"></div>
+  <p style="color:var(--mut);font-size:12px">Each layer only calls the layer directly below it. The main script never does SSH directly — it calls collect_device_info. collect_device_info calls ssh_run. ssh_run handles the raw connection.</p>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m8-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Build a Toolkit</div><div class="pt">Function composition</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Build a 3-function toolkit: <code>load_inventory(path)</code> loads YAML, <code>check_device(device)</code> pings and returns status dict, <code>run_lab_check(path)</code> loads inventory, checks all devices, returns a summary. Test it with your EVE-NG inventory file.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import yaml, subprocess</code><br><br><code>def load_inventory(path="eve_inventory.yaml"):</code><br>&nbsp;&nbsp;<code>try:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>with open(path) as f: return yaml.safe_load(f)</code><br>&nbsp;&nbsp;<code>except Exception as e: print(f"Load error: {e}"); return None</code><br><br><code>def check_device(device):</code><br>&nbsp;&nbsp;<code>ip = device["ip"]</code><br>&nbsp;&nbsp;<code>r  = subprocess.run(["ping","-c","1","-W","1",ip],capture_output=True)</code><br>&nbsp;&nbsp;<code>up = r.returncode == 0</code><br>&nbsp;&nbsp;<code>return {"hostname":device["hostname"],"ip":ip,"ok":up,"status":"UP" if up else "DOWN"}</code><br><br><code>def run_lab_check(path="eve_inventory.yaml"):</code><br>&nbsp;&nbsp;<code>lab = load_inventory(path)  # calls layer 1</code><br>&nbsp;&nbsp;<code>if not lab: return None</code><br>&nbsp;&nbsp;<code>results = [check_device(d) for d in lab["devices"]]  # calls layer 1</code><br>&nbsp;&nbsp;<code>up = sum(1 for r in results if r["ok"])</code><br>&nbsp;&nbsp;<code>return {"lab":lab.get("lab_name","Lab"),"total":len(results),"up":up,"results":results}</code><br><br><code>summary = run_lab_check()</code><br><code>if summary:</code><br>&nbsp;&nbsp;<code>print(f"{summary['lab']}: {summary['up']}/{summary['total']} UP")</code><br>&nbsp;&nbsp;<code>for r in summary["results"]:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"  {'✓' if r['ok'] else '✗'} {r['hostname']:12} {r['status']}")</code></p></div>
+  </div>
+</div>
+</script>
+<!-- ═══ TOPIC 9 ═══ -->
+<script type="text/x-tmpl" id="m9-theory">
+<h3>Reusable Function Libraries — Your Personal Toolkit</h3>
+<p>Once you have several useful network functions, you should move them into a separate Python file — a module — that you import into any script that needs them. This is how you build a personal automation toolkit that grows with every script you write.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">net_toolkit.py — your reusable library</span></div><pre><span class="st">"""
+net_toolkit.py — Network Automation Toolkit
+================================================
+Personal library of reusable network functions.
+Usage: from net_toolkit import ping, ssh_run, load_inventory
+"""</span>
+<span class="kw">import</span> subprocess, yaml, json
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="kw">def</span> <span class="fn">ping</span>(ip: str, timeout: int = <span class="nm">1</span>) -> bool:
+    <span class="st">"""True if device responds to ping."""</span>
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">load_inventory</span>(path: str = <span class="st">"eve_inventory.yaml"</span>) -> dict:
+    <span class="st">"""Load device inventory from YAML. Returns empty dict on error."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f: <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+    <span class="kw">except</span> Exception: <span class="kw">return</span> {}
+
+<span class="kw">def</span> <span class="fn">save_json</span>(data, path: str) -> None:
+    <span class="st">"""Save data as formatted JSON file."""</span>
+    <span class="kw">with</span> <span class="fn">open</span>(path, <span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(data, f, indent=<span class="nm">2</span>)
+    <span class="fn">print</span>(f<span class="st">"Saved: {path}"</span>)
+
+<span class="kw">def</span> <span class="fn">timestamp</span>() -> str:
+    <span class="st">"""Return current timestamp string for filenames."""</span>
+    <span class="kw">return</span> datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M%S"</span>)</pre></div>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">my_script.py — importing and using the toolkit</span></div><pre><span class="kw">from</span> net_toolkit <span class="kw">import</span> ping, load_inventory, save_json, timestamp
+
+inventory = <span class="fn">load_inventory</span>()
+results   = []
+
+<span class="kw">for</span> d <span class="kw">in</span> inventory[<span class="st">"devices"</span>]:
+    up = <span class="fn">ping</span>(d[<span class="st">"ip"</span>])
+    results.<span class="fn">append</span>({<span class="st">"hostname"</span>:d[<span class="st">"hostname"</span>],<span class="st">"up"</span>:up})
+
+<span class="fn">save_json</span>(results, f<span class="st">"report_{timestamp()}.json"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-industry">
+<h3>Team Function Libraries in Production</h3>
+<p>Enterprise network automation teams maintain shared internal Python packages — a common toolkit imported by all automation scripts. When someone writes a better <code>connect_device()</code> function, everyone benefits from the update immediately.</p>
+<div class="note g"><p><strong>Naming convention:</strong> Name your library file something descriptive: <code>net_toolkit.py</code>, <code>cisco_helpers.py</code>, <code>eve_utils.py</code>. Keep it in the same folder as your scripts or add it to your Python path.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practical">
+<h3>Building Your EVE-NG Toolkit File</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">eve_utils.py — your personal toolkit</span><span class="etag">EVE-NG</span></div><pre><span class="st">"""eve_utils.py — EVE-NG Lab Automation Utilities"""</span>
+<span class="kw">import</span> subprocess, yaml, json, os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="kw">def</span> <span class="fn">ping</span>(ip, timeout=<span class="nm">1</span>):
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">load_lab</span>(path=<span class="st">"eve_inventory.yaml"</span>):
+    <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f: <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+
+<span class="kw">def</span> <span class="fn">ssh_cmd</span>(device, command):
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>],<span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:device[<span class="st">"credentials"</span>][<span class="st">"password"</span>],<span class="st">"timeout"</span>:<span class="nm">10</span>}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            <span class="kw">return</span> net.<span class="fn">send_command</span>(command)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"  [ERR] {device['hostname']}: {e}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="kw">def</span> <span class="fn">save_report</span>(data, name=<span class="st">"report"</span>):
+    ts   = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+    path = f<span class="st">"{name}_{ts}.json"</span>
+    <span class="kw">with</span> <span class="fn">open</span>(path,<span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(data,f,indent=<span class="nm">2</span>)
+    <span class="fn">print</span>(f<span class="st">"Saved: {path}"</span>)
+    <span class="kw">return</span> path
+
+<span class="kw">def</span> <span class="fn">ready_devices</span>(lab):
+    <span class="st">"""Return only devices that respond to ping."""</span>
+    <span class="kw">return</span> [d <span class="kw">for</span> d <span class="kw">in</span> lab[<span class="st">"devices"</span>] <span class="kw">if</span> <span class="fn">ping</span>(d[<span class="st">"ip"</span>])]</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-flow">
+<h3>Toolkit File → Import → Use</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 e">eve_utils.py (your toolkit file)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 f">from eve_utils import ping, load_lab, ssh_cmd, save_report</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 b">Script 1: ping_check.py → imports ping, load_lab</div></div>
+  <div class="fr"><div class="fn2 b">Script 2: backup.py → imports load_lab, ssh_cmd, save_report</div></div>
+  <div class="fr"><div class="fn2 b">Script 3: audit.py → imports all four</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g">One toolkit → many scripts → consistent, maintainable</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Build Your Toolkit</div><div class="pt">Create a reusable module</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Create <code>eve_utils.py</code> with 3 functions: <code>load_lab()</code>, <code>ping()</code>, <code>save_report()</code>. Then create a separate <code>lab_check.py</code> that imports from it, loads your inventory, pings all devices, and saves a JSON report.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>eve_utils.py:</strong><br><code>import subprocess, yaml, json</code><br><code>from datetime import datetime</code><br><br><code>def load_lab(path="eve_inventory.yaml"):</code><br>&nbsp;&nbsp;<code>with open(path) as f: return yaml.safe_load(f)</code><br><br><code>def ping(ip, timeout=1):</code><br>&nbsp;&nbsp;<code>r = subprocess.run(["ping","-c","1","-W",str(timeout),ip],capture_output=True)</code><br>&nbsp;&nbsp;<code>return r.returncode == 0</code><br><br><code>def save_report(data, name="report"):</code><br>&nbsp;&nbsp;<code>ts = datetime.now().strftime("%Y%m%d_%H%M")</code><br>&nbsp;&nbsp;<code>path = f"{name}_{ts}.json"</code><br>&nbsp;&nbsp;<code>with open(path,"w") as f: json.dump(data,f,indent=2)</code><br>&nbsp;&nbsp;<code>print(f"Saved: {path}")</code><br><br><strong>lab_check.py:</strong><br><code>from eve_utils import load_lab, ping, save_report</code><br><br><code>lab = load_lab()</code><br><code>results = [{"hostname":d["hostname"],"ip":d["ip"],"up":ping(d["ip"])} for d in lab["devices"]]</code><br><code>save_report({"results":results},"lab_check")</code><br><code>up = sum(1 for r in results if r["up"])</code><br><code>print(f"Done: {up}/{len(results)} UP")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 10 ═══ -->
+<script type="text/x-tmpl" id="m10-theory">
+<h3>Functions with Netmiko — Building SSH Wrappers</h3>
+<p>Writing a wrapper function around Netmiko connection logic is one of the most practical things you can do. You write the connection boilerplate once, wrap it in a clean function, and never think about it again.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">netmiko_wrappers.py</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="kw">def</span> <span class="fn">run_commands</span>(device: dict, commands: list) -> dict:
+    <span class="st">"""Run multiple show commands on a device via SSH.
+
+    Args:
+        device  : Device dict from inventory (hostname, ip, platform, credentials).
+        commands: List of CLI commands to run.
+
+    Returns:
+        Dict mapping command → output, plus 'ok' and 'error' keys.
+    """</span>
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">try</span>:
+        conn = {
+            <span class="st">"device_type"</span>: device[<span class="st">"platform"</span>],
+            <span class="st">"host"</span>       : device[<span class="st">"ip"</span>],
+            <span class="st">"username"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+            <span class="st">"password"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"password"</span>],
+            <span class="st">"timeout"</span>    : <span class="nm">15</span>,
+        }
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            outputs = {cmd: net.<span class="fn">send_command</span>(cmd) <span class="kw">for</span> cmd <span class="kw">in</span> commands}
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>, <span class="st">"device"</span>:name, <span class="st">"outputs"</span>:outputs, <span class="st">"error"</span>:<span class="kw">None</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"device"</span>:name, <span class="st">"outputs"</span>:{}, <span class="st">"error"</span>:<span class="fn">str</span>(e)}
+
+<span class="kw">def</span> <span class="fn">push_config</span>(device: dict, config_lines: list) -> dict:
+    <span class="st">"""Push a list of config commands to a device and save."""</span>
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">try</span>:
+        conn = {
+            <span class="st">"device_type"</span>: device[<span class="st">"platform"</span>],
+            <span class="st">"host"</span>       : device[<span class="st">"ip"</span>],
+            <span class="st">"username"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+            <span class="st">"password"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"password"</span>],
+        }
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            net.<span class="fn">send_config_set</span>(config_lines)
+            net.<span class="fn">save_config</span>()
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>, <span class="st">"device"</span>:name, <span class="st">"lines_pushed"</span>:<span class="fn">len</span>(config_lines), <span class="st">"error"</span>:<span class="kw">None</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"device"</span>:name, <span class="st">"lines_pushed"</span>:<span class="nm">0</span>, <span class="st">"error"</span>:<span class="fn">str</span>(e)}</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-industry">
+<h3>SSH Wrapper Functions in Production</h3>
+<p>These wrapper functions are the core of any Netmiko-based automation toolkit. Once written and tested, you never touch the SSH connection logic again — you just call <code>run_commands(device, ["show version"])</code> from anywhere.</p>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab — Using Your Wrappers</div><p>With these wrapper functions, your EVE-NG lab scripts become 5-line scripts that just call the functions. All the SSH complexity is hidden. You focus on what commands to run, not how to connect.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-practical">
+<h3>Using SSH Wrapper Functions on EVE-NG</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">collect_lab_data.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> yaml, json
+<span class="kw">from</span> netmiko_wrappers <span class="kw">import</span> run_commands, push_config
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+SHOW_CMDS = [<span class="st">"show version"</span>, <span class="st">"show ip interface brief"</span>, <span class="st">"show ip route"</span>]
+
+results   = []
+success   = []
+failed    = []
+
+<span class="kw">for</span> num, device <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+    name = device[<span class="st">"hostname"</span>]
+    <span class="fn">print</span>(f<span class="st">"[{num}/{len(devices)}] {name}..."</span>, end=<span class="st">" "</span>)
+
+    result = <span class="fn">run_commands</span>(device, SHOW_CMDS)
+
+    <span class="kw">if</span> result[<span class="st">"ok"</span>]:
+        <span class="fn">print</span>(<span class="st">"OK"</span>)
+        success.<span class="fn">append</span>(name)
+        results.<span class="fn">append</span>({<span class="st">"hostname"</span>:name, <span class="st">"outputs"</span>:result[<span class="st">"outputs"</span>]})
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(f<span class="st">"FAILED: {result['error']}"</span>)
+        failed.<span class="fn">append</span>(name)
+
+<span class="fn">print</span>(f<span class="st">"\n{len(success)} OK | {len(failed)} failed"</span>)
+<span class="kw">if</span> failed: <span class="fn">print</span>(<span class="st">"Failed:"</span>, failed)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"lab_data.json"</span>,<span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(results,f,indent=<span class="nm">2</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-flow">
+<h3>Wrapper Function Pattern</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 b" style="width:100%">run_commands(device, commands) — your clean interface</div></div>
+  <div style="height:5px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2">ConnectHandler(**conn) — raw netmiko</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2">for cmd in commands: send_command(cmd)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g">{"ok":True, "outputs":{"show version":"..."}} — clean result</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 r">{"ok":False, "error":"SSH timeout"} — clean failure</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m10-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Extend the Wrapper</div><div class="put">Add config push function</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Add a <code>push_config(device, config_lines)</code> function to your toolkit that: connects, calls <code>send_config_set()</code>, calls <code>save_config()</code>, and returns the same ok/error dict pattern. Test it on an EVE-NG switch (push NTP server config).</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>from netmiko import ConnectHandler</code><br><br><code>def push_config(device, config_lines):</code><br>&nbsp;&nbsp;<code>"""Push config lines and save. Returns ok/error dict."""</code><br>&nbsp;&nbsp;<code>name = device["hostname"]</code><br>&nbsp;&nbsp;<code>try:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>conn = {"device_type":device["platform"],"host":device["ip"],"username":device["credentials"]["username"],"password":device["credentials"]["password"]}</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>with ConnectHandler(**conn) as net:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>output = net.send_config_set(config_lines)</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>net.save_config()</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return {"ok":True,"device":name,"pushed":len(config_lines),"error":None}</code><br>&nbsp;&nbsp;<code>except Exception as e:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return {"ok":False,"device":name,"pushed":0,"error":str(e)}</code><br><br><code># Test on EVE-NG switch</code><br><code>ntp_config = ["ntp server 8.8.8.8","ntp server 8.8.4.4"]</code><br><code>result = push_config(sw_device, ntp_config)</code><br><code>print(f"{'OK' if result['ok'] else 'FAIL'}: {result['device']}")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 11 ═══ -->
+<script type="text/x-tmpl" id="m11-theory">
+<h3>Passing Functions as Arguments — Callbacks</h3>
+<p>In Python, functions are objects. You can pass a function as an argument to another function. This might sound weird but it's incredibly useful — it lets you write generic loops that do customised work per device.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">function_as_argument.py</span></div><pre><span class="cm"># A generic "run for all devices" function</span>
+<span class="kw">def</span> <span class="fn">for_each_device</span>(devices: list, action) -> list:
+    <span class="st">"""Run 'action' function for each device. Collect and return results."""</span>
+    results = []
+    <span class="kw">for</span> num, device <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+        <span class="fn">print</span>(f<span class="st">"[{num}/{len(devices)}] {device['hostname']}..."</span>, end=<span class="st">" "</span>)
+        result = <span class="fn">action</span>(device)     <span class="cm"># call whatever function was passed</span>
+        results.<span class="fn">append</span>(result)
+        <span class="fn">print</span>(<span class="st">"OK"</span> <span class="kw">if</span> result.<span class="fn">get</span>(<span class="st">"ok"</span>) <span class="kw">else</span> <span class="st">"FAIL"</span>)
+    <span class="kw">return</span> results
+
+<span class="cm"># Different action functions</span>
+<span class="kw">def</span> <span class="fn">check_ping</span>(device):
+    <span class="kw">return</span> {<span class="st">"hostname"</span>:device[<span class="st">"hostname"</span>], <span class="st">"ok"</span>:<span class="fn">ping</span>(device[<span class="st">"ip"</span>])}
+
+<span class="kw">def</span> <span class="fn">get_version</span>(device):
+    <span class="kw">return</span> <span class="fn">run_commands</span>(device, [<span class="st">"show version"</span>])
+
+<span class="kw">def</span> <span class="fn">backup_now</span>(device):
+    output = <span class="fn">ssh_cmd</span>(device, <span class="st">"show running-config"</span>)
+    fname  = f<span class="st">"{device['hostname']}_backup.txt"</span>
+    <span class="kw">with</span> <span class="fn">open</span>(fname, <span class="st">"w"</span>) <span class="kw">as</span> f: f.<span class="fn">write</span>(output <span class="kw">or</span> <span class="st">""</span>)
+    <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>, <span class="st">"hostname"</span>:device[<span class="st">"hostname"</span>], <span class="st">"file"</span>:fname}
+
+<span class="cm"># Pass different actions to the same generic loop</span>
+ping_results    = <span class="fn">for_each_device</span>(devices, check_ping)
+version_results = <span class="fn">for_each_device</span>(devices, get_version)
+backup_results  = <span class="fn">for_each_device</span>(devices, backup_now)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-industry">
+<h3>Generic Loops in Production</h3>
+<p>This pattern — a generic loop that accepts a function — means you write the loop boilerplate (progress printing, error handling, result collection) once, and swap in different actions. It's used in frameworks like Nornir which does exactly this at scale.</p>
+<div class="note f"><p><strong>This is how Nornir works internally.</strong> You define tasks as functions, and Nornir's runner calls your task function for every host. Your task function gets a Task object, does its work, returns a result. Generic loop + swappable function = Nornir.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practical">
+<h3>Generic Device Runner — EVE-NG</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">generic_runner.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> yaml, json
+<span class="kw">from</span> eve_utils <span class="kw">import</span> ping, ssh_cmd, save_report
+
+<span class="kw">def</span> <span class="fn">run_task</span>(devices: list, task_fn, task_name: str = <span class="st">"task"</span>) -> list:
+    <span class="st">"""Generic runner — call task_fn for every device.</span>
+
+<span class="st">    Args:</span>
+<span class="st">        devices  : List of device dicts from inventory.</span>
+<span class="st">        task_fn  : Function to call for each device.</span>
+<span class="st">        task_name: Label for progress output.</span>
+
+<span class="st">    Returns:</span>
+<span class="st">        List of result dicts from task_fn.</span>
+<span class="st">    """</span>
+    total   = <span class="fn">len</span>(devices)
+    results = []
+    <span class="fn">print</span>(f<span class="st">"Running [{task_name}] on {total} devices..."</span>)
+    <span class="kw">for</span> num, device <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+        name = device[<span class="st">"hostname"</span>]
+        <span class="fn">print</span>(f<span class="st">"  [{num:02d}/{total}] {name}..."</span>, end=<span class="st">" "</span>)
+        <span class="kw">try</span>:
+            result = <span class="fn">task_fn</span>(device)
+            <span class="fn">print</span>(<span class="st">"OK"</span> <span class="kw">if</span> result.<span class="fn">get</span>(<span class="st">"ok"</span>,<span class="kw">True</span>) <span class="kw">else</span> <span class="st">"FAIL"</span>)
+        <span class="kw">except</span> Exception <span class="kw">as</span> e:
+            result = {<span class="st">"hostname"</span>:name,<span class="st">"ok"</span>:<span class="kw">False</span>,<span class="st">"error"</span>:<span class="fn">str</span>(e)}
+            <span class="fn">print</span>(f<span class="st">"ERROR: {e}"</span>)
+        results.<span class="fn">append</span>(result)
+    ok = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.<span class="fn">get</span>(<span class="st">"ok"</span>,<span class="kw">True</span>))
+    <span class="fn">print</span>(f<span class="st">"Done: {ok}/{total} succeeded"</span>)
+    <span class="kw">return</span> results
+
+<span class="cm"># Define task functions</span>
+<span class="kw">def</span> <span class="fn">task_ping</span>(device):
+    up = <span class="fn">ping</span>(device[<span class="st">"ip"</span>])
+    <span class="kw">return</span> {<span class="st">"hostname"</span>:device[<span class="st">"hostname"</span>],<span class="st">"ok"</span>:up,<span class="st">"status"</span>:<span class="st">"UP"</span> <span class="kw">if</span> up <span class="kw">else</span> <span class="st">"DOWN"</span>}
+
+<span class="kw">def</span> <span class="fn">task_get_version</span>(device):
+    out = <span class="fn">ssh_cmd</span>(device, <span class="st">"show version"</span>)
+    <span class="kw">return</span> {<span class="st">"hostname"</span>:device[<span class="st">"hostname"</span>],<span class="st">"ok"</span>:out <span class="kw">is not</span> <span class="kw">None</span>,<span class="st">"output"</span>:out}
+
+<span class="cm"># Use the generic runner with different tasks</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+ping_results    = <span class="fn">run_task</span>(devices, task_ping,        <span class="st">"ping check"</span>)
+version_results = <span class="fn">run_task</span>(devices, task_get_version,  <span class="st">"get version"</span>)
+
+<span class="fn">save_report</span>(ping_results,    <span class="st">"ping"</span>)
+<span class="fn">save_report</span>(version_results, <span class="st">"version"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-flow">
+<h3>Generic Runner Pattern</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 b">run_task(devices, task_fn)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 p">for device in devices:</div></div>
+  <div class="fr" style="padding-left:28px"><div class="fn2 f">result = task_fn(device)  ← calls whatever was passed</div></div>
+  <div style="height:5px"></div>
+  <div class="fr">
+    <div class="fn2 g">task_ping → pings</div>
+    <div class="fn2 g">task_get_version → SSHs</div>
+    <div class="fn2 g">task_backup → saves config</div>
+  </div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">Same loop, same progress output, same result collection — different work</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Write a New Task</div><div class="pt">Function as argument</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Using the <code>run_task()</code> generic runner, write a new task function <code>task_check_ntp(device)</code> that SSHs in and runs "show ntp status". Pass it to run_task on your EVE-NG inventory.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def task_check_ntp(device):</code><br>&nbsp;&nbsp;<code>"""Check NTP status on a device."""</code><br>&nbsp;&nbsp;<code>output = ssh_cmd(device, "show ntp status")</code><br>&nbsp;&nbsp;<code>synced = output and "synchronized" in output.lower() if output else False</code><br>&nbsp;&nbsp;<code>return {</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"hostname" : device["hostname"],</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"ok"       : output is not None,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"ntp_synced": synced,</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>"output"   : output</code><br>&nbsp;&nbsp;<code>}</code><br><br><code>ntp_results = run_task(devices, task_check_ntp, "NTP check")</code><br><br><code>for r in ntp_results:</code><br>&nbsp;&nbsp;<code>icon = "✓" if r.get("ntp_synced") else "✗"</code><br>&nbsp;&nbsp;<code>print(f"  {icon} {r['hostname']} — NTP {'synced' if r.get('ntp_synced') else 'not synced'}")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 12 ═══ -->
+<script type="text/x-tmpl" id="m12-theory">
+<h3>Capstone — A Complete Function-Based Network Automation Script</h3>
+<p>This capstone brings together everything from this module. The script is built from clean, documented, composable functions. Each function does one thing. The main block is short and readable. This is exactly how professional network automation code is written.</p>
+<h4>What the Capstone Builds</h4>
+<div class="g2">
+  <div class="card e"><h5>Toolkit Layer</h5><p>ping(), load_lab(), ssh_run_commands(), push_baseline_config(), save_report() — all with docstrings and type hints.</p></div>
+  <div class="card"><h5>Operation Layer</h5><p>check_device(), audit_device(), configure_device() — compose the toolkit functions.</p></div>
+  <div class="card g"><h5>Runner</h5><p>run_task() generic runner — calls any operation on all devices.</p></div>
+  <div class="card y"><h5>Main Script</h5><p>10 lines — loads inventory, runs tasks, saves reports. Zero complexity.</p></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m12-industry">
+<h3>This is Production-Quality Code Structure</h3>
+<p>The architecture in the capstone is used in real enterprise automation scripts. If you took this structure to a job interview and explained how the layers work, any senior network automation engineer would be impressed.</p>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab — Running the Capstone</div><p>With your EVE-NG lab running and SSH configured on all devices, the capstone script will: check all devices for reachability, SSH to reachable ones, collect show commands, optionally push a baseline config, and save a complete JSON report — all in a clean, maintainable, extensible structure.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m12-practical">
+<h3>Full Capstone Script</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">network_automation_capstone.py</span><span class="etag">EVE-NG</span></div><pre><span class="st">"""
+network_automation_capstone.py
+================================
+Full function-based network automation script.
+Loads EVE-NG inventory, audits all devices, saves report.
+"""</span>
+<span class="kw">import</span> subprocess, yaml, json, os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> typing <span class="kw">import</span> Dict, List, Optional
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="cm"># ═══════════════════════════════════════════════
+# LAYER 1 — Primitives
+# ═══════════════════════════════════════════════</span>
+
+<span class="kw">def</span> <span class="fn">ping</span>(ip: str, timeout: int = <span class="nm">1</span>) -> bool:
+    <span class="st">"""True if device responds to ping."""</span>
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">load_lab</span>(path: str = <span class="st">"eve_inventory.yaml"</span>) -> Dict:
+    <span class="st">"""Load inventory YAML. Returns empty dict on error."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f: <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+    <span class="kw">except</span> FileNotFoundError:
+        <span class="fn">print</span>(f<span class="st">"Inventory not found: {path}"</span>); <span class="kw">return</span> {}
+
+<span class="kw">def</span> <span class="fn">ssh_commands</span>(device: Dict, commands: List[str]) -> Dict:
+    <span class="st">"""Run show commands on device. Returns ok/outputs dict."""</span>
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>],<span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:device[<span class="st">"credentials"</span>][<span class="st">"password"</span>],<span class="st">"timeout"</span>:<span class="nm">10</span>}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            outputs = {cmd: net.<span class="fn">send_command</span>(cmd) <span class="kw">for</span> cmd <span class="kw">in</span> commands}
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>,<span class="st">"outputs"</span>:outputs,<span class="st">"error"</span>:<span class="kw">None</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>,<span class="st">"outputs"</span>:{},<span class="st">"error"</span>:<span class="fn">str</span>(e)}
+
+<span class="kw">def</span> <span class="fn">save_report</span>(data, name: str = <span class="st">"report"</span>) -> str:
+    <span class="st">"""Save data as timestamped JSON. Returns filename."""</span>
+    ts   = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+    path = f<span class="st">"{name}_{ts}.json"</span>
+    <span class="kw">with</span> <span class="fn">open</span>(path,<span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(data,f,indent=<span class="nm">2</span>)
+    <span class="fn">print</span>(f<span class="st">"Saved: {path}"</span>); <span class="kw">return</span> path
+
+<span class="cm"># ═══════════════════════════════════════════════
+# LAYER 2 — Device Operations
+# ═══════════════════════════════════════════════</span>
+
+AUDIT_COMMANDS = [
+    <span class="st">"show version"</span>,
+    <span class="st">"show ip interface brief"</span>,
+    <span class="st">"show ip route summary"</span>,
+]
+
+<span class="kw">def</span> <span class="fn">audit_device</span>(device: Dict) -> Dict:
+    <span class="st">"""Full audit of one device. Returns complete result dict."""</span>
+    name = device[<span class="st">"hostname"</span>]
+
+    <span class="kw">if not</span> <span class="fn">ping</span>(device[<span class="st">"ip"</span>]):                  <span class="cm"># layer 1 call</span>
+        <span class="kw">return</span> {<span class="st">"hostname"</span>:name,<span class="st">"ok"</span>:<span class="kw">False</span>,<span class="st">"reachable"</span>:<span class="kw">False</span>,<span class="st">"error"</span>:<span class="st">"unreachable"</span>}
+
+    result = <span class="fn">ssh_commands</span>(device, AUDIT_COMMANDS)  <span class="cm"># layer 1 call</span>
+    <span class="kw">return</span> {
+        <span class="st">"hostname"</span>  : name,
+        <span class="st">"ip"</span>        : device[<span class="st">"ip"</span>],
+        <span class="st">"type"</span>      : device.<span class="fn">get</span>(<span class="st">"type"</span>),
+        <span class="st">"reachable"</span> : <span class="kw">True</span>,
+        <span class="st">"ok"</span>        : result[<span class="st">"ok"</span>],
+        <span class="st">"outputs"</span>   : result[<span class="st">"outputs"</span>],
+        <span class="st">"error"</span>     : result[<span class="st">"error"</span>]
+    }
+
+<span class="cm"># ═══════════════════════════════════════════════
+# LAYER 3 — Generic Runner
+# ═══════════════════════════════════════════════</span>
+
+<span class="kw">def</span> <span class="fn">run_task</span>(devices: List[Dict], task_fn, label: str = <span class="st">"task"</span>) -> List[Dict]:
+    <span class="st">"""Run task_fn on every device. Collect and return results."""</span>
+    total   = <span class="fn">len</span>(devices)
+    results = []
+    <span class="fn">print</span>(f<span class="st">"\n[{label}] Running on {total} devices..."</span>)
+    <span class="kw">for</span> num, device <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+        name = device[<span class="st">"hostname"</span>]
+        <span class="fn">print</span>(f<span class="st">"  [{num:02d}/{total}] {name}..."</span>, end=<span class="st">" "</span>)
+        result = <span class="fn">task_fn</span>(device)
+        results.<span class="fn">append</span>(result)
+        <span class="fn">print</span>(<span class="st">"OK"</span> <span class="kw">if</span> result.<span class="fn">get</span>(<span class="st">"ok"</span>) <span class="kw">else</span> f<span class="st">"FAIL ({result.get('error','')})"</span>)
+    ok = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.<span class="fn">get</span>(<span class="st">"ok"</span>))
+    <span class="fn">print</span>(f<span class="st">"  → {ok}/{total} succeeded"</span>)
+    <span class="kw">return</span> results
+
+<span class="cm"># ═══════════════════════════════════════════════
+# MAIN — Orchestration (10 lines)
+# ═══════════════════════════════════════════════</span>
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    lab     = <span class="fn">load_lab</span>()
+    <span class="kw">if not</span> lab:
+        <span class="fn">print</span>(<span class="st">"No inventory found."</span>); exit(<span class="nm">1</span>)
+
+    devices = lab[<span class="st">"devices"</span>]
+    <span class="fn">print</span>(f<span class="st">"Lab: {lab.get('lab_name','EVE-NG')} — {len(devices)} devices"</span>)
+
+    audit_results = <span class="fn">run_task</span>(devices, audit_device, <span class="st">"Full Audit"</span>)
+    <span class="fn">save_report</span>(audit_results, <span class="st">"lab_audit"</span>)
+
+    ok   = [r <span class="kw">for</span> r <span class="kw">in</span> audit_results <span class="kw">if</span> r[<span class="st">"ok"</span>]]
+    fail = [r <span class="kw">for</span> r <span class="kw">in</span> audit_results <span class="kw">if not</span> r[<span class="st">"ok"</span>]]
+    <span class="fn">print</span>(f<span class="st">"\n=== SUMMARY ==="</span>)
+    <span class="fn">print</span>(f<span class="st">"Total:   {len(devices)}"</span>)
+    <span class="fn">print</span>(f<span class="st">"Success: {len(ok)}"</span>)
+    <span class="fn">print</span>(f<span class="st">"Failed:  {len(fail)}"</span>)
+    <span class="kw">for</span> r <span class="kw">in</span> fail: <span class="fn">print</span>(f<span class="st">"  ✗ {r['hostname']}: {r.get('error','?')}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m12-flow">
+<h3>Capstone Architecture — Three Layers</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 b" style="width:100%">Layer 1 (Primitives): ping() · load_lab() · ssh_commands() · save_report()</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 f" style="width:100%">Layer 2 (Operations): audit_device() — calls ping() and ssh_commands()</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g" style="width:100%">Layer 3 (Runner): run_task(devices, audit_device) — calls Layer 2</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 y" style="width:100%">Main: load → run_task → save_report — 10 lines, zero complexity</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m12-practice">
+<h3>Capstone Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone 1 — Simulated Run</div><div class="pt">No EVE-NG needed</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Create a simulated version of the capstone where ssh_commands() returns fake data instead of connecting. Use <code>random.random() &gt; 0.3</code> to simulate occasional failures. Run against 5 fake devices and print the full summary.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import random, json</code><br><code>from datetime import datetime</code><br><br><code>def ping(ip): return random.random() &gt; 0.2</code><br><br><code>def ssh_commands(device, commands):</code><br>&nbsp;&nbsp;<code>if random.random() &lt; 0.1: return {"ok":False,"outputs":{},"error":"SSH timeout"}</code><br>&nbsp;&nbsp;<code>return {"ok":True,"outputs":{cmd:f"[simulated output for {cmd}]" for cmd in commands},"error":None}</code><br><br><code>def audit_device(device):</code><br>&nbsp;&nbsp;<code>name = device["hostname"]</code><br>&nbsp;&nbsp;<code>if not ping(device["ip"]): return {"hostname":name,"ok":False,"reachable":False,"error":"unreachable"}</code><br>&nbsp;&nbsp;<code>result = ssh_commands(device, ["show version","show ip int brief"])</code><br>&nbsp;&nbsp;<code>return {"hostname":name,"ok":result["ok"],"reachable":True,"outputs":result["outputs"],"error":result["error"]}</code><br><br><code>devices = [{"hostname":f"R{i}","ip":f"10.1.1.{i}"} for i in range(1,6)]</code><br><code>results = [audit_device(d) for d in devices]</code><br><br><code>ok = [r for r in results if r["ok"]]</code><br><code>fail = [r for r in results if not r["ok"]]</code><br><code>print(f"Done: {len(ok)} OK | {len(fail)} failed")</code><br><code>for r in fail: print(f"  ✗ {r['hostname']}: {r['error']}")</code><br><br><code>with open("sim_audit.json","w") as f: json.dump(results,f,indent=2)</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone 2 — Full EVE-NG Run</div><div class="pt">Real lab execution</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Run the full capstone on your EVE-NG lab. Confirm SSH is configured on all devices, update eve_inventory.yaml, then run <code>python network_automation_capstone.py</code>. Expected output: progress per device, final summary, JSON report file.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Expected output:</strong><br><code>Lab: My EVE-NG Lab — 3 devices</code><br><code>[Full Audit] Running on 3 devices...</code><br><code>  [01/03] R1... OK</code><br><code>  [02/03] R2... OK</code><br><code>  [03/03] SW-01... OK</code><br><code>  → 3/3 succeeded</code><br><code>Saved: lab_audit_20241201_1430.json</code><br><br><code>=== SUMMARY ===</code><br><code>Total:   3</code><br><code>Success: 3</code><br><code>Failed:  0</code><br><br><strong>If a device fails with SSH timeout:</strong><br>Check: <code>ip ssh version 2</code> configured, <code>crypto key generate rsa modulus 2048</code>, VTY <code>transport input ssh</code>, and credentials in YAML match what's on the device.<br><br><strong>If all devices fail with "unreachable":</strong><br>Check: Can you ping the management IP from your automation host? Is the EVE-NG management network routable? Are the VMs actually started?</p></div>
+  </div>
+</div>
+</script>
+<script>
+var M=[
+  {id:1,  title:"What is a Function? Why You Need One",       level:"basic"},
+  {id:2,  title:"Parameters and Arguments",                   level:"basic"},
+  {id:3,  title:"Return Values — Getting Data Out",           level:"basic"},
+  {id:4,  title:"Scope — Where Variables Live",               level:"basic"},
+  {id:5,  title:"Docstrings and Type Hints",                  level:"intermediate"},
+  {id:6,  title:"Lambda Functions",                           level:"intermediate"},
+  {id:7,  title:"Error Handling in Functions",                level:"intermediate"},
+  {id:8,  title:"Functions Calling Functions",                level:"intermediate"},
+  {id:9,  title:"Reusable Function Libraries",                level:"intermediate"},
+  {id:10, title:"Functions with Netmiko — SSH Wrappers",      level:"advanced"},
+  {id:11, title:"Passing Functions as Arguments",             level:"advanced"},
+  {id:12, title:"Capstone — Full Function-Based Script",      level:"advanced"}
+];
+var cur=0;
+var TABS=["theory","industry","practical","flow","practice"];
+function getSection(id,tab){var el=document.getElementById("m"+id+"-"+tab);return el?el.textContent:"<p style='color:var(--mut)'>Loading...</p>";}
+function renderSidebar(){var h="";for(var i=0;i<M.length;i++){h+="<div class='ti"+(i===cur?" active":"")+"' onclick='selectTopic("+i+")'><span class='tn'>"+String(M[i].id).padStart(2,"0")+"</span><span class='tt'>"+M[i].title+"</span><span class='lbg lb-"+M[i].level+"'>"+M[i].level+"</span></div>";}document.getElementById("tlist").innerHTML=h;}
+function renderContent(){var m=M[cur];document.getElementById("ttl").textContent=m.title;var lb=document.getElementById("tlvl");lb.textContent=m.level;lb.className="lbg lb-"+m.level;lb.style.display="inline-block";for(var i=0;i<TABS.length;i++)document.getElementById(TABS[i]).innerHTML=getSection(m.id,TABS[i]);document.getElementById("sft").textContent="Topic "+m.id+" of "+M.length+"  ·  "+m.level;}
+function selectTopic(i){cur=i;renderSidebar();renderContent();switchTab("theory");document.getElementById("ct").scrollTop=0;closeSidebar();}
+function switchTab(tab){document.querySelectorAll(".sec").forEach(function(s){s.classList.remove("active");});document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});document.getElementById(tab).classList.add("active");var idx=TABS.indexOf(tab);if(idx>=0)document.querySelectorAll(".tab")[idx].classList.add("active");document.getElementById("ct").scrollTop=0;}
+document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){switchTab(el.getAttribute("data-tab"));});});
+function tP(header){var body=header.nextElementSibling;var chev=header.querySelector(".chv");var open=body.style.display==="block";body.style.display=open?"none":"block";if(chev)chev.classList.toggle("op",!open);}
+function tS(btn){var box=btn.nextElementSibling;var open=box.classList.contains("open");box.classList.toggle("open",!open);btn.textContent=open?"▶ Show Solution":"▼ Hide Solution";}
+function openSidebar(){document.getElementById("sb").classList.add("open");document.getElementById("ovl").classList.add("open");}
+function closeSidebar(){document.getElementById("sb").classList.remove("open");document.getElementById("ovl").classList.remove("open");}
+document.getElementById("hbg").addEventListener("click",function(){document.getElementById("sb").classList.contains("open")?closeSidebar():openSidebar();});
+document.getElementById("ovl").addEventListener("click",closeSidebar);
+renderSidebar();renderContent();
+</script>
+</body>
+</html>

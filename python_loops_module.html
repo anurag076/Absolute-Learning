@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Loops – Network Automation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--sb:#161b22;--sur:#1f2937;--bdr:#30363d;
+  --txt:#c9d1d9;--mut:#8b949e;--brt:#e6edf3;
+  --blu:#58a6ff;--grn:#3fb950;--yel:#e3b341;--red:#f85149;--pur:#d2a8ff;
+  --org:#ffa657;--eve:#00d4aa;--pyc:#4584b6;--sw:278px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+.topnav{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--sb);border-bottom:1px solid var(--bdr);min-height:50px;flex-shrink:0}
+.hbg{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;border:none;background:none;flex-shrink:0}
+.hbg span{display:block;width:20px;height:2px;background:var(--txt);border-radius:2px}
+.topnav h1{font-size:13px;font-weight:700;color:var(--pyc);letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.eve-badge{background:#0d2d25;color:var(--eve);font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid var(--eve);font-weight:700;white-space:nowrap;flex-shrink:0}
+.topnav .sep{color:var(--bdr)}
+.topnav h2{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layout{display:flex;flex:1;overflow:hidden;position:relative}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--sb);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:transform .25s,box-shadow .25s;flex-shrink:0}
+.sb-inner{flex:1;overflow-y:auto}
+.sb-head{padding:12px 14px;border-bottom:1px solid var(--bdr);background:var(--bg)}
+.sb-head p{font-size:11px;color:var(--mut);margin-top:2px}
+.sb-head strong{color:var(--pyc)}
+.ti{padding:9px 14px;cursor:pointer;border-left:3px solid transparent;display:flex;align-items:flex-start;gap:8px;transition:all .15s}
+.ti:hover{background:var(--sur)}
+.ti.active{background:var(--sur);border-left-color:var(--pyc)}
+.ti .tn{font-size:10px;color:var(--mut);min-width:20px;font-weight:700;padding-top:2px;flex-shrink:0}
+.ti .tt{font-size:12px;line-height:1.4;flex:1;color:var(--txt)}
+.ti.active .tt{color:var(--pyc)}
+.lbg{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.lb-basic{background:#0d3b2e;color:#3fb950}
+.lb-intermediate{background:#2d1f0e;color:#e3b341}
+.lb-advanced{background:#2d1225;color:#f778ba}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bdr);font-size:11px;color:var(--mut)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tabs{display:flex;padding:0 4px;background:var(--bg);border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 12px;cursor:pointer;font-size:12px;color:var(--mut);border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--pyc);border-bottom-color:var(--pyc)}
+.content{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
+.sec{display:none}.sec.active{display:block}
+h3{font-size:15px;font-weight:600;color:var(--brt);margin-bottom:10px;margin-top:22px}
+h3:first-child{margin-top:0}
+h4{font-size:12.5px;font-weight:600;color:var(--blu);margin:14px 0 6px}
+p{line-height:1.7;color:var(--txt);margin-bottom:10px}
+ul,ol{padding-left:18px;margin-bottom:10px}
+li{line-height:1.9}
+code{background:var(--sur);color:var(--org);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+strong{color:var(--brt);font-weight:600}
+.note{background:var(--sb);border-left:3px solid var(--blu);padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0}
+.note.g{border-left-color:var(--grn)}.note.y{border-left-color:var(--yel)}.note.r{border-left-color:var(--red)}.note.e{border-left-color:var(--eve)}.note.p{border-left-color:var(--pyc)}
+.note p{margin:0;font-size:13px;line-height:1.7}
+.cb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ch{background:var(--sur);padding:6px 14px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.ch .lg{font-size:11px;font-weight:700;font-family:monospace}
+.ch .lg.py{color:var(--pyc)}.ch .lg.sh{color:var(--grn)}.ch .lg.ev{color:var(--eve)}.ch .lg.ym{color:#56b6c2}.ch .lg.js{color:var(--yel)}
+.ch .fn{font-size:10px;color:var(--mut)}
+.etag{background:#0d2d25;color:var(--eve);font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid var(--eve);font-weight:700}
+pre{padding:14px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;line-height:1.9;color:var(--brt)}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.cm{color:#8b949e;font-style:italic}.nm{color:#79c0ff}.vr{color:#ffa657}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+.tbl th{background:var(--sur);color:var(--mut);font-weight:600;text-align:left;padding:7px 10px;border:1px solid var(--bdr);font-size:11px;text-transform:uppercase}
+.tbl td{padding:7px 10px;border:1px solid var(--bdr);vertical-align:top;line-height:1.6}
+.tbl tr:nth-child(even) td{background:var(--sb)}
+.fb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin:10px 0}
+.fr{display:flex;align-items:flex-start;gap:6px;margin:5px 0;flex-wrap:wrap}
+.fn2{background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--brt);line-height:1.4}
+.fn2.b{border-color:#388bfd;color:var(--blu);background:#0d2038}
+.fn2.g{border-color:var(--grn);color:var(--grn);background:#0d2d1a}
+.fn2.y{border-color:var(--yel);color:var(--yel);background:#2d2008}
+.fn2.r{border-color:var(--red);color:var(--red);background:#2d0f0f}
+.fn2.e{border-color:var(--eve);color:var(--eve);background:#0d2d25}
+.fn2.p{border-color:var(--pyc);color:var(--pyc);background:#0d1a2d}
+.fa{color:var(--mut);font-size:14px;padding-top:5px;flex-shrink:0}
+.fl{font-size:10px;color:var(--mut);margin-top:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.card{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px}
+.card h5{font-size:12px;font-weight:700;margin-bottom:6px;color:var(--pyc)}
+.card.g h5{color:var(--grn)}.card.y h5{color:var(--yel)}.card.e h5{color:var(--eve)}.card.r h5{color:var(--red)}
+.card p{font-size:12px;margin:0;line-height:1.6}
+.pi{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ph{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.ph:hover{background:var(--sur)}
+.pn{color:var(--pyc);font-weight:700;font-size:12.5px}
+.pt{font-size:10px;color:var(--mut);margin-top:2px}
+.pb{padding:0 14px 14px;border-top:1px solid var(--bdr)}
+.pb p{margin:8px 0 0;font-size:13px;line-height:1.7}
+.stb{background:none;border:1px solid var(--bdr);color:var(--mut);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px;margin-top:10px;display:inline-block;transition:all .15s}
+.stb:hover{border-color:var(--grn);color:var(--grn)}
+.sb2{display:none;margin-top:10px;background:var(--bg);border:1px solid var(--grn);border-radius:6px;padding:12px}
+.sb2.open{display:block}
+.sb2 p{margin:0;font-size:12.5px;color:var(--txt);line-height:1.8}
+.chv{font-size:10px;color:var(--mut);transition:transform .2s}
+.chv.op{transform:rotate(180deg)}
+.eve-box{background:#071a14;border:1px solid var(--eve);border-radius:8px;padding:14px;margin:10px 0}
+.eve-box .eve-hdr{color:var(--eve);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.eve-box p{font-size:13px;margin:0;line-height:1.7}
+@media(max-width:768px){
+  .hbg{display:flex}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:10;transform:translateX(-100%);width:min(var(--sw),88vw);min-width:0}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.5)}
+  .overlay.open{display:block}
+  .g2,.g3{grid-template-columns:1fr}
+  .content{padding:14px}
+  .tbl{font-size:11px}.tbl th,.tbl td{padding:5px 7px}
+  pre{font-size:11px;padding:12px}
+  .tabs .tab{font-size:11px;padding:8px 9px}
+  .topnav h2{font-size:12px}
+  .eve-badge{display:none}
+}
+@media(max-width:380px){.topnav h1{font-size:11px}.topnav h2{display:none}}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+  <h1>🐍 Python Loops</h1>
+  <span class="sep">·</span>
+  <h2 id="ttl">Network Automation</h2>
+  <span class="eve-badge">EVE-NG Lab</span>
+  <span class="lbg lb-basic" id="tlvl" style="display:none"></span>
+</div>
+<div class="layout">
+  <div class="overlay" id="ovl"></div>
+  <div class="sidebar" id="sb">
+    <div class="sb-inner">
+      <div class="sb-head">
+        <p><strong>Python for Network Automation</strong></p>
+        <p style="margin-top:4px">Module 7 &mdash; Loops in Python</p>
+      </div>
+      <div id="tlist"></div>
+    </div>
+    <div class="sb-foot" id="sft">Select a topic</div>
+  </div>
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" data-tab="theory">📖 Theory</div>
+      <div class="tab" data-tab="industry">🏭 Industry</div>
+      <div class="tab" data-tab="practical">💻 Practical</div>
+      <div class="tab" data-tab="flow">🔄 Flow</div>
+      <div class="tab" data-tab="practice">📝 Practice</div>
+    </div>
+    <div class="content" id="ct">
+      <div id="theory"    class="sec active"></div>
+      <div id="industry"  class="sec"></div>
+      <div id="practical" class="sec"></div>
+      <div id="flow"      class="sec"></div>
+      <div id="practice"  class="sec"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOPIC 1 ═══ -->
+<script type="text/x-tmpl" id="m1-theory">
+<h3>What is a Loop and Why Does a Network Engineer Need It?</h3>
+<p>Before any Python syntax — think about your actual job. You SSH into 10 routers one by one and run the same command. You check the same VLAN on 50 switches. You ping 30 hosts from a list. That's a loop. You're doing the same thing to a collection of things. Python just does it 100x faster.</p>
+<h4>Two Types of Loops</h4>
+<div class="g2">
+  <div class="card"><h5>for loop</h5><p>Use when you know the collection — a list of device IPs, a list of VLANs, an API response. Loop <em>for each item</em> in that list.</p></div>
+  <div class="card y"><h5>while loop</h5><p>Use when you don't know how many times — keep looping <em>while</em> a condition is true. Waiting for a device to come up, polling an API task.</p></div>
+</div>
+<h4>Basic Syntax</h4>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">basic_loop.py</span></div><pre><span class="cm"># for loop — goes through each item</span>
+devices = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"SW-01"</span>, <span class="st">"SW-02"</span>]
+
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    <span class="fn">print</span>(<span class="st">"Connecting to:"</span>, device)
+
+<span class="cm"># while loop — keep going until condition is False</span>
+attempts = <span class="nm">0</span>
+<span class="kw">while</span> attempts &lt; <span class="nm">3</span>:
+    <span class="fn">print</span>(<span class="st">"Attempt"</span>, attempts + <span class="nm">1</span>)
+    attempts += <span class="nm">1</span></pre></div>
+<div class="note p"><p><strong>Senior engineer tip:</strong> In network automation, 90% of loops are <code>for</code> loops — over device lists, interface lists, API responses. Use <code>while</code> mainly for polling — waiting until a device is reachable or an async job finishes.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-industry">
+<h3>Loops Replace Hours of Manual Work</h3>
+<table class="tbl"><thead><tr><th>Manual Task</th><th>With a Loop</th><th>Time Saved</th></tr></thead><tbody>
+<tr><td>SSH into 50 switches one by one, check version</td><td><code>for device in switches: check_version(device)</code></td><td>2 hrs → 30 sec</td></tr>
+<tr><td>Ping 100 hosts from a list</td><td><code>for host in host_list: ping(host)</code></td><td>45 min → 10 sec</td></tr>
+<tr><td>Add VLAN 200 to 30 access switches</td><td><code>for sw in access_switches: add_vlan(sw, 200)</code></td><td>1 hr → 1 min</td></tr>
+<tr><td>Backup running config on all devices</td><td><code>for device in all_devices: backup(device)</code></td><td>3 hrs → 2 min</td></tr>
+</tbody></table>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab</div><p>In your EVE-NG lab, instead of opening PuTTY to each device separately, a Python loop connects to all of them automatically. Same concept as production — just different IP addresses.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-practical">
+<h3>Your First Network Loop</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">first_loop.py</span></div><pre><span class="cm"># A simple but real device report loop</span>
+devices = [
+    <span class="st">"192.168.100.1"</span>,   <span class="cm"># R1</span>
+    <span class="st">"192.168.100.2"</span>,   <span class="cm"># R2</span>
+    <span class="st">"192.168.100.10"</span>,  <span class="cm"># SW-01</span>
+    <span class="st">"192.168.100.11"</span>,  <span class="cm"># SW-02</span>
+]
+
+<span class="fn">print</span>(<span class="st">"Device Scan Report"</span>)
+<span class="fn">print</span>(<span class="st">"="</span> * <span class="nm">30</span>)
+
+<span class="kw">for</span> ip <span class="kw">in</span> devices:
+    <span class="fn">print</span>(f<span class="st">"Checking: {ip}"</span>)
+
+<span class="fn">print</span>(f<span class="st">"Total: {len(devices)} devices"</span>)
+
+<span class="cm"># range() — loop a set number of times</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="fn">print</span>(<span class="st">"Attempt"</span>, i)     <span class="cm"># 1, 2, 3, 4, 5</span>
+
+<span class="cm"># Useful: generate VLAN IDs</span>
+<span class="kw">for</span> vlan <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">10</span>, <span class="nm">51</span>, <span class="nm">10</span>):
+    <span class="fn">print</span>(f<span class="st">"vlan {vlan}"</span>)    <span class="cm"># 10, 20, 30, 40, 50</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m1-flow">
+<h3>How a for Loop Works Step by Step</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 p">devices = ["R1","R2","R3"]</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 b">Iteration 1: device = "R1" → run body</div></div>
+  <div class="fr"><div class="fn2 b">Iteration 2: device = "R2" → run body</div></div>
+  <div class="fr"><div class="fn2 b">Iteration 3: device = "R3" → run body</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 g">No more items → loop ends → script continues</div></div>
+</div>
+<h4>for vs while — Quick Decision</h4>
+<table class="tbl"><thead><tr><th>Situation</th><th>Use</th></tr></thead><tbody>
+<tr><td>Loop over a list of devices / VLANs / interfaces</td><td><code>for</code></td></tr>
+<tr><td>Loop N times (range)</td><td><code>for</code></td></tr>
+<tr><td>Wait until device is reachable</td><td><code>while</code></td></tr>
+<tr><td>Retry until API succeeds</td><td><code>while</code></td></tr>
+</tbody></table>
+</script>
+
+<script type="text/x-tmpl" id="m1-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — First Device Loop</div><div class="pt">Basic for loop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Create a list of 5 device names (use your EVE-NG names if you have them). Write a for loop that prints "Connecting to [device]..." for each one, then prints "Done. Total: [count]"</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>devices = ["R1", "R2", "R3", "SW-01", "SW-02"]</code><br><br><code>for device in devices:</code><br>&nbsp;&nbsp;<code>print(f"Connecting to {device}...")</code><br><br><code>print(f"Done. Total: {len(devices)}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — VLAN Generator</div><div class="pt">range() loop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Use <code>range()</code> to print all VLANs from 10 to 100 in steps of 10. Then generate IOS-style config lines: <code>vlan 10</code>, <code> name DATA_10</code>, <code>!</code> for each.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>for vlan in range(10, 101, 10):</code><br>&nbsp;&nbsp;<code>print(f"vlan {vlan}")</code><br>&nbsp;&nbsp;<code>print(f" name DATA_{vlan}")</code><br>&nbsp;&nbsp;<code>print("!")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 2 ═══ -->
+<script type="text/x-tmpl" id="m2-theory">
+<h3>for Loop — Every Variation You'll Actually Use</h3>
+<p>The <code>for</code> loop works on anything iterable — lists, dicts, strings, tuples, file lines, API responses. Here's every pattern you'll use in network automation.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">for_loop_all_patterns.py</span></div><pre><span class="cm"># Loop over a list</span>
+vlans = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>]
+<span class="kw">for</span> vlan <span class="kw">in</span> vlans:
+    <span class="fn">print</span>(f<span class="st">"vlan {vlan}"</span>)
+
+<span class="cm"># Loop over dict keys</span>
+iface_ips = {<span class="st">"GigE0/0"</span>: <span class="st">"10.0.0.1"</span>, <span class="st">"GigE0/1"</span>: <span class="st">"10.0.1.1"</span>}
+<span class="kw">for</span> iface <span class="kw">in</span> iface_ips:          <span class="cm"># keys only</span>
+    <span class="fn">print</span>(iface)
+
+<span class="cm"># Loop over dict keys AND values — use .items()</span>
+<span class="kw">for</span> iface, ip <span class="kw">in</span> iface_ips.<span class="fn">items</span>():
+    <span class="fn">print</span>(f<span class="st">"interface {iface}"</span>)
+    <span class="fn">print</span>(f<span class="st">" ip address {ip} 255.255.255.0"</span>)
+
+<span class="cm"># Loop over list of dicts (most common in API responses)</span>
+devices = [
+    {<span class="st">"hostname"</span>: <span class="st">"SW-01"</span>, <span class="st">"ip"</span>: <span class="st">"10.1.1.1"</span>},
+    {<span class="st">"hostname"</span>: <span class="st">"SW-02"</span>, <span class="st">"ip"</span>: <span class="st">"10.1.1.2"</span>},
+]
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    <span class="fn">print</span>(device[<span class="st">"hostname"</span>], device[<span class="st">"ip"</span>])</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-industry">
+<h3>for Loops on Real API Responses</h3>
+<p>API responses are lists of dicts. Your loop goes through each device/interface/VLAN and does something with it. The structure is always the same.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">parse_dnac_response.py</span></div><pre>devices = r.<span class="fn">json</span>()[<span class="st">"response"</span>]   <span class="cm"># list of device dicts</span>
+
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    name   = d[<span class="st">"hostname"</span>]
+    ip     = d[<span class="st">"managementIpAddress"</span>]
+    status = d[<span class="st">"reachabilityStatus"</span>]
+    <span class="fn">print</span>(f<span class="st">"{name:20} {ip:16} {status}"</span>)</pre></div>
+<div class="note g"><p><strong>The pattern never changes:</strong> get a list from somewhere → loop over it → do something per item. That "something" changes (print, SSH, configure, compare) but the loop structure stays identical.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-practical">
+<h3>for Loops with Network Data</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">network_for_loops.py</span></div><pre>inventory = {
+    <span class="st">"devices"</span>: [
+        {<span class="st">"hostname"</span>: <span class="st">"R1"</span>,    <span class="st">"ip"</span>: <span class="st">"192.168.100.1"</span>,  <span class="st">"type"</span>: <span class="st">"router"</span>},
+        {<span class="st">"hostname"</span>: <span class="st">"R2"</span>,    <span class="st">"ip"</span>: <span class="st">"192.168.100.2"</span>,  <span class="st">"type"</span>: <span class="st">"router"</span>},
+        {<span class="st">"hostname"</span>: <span class="st">"SW-01"</span>, <span class="st">"ip"</span>: <span class="st">"192.168.100.10"</span>, <span class="st">"type"</span>: <span class="st">"switch"</span>},
+    ]
+}
+devices = inventory[<span class="st">"devices"</span>]
+
+<span class="cm"># Print a table</span>
+<span class="fn">print</span>(f<span class="st">"{'Hostname':12} {'IP':18} {'Type'}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nm">42</span>)
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="fn">print</span>(f<span class="st">"{d['hostname']:12} {d['ip']:18} {d['type']}"</span>)
+
+<span class="cm"># Filter — only routers</span>
+<span class="fn">print</span>(<span class="st">"\nRouters:"</span>)
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="kw">if</span> d[<span class="st">"type"</span>] == <span class="st">"router"</span>:
+        <span class="fn">print</span>(<span class="st">" -"</span>, d[<span class="st">"hostname"</span>])
+
+<span class="cm"># Build a list of all IPs</span>
+all_ips = []
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    all_ips.<span class="fn">append</span>(d[<span class="st">"ip"</span>])
+<span class="fn">print</span>(<span class="st">"\nAll IPs:"</span>, all_ips)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-flow">
+<h3>Looping Over Dict — Three Methods</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">dict loop patterns</span></div><pre>config = {<span class="st">"GigE0/0"</span>: <span class="st">"10.0.0.1"</span>, <span class="st">"GigE0/1"</span>: <span class="st">"10.0.1.1"</span>}
+
+<span class="kw">for</span> k <span class="kw">in</span> config.<span class="fn">keys</span>():          <span class="cm"># just keys: GigE0/0, GigE0/1</span>
+    <span class="fn">print</span>(k)
+
+<span class="kw">for</span> v <span class="kw">in</span> config.<span class="fn">values</span>():        <span class="cm"># just values: 10.0.0.1, 10.0.1.1</span>
+    <span class="fn">print</span>(v)
+
+<span class="kw">for</span> k, v <span class="kw">in</span> config.<span class="fn">items</span>():      <span class="cm"># both — use this most often</span>
+    <span class="fn">print</span>(f<span class="st">"interface {k}: {v}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m2-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Interface Status Report</div><div class="pt">Dict loop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Given <code>{"GigE0/0":"up","GigE0/1":"down","Lo0":"up","Serial0":"down"}</code>, write a loop that prints <code>[UP] GigE0/0</code> or <code>[DOWN] GigE0/1</code> for each interface.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>interfaces = {"GigE0/0":"up","GigE0/1":"down","Lo0":"up","Serial0":"down"}</code><br><br><code>for iface, status in interfaces.items():</code><br>&nbsp;&nbsp;<code>label = "[UP]  " if status == "up" else "[DOWN]"</code><br>&nbsp;&nbsp;<code>print(f"{label} {iface}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — IOS Config Generator</div><div class="pt">Build config from list of tuples</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Given <code>[("GigE0/0","10.1.1.1","255.255.255.0"),("GigE0/1","10.1.2.1","255.255.255.0")]</code>, loop and print the IOS interface config block for each.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>interfaces = [("GigE0/0","10.1.1.1","255.255.255.0"),("GigE0/1","10.1.2.1","255.255.255.0")]</code><br><br><code>for iface, ip, mask in interfaces:</code><br>&nbsp;&nbsp;<code>print(f"interface {iface}")</code><br>&nbsp;&nbsp;<code>print(f" ip address {ip} {mask}")</code><br>&nbsp;&nbsp;<code>print( " no shutdown")</code><br>&nbsp;&nbsp;<code>print("!")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 3 ═══ -->
+<script type="text/x-tmpl" id="m3-theory">
+<h3>while Loop — Keep Going Until Something Changes</h3>
+<p>The <code>while</code> loop keeps running as long as a condition is True. In networking this is perfect for waiting — a device to come up after a reboot, an API async job to finish, a link to recover.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">while_patterns.py</span></div><pre><span class="cm"># Basic while — runs until count hits limit</span>
+count = <span class="nm">0</span>
+<span class="kw">while</span> count &lt; <span class="nm">5</span>:
+    <span class="fn">print</span>(<span class="st">"Polling..."</span>)
+    count += <span class="nm">1</span>
+
+<span class="cm"># while True + break — most common pattern</span>
+<span class="kw">import</span> time
+
+attempt = <span class="nm">0</span>
+<span class="kw">while</span> <span class="kw">True</span>:
+    attempt += <span class="nm">1</span>
+    <span class="fn">print</span>(f<span class="st">"Attempt {attempt}: checking device..."</span>)
+    <span class="kw">if</span> attempt == <span class="nm">3</span>:       <span class="cm"># simulate device coming up</span>
+        <span class="fn">print</span>(<span class="st">"Device is UP!"</span>)
+        <span class="kw">break</span>
+    <span class="kw">if</span> attempt &gt;= <span class="nm">5</span>:
+        <span class="fn">print</span>(<span class="st">"Giving up."</span>)
+        <span class="kw">break</span>
+    time.<span class="fn">sleep</span>(<span class="nm">2</span>)
+
+<span class="cm"># while-else — else runs only if we didn't break</span>
+attempts = <span class="nm">0</span>
+<span class="kw">while</span> attempts &lt; <span class="nm">5</span>:
+    <span class="kw">if</span> <span class="fn">device_is_up</span>():
+        <span class="fn">print</span>(<span class="st">"Connected!"</span>)
+        <span class="kw">break</span>
+    attempts += <span class="nm">1</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"All attempts failed."</span>)   <span class="cm"># only if no break</span></pre></div>
+<div class="note r"><p><strong>Danger — infinite loop:</strong> <code>while True:</code> with no <code>break</code> runs forever. Always have an exit condition — a <code>break</code> or a counter that eventually makes the condition False.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-industry">
+<h3>while Loops in Real Network Automation</h3>
+<h4>Three Real Scenarios</h4>
+<ul>
+<li><strong>Device reboot:</strong> You rebooted a router. Poll every 5 seconds until ping responds.</li>
+<li><strong>DNAC async task:</strong> You posted a template deployment. Keep polling <code>/task/{id}</code> until status is "success" or "failed".</li>
+<li><strong>EVE-NG lab startup:</strong> You started a topology. Wait until all VMs respond to ping before running your automation script.</li>
+</ul>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab Use Case</div><p>After you click "Start" on a lab topology, devices take 30-90 seconds to boot. A while loop that pings every 5 seconds and tells you exactly when each device is ready is genuinely useful — run it, walk away, and it alerts you when the lab is ready.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-practical">
+<h3>while Loop — EVE-NG Boot Waiter</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">wait_for_lab.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> subprocess, time
+
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip):
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],
+                        capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="cm"># Wait for all EVE-NG devices to boot</span>
+lab_devices = {
+    <span class="st">"R1"</span>   : <span class="st">"192.168.100.1"</span>,
+    <span class="st">"R2"</span>   : <span class="st">"192.168.100.2"</span>,
+    <span class="st">"SW-01"</span>: <span class="st">"192.168.100.10"</span>,
+}
+
+ready    = <span class="fn">set</span>()
+max_wait = <span class="nm">120</span>   <span class="cm"># 2 minutes max</span>
+elapsed  = <span class="nm">0</span>
+
+<span class="fn">print</span>(<span class="st">"Waiting for EVE-NG lab to be ready..."</span>)
+
+<span class="kw">while</span> <span class="fn">len</span>(ready) &lt; <span class="fn">len</span>(lab_devices) <span class="kw">and</span> elapsed &lt; max_wait:
+    <span class="kw">for</span> name, ip <span class="kw">in</span> lab_devices.<span class="fn">items</span>():
+        <span class="kw">if</span> name <span class="kw">not in</span> ready <span class="kw">and</span> <span class="fn">ping_ok</span>(ip):
+            ready.<span class="fn">add</span>(name)
+            <span class="fn">print</span>(f<span class="st">"  ✓ {name} is UP  ({len(ready)}/{len(lab_devices)})"</span>)
+    <span class="kw">if</span> <span class="fn">len</span>(ready) &lt; <span class="fn">len</span>(lab_devices):
+        time.<span class="fn">sleep</span>(<span class="nm">5</span>)
+        elapsed += <span class="nm">5</span>
+
+<span class="kw">if</span> <span class="fn">len</span>(ready) == <span class="fn">len</span>(lab_devices):
+    <span class="fn">print</span>(<span class="st">"All devices ready! Starting automation..."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(f<span class="st">"Timeout! Only {len(ready)}/{len(lab_devices)} came up."</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m3-flow">
+<h3>while Loop Flow</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 p">Start</div><div class="fa">→</div><div class="fn2 y">Check condition — True?</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 r">False → exit loop, continue script</div></div>
+  <div class="fr"><div class="fn2 g">True → run body → go back, check again</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 b">break anywhere → exit immediately</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m3-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — SSH Retry Logic</div><div class="pt">while with max retries</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a while loop that simulates SSH retry — up to 5 attempts, 1-second sleep between each. Simulate success on attempt 3. Print what happens at each step.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import time</code><br><br><code>max_retries = 5</code><br><code>attempt = 1</code><br><br><code>while attempt &lt;= max_retries:</code><br>&nbsp;&nbsp;<code>print(f"Attempt {attempt}: Trying SSH to 192.168.1.1...")</code><br>&nbsp;&nbsp;<code>if attempt == 3:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"Success! Connected on attempt {attempt}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>break</code><br>&nbsp;&nbsp;<code>print("  Failed. Retrying in 1s...")</code><br>&nbsp;&nbsp;<code>time.sleep(1)</code><br>&nbsp;&nbsp;<code>attempt += 1</code><br><code>else:</code><br>&nbsp;&nbsp;<code>print("Could not connect after 5 attempts.")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — EVE-NG Boot Simulator</div><div class="pt">Simulate device startup</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Simulate 3 EVE-NG devices booting at random times. Use <code>random.randint(1,5)</code> to decide when each device becomes "ready". Use a while loop that keeps checking until all are ready.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import random, time</code><br><br><code>devices = {"R1":"10.0.0.1","R2":"10.0.0.2","SW-01":"10.0.0.10"}</code><br><code>ready_on = {name: random.randint(1,5) for name in devices}</code><br><code>ready = set()</code><br><code>tick = 1</code><br><br><code>while len(ready) &lt; len(devices):</code><br>&nbsp;&nbsp;<code>print(f"Poll {tick}:")</code><br>&nbsp;&nbsp;<code>for name, ip in devices.items():</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if name not in ready and tick >= ready_on[name]:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"  ✓ {name} ({ip}) is UP")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>ready.add(name)</code><br>&nbsp;&nbsp;<code>tick += 1</code><br>&nbsp;&nbsp;<code>time.sleep(0.3)</code><br><br><code>print("All devices ready!")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 4 ═══ -->
+<script type="text/x-tmpl" id="m4-theory">
+<h3>break, continue, pass — Controlling Your Loop</h3>
+<div class="g3">
+  <div class="card g"><h5>break</h5><p>Stop the loop completely right now. Jump out and continue the code after the loop.</p></div>
+  <div class="card y"><h5>continue</h5><p>Skip the rest of this iteration. Jump to the top and start the next item.</p></div>
+  <div class="card"><h5>pass</h5><p>Do nothing. A placeholder when a code block is required but you haven't written it yet.</p></div>
+</div>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">break_continue_pass.py</span></div><pre><span class="cm"># break — stop when you find what you need</span>
+devices = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"R3"</span>, <span class="st">"R4"</span>]
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="fn">print</span>(<span class="st">"Checking"</span>, d)
+    <span class="kw">if</span> d == <span class="st">"R3"</span>:
+        <span class="fn">print</span>(<span class="st">"Found R3! Stopping."</span>)
+        <span class="kw">break</span>         <span class="cm"># R4 never gets checked</span>
+
+<span class="cm"># continue — skip offline devices, carry on</span>
+status = {<span class="st">"R1"</span>:<span class="st">"online"</span>, <span class="st">"R2"</span>:<span class="st">"offline"</span>, <span class="st">"R3"</span>:<span class="st">"online"</span>}
+<span class="kw">for</span> device, s <span class="kw">in</span> status.<span class="fn">items</span>():
+    <span class="kw">if</span> s == <span class="st">"offline"</span>:
+        <span class="fn">print</span>(f<span class="st">"Skipping {device} — offline"</span>)
+        <span class="kw">continue</span>      <span class="cm"># jump to next iteration</span>
+    <span class="fn">print</span>(f<span class="st">"Configuring {device}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-industry">
+<h3>Why These Matter in Production Scripts</h3>
+<p><code>continue</code> is the most used. When looping over 100 devices and 3 are offline, you don't let those 3 crash your whole script. You skip them, log them, and keep going with the other 97.</p>
+<div class="note g"><p><strong>Golden rule:</strong> In any bulk script, check if a device is reachable before configuring it. Use <code>continue</code> to skip unreachable ones. Never let one bad device kill the entire loop.</p></div>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab</div><p>In your lab, some VMs might not be started or might have crashed. A <code>continue</code> in your loop skips them gracefully and works on the devices that ARE up — much better than your script crashing on the first offline device.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-practical">
+<h3>break and continue in Real Scripts</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">robust_device_loop.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> subprocess
+
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip):
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+devices = [
+    {<span class="st">"name"</span>:<span class="st">"R1"</span>,    <span class="st">"ip"</span>:<span class="st">"192.168.100.1"</span>},
+    {<span class="st">"name"</span>:<span class="st">"R2"</span>,    <span class="st">"ip"</span>:<span class="st">"192.168.100.2"</span>},
+    {<span class="st">"name"</span>:<span class="st">"SW-01"</span>, <span class="st">"ip"</span>:<span class="st">"192.168.100.10"</span>},
+]
+
+success, failed = [], []
+
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    name = device[<span class="st">"name"</span>]
+    ip   = device[<span class="st">"ip"</span>]
+
+    <span class="kw">if not</span> <span class="fn">ping_ok</span>(ip):
+        <span class="fn">print</span>(f<span class="st">"[SKIP] {name} not reachable"</span>)
+        failed.<span class="fn">append</span>(name)
+        <span class="kw">continue</span>          <span class="cm"># skip to next device</span>
+
+    <span class="fn">print</span>(f<span class="st">"[OK]   {name} — processing..."</span>)
+    success.<span class="fn">append</span>(name)
+
+<span class="fn">print</span>(f<span class="st">"\nDone: {len(success)} OK | {len(failed)} skipped"</span>)
+<span class="fn">print</span>(f<span class="st">"Skipped: {failed}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m4-flow">
+<h3>continue vs break — The Key Difference</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 p">for device in [R1, R2, R3, R4, R5]:</div></div>
+  <div style="height:8px"></div>
+  <div class="g2">
+    <div>
+      <p style="color:var(--yel);font-size:12px;font-weight:600;margin-bottom:4px">continue on R2:</p>
+      <div class="fn2 g">R1 ✓ → R2 skip → R3 ✓ → R4 ✓ → R5 ✓</div>
+      <p style="font-size:11px;color:var(--mut);margin-top:4px">Skips R2, keeps going</p>
+    </div>
+    <div>
+      <p style="color:var(--red);font-size:12px;font-weight:600;margin-bottom:4px">break on R2:</p>
+      <div class="fn2 r">R1 ✓ → R2 STOP → R3,R4,R5 never run</div>
+      <p style="font-size:11px;color:var(--mut);margin-top:4px">Stops entire loop at R2</p>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m4-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Skip Offline Devices</div><div class="pt">continue pattern</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Given a list of device dicts with status "online"/"offline", loop through them, skip offline ones with <code>continue</code>, configure online ones, and print a summary count at the end.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>devices = [{"name":"R1","status":"online"},{"name":"R2","status":"offline"},{"name":"R3","status":"online"},{"name":"FW","status":"offline"},{"name":"SW","status":"online"}]</code><br><br><code>done = []; skipped = []</code><br><br><code>for d in devices:</code><br>&nbsp;&nbsp;<code>if d["status"] == "offline":</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"[SKIP] {d['name']}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>skipped.append(d["name"])</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>continue</code><br>&nbsp;&nbsp;<code>print(f"[OK]   Configuring {d['name']}...")</code><br>&nbsp;&nbsp;<code>done.append(d["name"])</code><br><br><code>print(f"\nConfigured: {len(done)} | Skipped: {len(skipped)}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Find a Device (break)</div><div class="pt">Search and stop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a function <code>find_device(devices, hostname)</code> that loops through a device list, returns the IP when it finds the matching hostname using <code>break</code>, or returns None if not found.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>def find_device(devices, hostname):</code><br>&nbsp;&nbsp;<code>found_ip = None</code><br>&nbsp;&nbsp;<code>for d in devices:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if d["hostname"] == hostname:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>found_ip = d["ip"]</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>break</code><br>&nbsp;&nbsp;<code>return found_ip</code><br><br><code>devices = [{"hostname":"R1","ip":"10.1.1.1"},{"hostname":"SW-01","ip":"10.1.1.10"}]</code><br><code>print(find_device(devices, "SW-01"))  # 10.1.1.10</code><br><code>print(find_device(devices, "FW-01"))  # None</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 5 ═══ -->
+<script type="text/x-tmpl" id="m5-theory">
+<h3>enumerate() and zip() — Loop Smarter</h3>
+<h4>enumerate() — Loop with a Counter</h4>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">enumerate_demo.py</span></div><pre><span class="cm"># Without enumerate — ugly manual counter</span>
+devices = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"SW-01"</span>]
+i = <span class="nm">0</span>
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="fn">print</span>(f<span class="st">"Device {i}: {d}"</span>)
+    i += <span class="nm">1</span>
+
+<span class="cm"># With enumerate — clean</span>
+<span class="kw">for</span> i, d <span class="kw">in</span> <span class="fn">enumerate</span>(devices):
+    <span class="fn">print</span>(f<span class="st">"Device {i}: {d}"</span>)     <span class="cm"># i = 0,1,2</span>
+
+<span class="cm"># Start counting from 1 instead of 0</span>
+<span class="kw">for</span> i, d <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+    <span class="fn">print</span>(f<span class="st">"[{i}/{len(devices)}] {d}"</span>)</pre></div>
+<h4>zip() — Pair Two Lists Together</h4>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">zip_demo.py</span></div><pre>hostnames = [<span class="st">"R1"</span>,        <span class="st">"R2"</span>,        <span class="st">"SW-01"</span>]
+mgmt_ips  = [<span class="st">"10.1.1.1"</span>,  <span class="st">"10.1.1.2"</span>,  <span class="st">"10.1.1.10"</span>]
+
+<span class="kw">for</span> hostname, ip <span class="kw">in</span> <span class="fn">zip</span>(hostnames, mgmt_ips):
+    <span class="fn">print</span>(f<span class="st">"{hostname:10} → {ip}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-industry">
+<h3>enumerate and zip in Network Scripts</h3>
+<p>enumerate gives you progress reporting for free — "Processing device 47 of 200..." is something your team will thank you for. zip lets you pair data from two different sources without index gymnastics.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">progress_report.py</span></div><pre>devices = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"SW-01"</span>, <span class="st">"SW-02"</span>, <span class="st">"FW-01"</span>]
+total   = <span class="fn">len</span>(devices)
+
+<span class="kw">for</span> num, device <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+    <span class="fn">print</span>(f<span class="st">"[{num}/{total}] Processing {device}..."</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-practical">
+<h3>enumerate and zip — Full Examples</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">eve_reachability_check.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> subprocess
+
+eve_devices = {
+    <span class="st">"R1"</span>   : <span class="st">"192.168.100.1"</span>,
+    <span class="st">"R2"</span>   : <span class="st">"192.168.100.2"</span>,
+    <span class="st">"SW-01"</span>: <span class="st">"192.168.100.10"</span>,
+    <span class="st">"SW-02"</span>: <span class="st">"192.168.100.11"</span>,
+}
+
+items = <span class="fn">list</span>(eve_devices.<span class="fn">items</span>())
+total = <span class="fn">len</span>(items)
+up, down = [], []
+
+<span class="kw">for</span> num, (name, ip) <span class="kw">in</span> <span class="fn">enumerate</span>(items, start=<span class="nm">1</span>):
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],capture_output=<span class="kw">True</span>)
+    ok = r.returncode == <span class="nm">0</span>
+    label = <span class="st">"UP"</span> <span class="kw">if</span> ok <span class="kw">else</span> <span class="st">"DOWN"</span>
+    (up <span class="kw">if</span> ok <span class="kw">else</span> down).<span class="fn">append</span>(name)
+    <span class="fn">print</span>(f<span class="st">"[{num:02d}/{total}] {name:10} {ip:18} [{label}]"</span>)
+
+<span class="fn">print</span>(f<span class="st">"\n  Up  : {up}"</span>)
+<span class="fn">print</span>(f<span class="st">"  Down: {down}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m5-flow">
+<h3>enumerate() and zip() Visualised</h3>
+<div class="fb">
+  <p style="font-size:12px;color:var(--mut);margin-bottom:8px">enumerate(["R1","R2","R3"], start=1)  →</p>
+  <div class="fr"><div class="fn2 b">(1, "R1")</div><div class="fa">→</div><div class="fn2 b">(2, "R2")</div><div class="fa">→</div><div class="fn2 b">(3, "R3")</div></div>
+</div>
+<div class="fb">
+  <p style="font-size:12px;color:var(--mut);margin-bottom:8px">zip(["R1","R2"], ["10.1.1.1","10.1.1.2"])  →</p>
+  <div class="fr"><div class="fn2 g">("R1","10.1.1.1")</div><div class="fa">→</div><div class="fn2 g">("R2","10.1.1.2")</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m5-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Progress Counter</div><div class="pt">enumerate in action</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Use enumerate (start=1) over a list of 5 devices and print "[1/5] Connecting to R1", "[2/5] Connecting to R2" etc.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>devices = ["R1","R2","R3","SW-01","SW-02"]</code><br><code>total = len(devices)</code><br><br><code>for num, device in enumerate(devices, start=1):</code><br>&nbsp;&nbsp;<code>print(f"[{num}/{total}] Connecting to {device}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Interface Config with zip</div><div class="pt">Pair interface names with IPs</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Use zip to pair interface names and IP addresses, then print IOS config commands for each pair.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>interfaces = ["GigE0/0","GigE0/1","Loopback0"]</code><br><code>addresses  = ["10.0.12.1","10.0.13.1","1.1.1.1"]</code><br><code>masks      = ["255.255.255.0","255.255.255.0","255.255.255.255"]</code><br><br><code>for iface, ip, mask in zip(interfaces, addresses, masks):</code><br>&nbsp;&nbsp;<code>print(f"interface {iface}")</code><br>&nbsp;&nbsp;<code>print(f" ip address {ip} {mask}")</code><br>&nbsp;&nbsp;<code>print( " no shutdown")</code><br>&nbsp;&nbsp;<code>print("!")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 6 ═══ -->
+<script type="text/x-tmpl" id="m6-theory">
+<h3>Nested Loops — A Loop Inside a Loop</h3>
+<p>A nested loop runs the inner loop completely for every iteration of the outer loop. In networking: all VLANs on all switches, all interfaces on all routers, all BGP neighbours on all devices.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">nested_loops.py</span></div><pre>switches = [<span class="st">"SW-01"</span>, <span class="st">"SW-02"</span>, <span class="st">"SW-03"</span>]
+vlans    = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>]
+
+<span class="kw">for</span> switch <span class="kw">in</span> switches:       <span class="cm"># outer — 3 iterations</span>
+    <span class="fn">print</span>(f<span class="st">"Configuring {switch}:"</span>)
+    <span class="kw">for</span> vlan <span class="kw">in</span> vlans:        <span class="cm"># inner — 4 per switch</span>
+        <span class="fn">print</span>(f<span class="st">"  Adding VLAN {vlan}"</span>)
+    <span class="fn">print</span>(<span class="st">"  Done."</span>)
+<span class="cm"># Total: 3 × 4 = 12 inner iterations</span></pre></div>
+<div class="note y"><p><strong>Watch indentation:</strong> Code at the inner indent runs once per VLAN. Code back at the outer indent runs once per switch. One wrong indent = a hidden bug.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-industry">
+<h3>Nested Loops for Real Network Tasks</h3>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG — Full Topology Interface Check</div><p>Outer loop = routers, inner loop = interfaces on that router. One nested loop gives you a complete interface status report for your entire EVE-NG topology.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-practical">
+<h3>Nested Loop — Topology Audit</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">topology_audit.py</span><span class="etag">EVE-NG</span></div><pre>topology = {
+    <span class="st">"R1"</span>: [{<span class="st">"name"</span>:<span class="st">"Gi0/0"</span>,<span class="st">"status"</span>:<span class="st">"up"</span>},{<span class="st">"name"</span>:<span class="st">"Gi0/1"</span>,<span class="st">"status"</span>:<span class="st">"down"</span>}],
+    <span class="st">"R2"</span>: [{<span class="st">"name"</span>:<span class="st">"Gi0/0"</span>,<span class="st">"status"</span>:<span class="st">"up"</span>},{<span class="st">"name"</span>:<span class="st">"Gi0/1"</span>,<span class="st">"status"</span>:<span class="st">"up"</span>}],
+}
+issues = []
+
+<span class="kw">for</span> router, interfaces <span class="kw">in</span> topology.<span class="fn">items</span>():
+    <span class="fn">print</span>(f<span class="st">"\n{router}:"</span>)
+    <span class="kw">for</span> iface <span class="kw">in</span> interfaces:
+        icon = <span class="st">"✓"</span> <span class="kw">if</span> iface[<span class="st">"status"</span>] == <span class="st">"up"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+        <span class="fn">print</span>(f<span class="st">"  {icon} {iface['name']:12} [{iface['status']}]"</span>)
+        <span class="kw">if</span> iface[<span class="st">"status"</span>] == <span class="st">"down"</span>:
+            issues.<span class="fn">append</span>(f<span class="st">"{router}/{iface['name']}"</span>)
+
+<span class="fn">print</span>(f<span class="st">"\nIssues: {issues}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m6-flow">
+<h3>Nested Loop Execution Order</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 p">SW-01 → VLAN 10 → VLAN 20 → VLAN 30</div></div>
+  <div class="fr"><div class="fn2 p">SW-02 → VLAN 10 → VLAN 20 → VLAN 30</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2 y">2 switches × 3 VLANs = 6 total iterations</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m6-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — VLAN Config Generator</div><div class="pt">Nested loop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Create a dict mapping 3 switch names to their VLAN lists. Write a nested loop that generates a full IOS VLAN config block for each switch.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>switches = {"SW-CORE":[10,20,30,100],"SW-ACC-01":[10,20],"SW-ACC-02":[10,30]}</code><br><br><code>for sw, vlans in switches.items():</code><br>&nbsp;&nbsp;<code>print(f"! === {sw} ===")</code><br>&nbsp;&nbsp;<code>for vlan in vlans:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"vlan {vlan}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f" name VLAN_{vlan}")</code><br>&nbsp;&nbsp;<code>print("!")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — EVE-NG Topology Audit</div><div class="pt">Nested loop with counts</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Build a topology dict with 3 routers, each having 2-3 interfaces with status. Nested loop: print each router as a section, each interface with status, and count total UP vs DOWN.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>topology = {"R1":[{"name":"Gi0/0","status":"up"},{"name":"Gi0/1","status":"down"}],"R2":[{"name":"Gi0/0","status":"up"},{"name":"Lo0","status":"up"}],"R3":[{"name":"Gi0/0","status":"down"},{"name":"Gi0/1","status":"up"}]}</code><br><br><code>total_up = total_down = 0</code><br><code>for router, ifaces in topology.items():</code><br>&nbsp;&nbsp;<code>print(f"\n=== {router} ===")</code><br>&nbsp;&nbsp;<code>for i in ifaces:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>icon = "✓" if i["status"]=="up" else "✗"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"  {icon} {i['name']:12} {i['status']}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if i["status"]=="up": total_up+=1</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>else: total_down+=1</code><br><code>print(f"\nTotal: {total_up} UP | {total_down} DOWN")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 7 ═══ -->
+<script type="text/x-tmpl" id="m7-theory">
+<h3>List Comprehensions — One-Line Loops</h3>
+<p>A list comprehension builds a new list from a loop in one line. Once you get used to them they're faster to write and easier to read.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">list_comprehension.py</span></div><pre><span class="cm"># Normal for loop — building a list</span>
+devices = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"R3"</span>]
+labels  = []
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    labels.<span class="fn">append</span>(<span class="st">"Device: "</span> + d)
+
+<span class="cm"># Same thing — one line comprehension</span>
+labels = [<span class="st">"Device: "</span> + d <span class="kw">for</span> d <span class="kw">in</span> devices]
+
+<span class="cm"># Read it: [what  for each  in where]</span>
+
+<span class="cm"># With filter — if clause at the end</span>
+all_devs = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"SW-01"</span>, <span class="st">"R3"</span>, <span class="st">"SW-02"</span>]
+routers  = [d <span class="kw">for</span> d <span class="kw">in</span> all_devs <span class="kw">if</span> d.<span class="fn">startswith</span>(<span class="st">"R"</span>)]   <span class="cm"># ['R1','R2','R3']</span>
+switches = [d <span class="kw">for</span> d <span class="kw">in</span> all_devs <span class="kw">if</span> d.<span class="fn">startswith</span>(<span class="st">"SW"</span>)]  <span class="cm"># ['SW-01','SW-02']</span>
+
+<span class="cm"># Dict comprehension — hostname to IP map</span>
+devices_list = [{<span class="st">"hostname"</span>:<span class="st">"R1"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>},{<span class="st">"hostname"</span>:<span class="st">"R2"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.2"</span>}]
+ip_map = {d[<span class="st">"hostname"</span>]: d[<span class="st">"ip"</span>] <span class="kw">for</span> d <span class="kw">in</span> devices_list}
+<span class="fn">print</span>(ip_map[<span class="st">"R1"</span>])   <span class="cm"># 10.1.1.1</span></pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-industry">
+<h3>Comprehensions on Real API Data</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">api_comprehensions.py</span></div><pre>devices = r.<span class="fn">json</span>()[<span class="st">"response"</span>]
+
+all_ips       = [d[<span class="st">"managementIpAddress"</span>] <span class="kw">for</span> d <span class="kw">in</span> devices]
+reachable     = [d <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> d[<span class="st">"reachabilityStatus"</span>] == <span class="st">"Reachable"</span>]
+sw_hostnames  = [d[<span class="st">"hostname"</span>] <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> d[<span class="st">"type"</span>] == <span class="st">"switch"</span>]</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-practical">
+<h3>Comprehension Patterns</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">comprehension_patterns.py</span></div><pre><span class="cm"># Generate VLAN config lines from a list</span>
+vlans     = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>]
+vlan_cmds = [f<span class="st">"vlan {v}"</span> <span class="kw">for</span> v <span class="kw">in</span> vlans]
+<span class="fn">print</span>(<span class="st">"\n"</span>.<span class="fn">join</span>(vlan_cmds))
+
+<span class="cm"># Filter VLANs in 100-200 range (voice VLANs)</span>
+all_vlans   = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">100</span>, <span class="nm">110</span>, <span class="nm">150</span>, <span class="nm">200</span>, <span class="nm">300</span>]
+voice_vlans = [v <span class="kw">for</span> v <span class="kw">in</span> all_vlans <span class="kw">if</span> <span class="nm">100</span> &lt;= v &lt;= <span class="nm">200</span>]
+
+<span class="cm"># Uppercase all hostnames</span>
+names  = [<span class="st">"sw-core-01"</span>, <span class="st">"r1"</span>, <span class="st">"fw-01"</span>]
+upper  = [n.<span class="fn">upper</span>() <span class="kw">for</span> n <span class="kw">in</span> names]</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m7-flow">
+<h3>Comprehension Anatomy</h3>
+<div class="fb">
+  <p style="font-size:12px;color:var(--mut);margin-bottom:8px">result = [ <span style="color:var(--grn)">expression</span> &nbsp; <span style="color:var(--blu)">for item in collection</span> &nbsp; <span style="color:var(--yel)">if condition</span> ]</p>
+  <div class="fr">
+    <div class="fn2 g">expression<br><span class="fl">what to put in list</span></div>
+    <div class="fn2 b">for item in ...<br><span class="fl">the loop part</span></div>
+    <div class="fn2 y">if condition (optional)<br><span class="fl">filter</span></div>
+  </div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m7-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Filter and Extract</div><div class="pt">Comprehension basics</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>From a list of device dicts (hostname, ip, status, type), use comprehensions to get: (a) all IPs, (b) hostnames of reachable devices, (c) a dict mapping hostname to IP for switches only.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>devices = [{"hostname":"SW-01","ip":"10.1.1.1","status":"Reachable","type":"switch"},{"hostname":"SW-02","ip":"10.1.1.2","status":"Unreachable","type":"switch"},{"hostname":"R1","ip":"10.1.1.3","status":"Reachable","type":"router"}]</code><br><br><code>all_ips   = [d["ip"] for d in devices]</code><br><code>reachable = [d["hostname"] for d in devices if d["status"]=="Reachable"]</code><br><code>sw_map    = {d["hostname"]:d["ip"] for d in devices if d["type"]=="switch"}</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — VLAN Command Generator</div><div class="pt">Transform a list</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Use a list comprehension to turn <code>[10,20,30,100,200]</code> into <code>["vlan 10","vlan 20",...]</code>. Join with newlines and print.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>vlans     = [10, 20, 30, 100, 200]</code><br><code>vlan_cmds = [f"vlan {v}" for v in vlans]</code><br><code>print("\n".join(vlan_cmds))</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 8 ═══ -->
+<script type="text/x-tmpl" id="m8-theory">
+<h3>Looping Over Files — YAML, JSON, CSV</h3>
+<p>In real network automation your loop data rarely comes from a hardcoded list in the script. It comes from files — YAML inventory, JSON config, CSV exports from your IPAM or spreadsheet. You read the file, get a list, loop over it.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">loop_over_files.py</span></div><pre><span class="kw">import</span> json, yaml, csv
+
+<span class="cm"># ─── Loop over YAML inventory ─────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.yaml"</span>) <span class="kw">as</span> f:
+    inv = yaml.<span class="fn">safe_load</span>(f)
+
+<span class="kw">for</span> device <span class="kw">in</span> inv[<span class="st">"devices"</span>]:
+    <span class="fn">print</span>(f<span class="st">"{device['hostname']:15} {device['ip']}"</span>)
+
+<span class="cm"># ─── Loop over JSON file ──────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"devices.json"</span>) <span class="kw">as</span> f:
+    data = json.<span class="fn">load</span>(f)
+
+<span class="kw">for</span> device <span class="kw">in</span> data[<span class="st">"devices"</span>]:
+    <span class="fn">print</span>(device[<span class="st">"hostname"</span>])
+
+<span class="cm"># ─── Loop over CSV file ───────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"devices.csv"</span>) <span class="kw">as</span> f:
+    reader = csv.<span class="fn">DictReader</span>(f)
+    <span class="kw">for</span> row <span class="kw">in</span> reader:
+        <span class="cm"># each row is a dict: {"hostname":"R1","ip":"10.1.1.1"}</span>
+        <span class="fn">print</span>(row[<span class="st">"hostname"</span>], row[<span class="st">"ip"</span>])
+
+<span class="cm"># ─── Loop over plain text IP list ────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"ip_list.txt"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> line <span class="kw">in</span> f:
+        ip = line.<span class="fn">strip</span>()     <span class="cm"># remove newline</span>
+        <span class="kw">if</span> ip:                <span class="cm"># skip blank lines</span>
+            <span class="fn">print</span>(<span class="st">"Processing:"</span>, ip)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-industry">
+<h3>File-Based Loops in Production</h3>
+<p>The standard pattern in a real team: someone (often a non-Python network engineer) maintains a YAML or CSV file with device details. Your Python script reads that file and loops over it. When a new device is added to the file, the script automatically includes it next run. The data and the code stay separate.</p>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Inventory File</div><p>Create one YAML file for your entire EVE-NG lab. Your Python scripts read from it. When you add a new VM to your topology, add it to the YAML — all scripts pick it up automatically next run.</p></div>
+<div class="cb"><div class="ch"><span class="lg ym">YAML</span><span class="fn">eve_inventory.yaml — your lab file</span></div><pre>lab_name: My Network Lab
+devices:
+  - hostname: R1
+    ip: "192.168.100.1"
+    type: router
+    platform: cisco_ios
+    credentials:
+      username: admin
+      password: admin123
+    vlans: []
+
+  - hostname: SW-01
+    ip: "192.168.100.10"
+    type: switch
+    platform: cisco_ios
+    credentials:
+      username: admin
+      password: admin123
+    vlans: [10, 20, 30]</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-practical">
+<h3>Read File → Loop → Save Report</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">eve_lab_runner.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> yaml, subprocess, json
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="cm"># ─── Load EVE-NG inventory ────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    lab = yaml.<span class="fn">safe_load</span>(f)
+
+devices = lab[<span class="st">"devices"</span>]
+total   = <span class="fn">len</span>(devices)
+report  = []
+
+<span class="fn">print</span>(f<span class="st">"Lab: {lab['lab_name']} — {total} devices"</span>)
+<span class="fn">print</span>(<span class="st">"="</span> * <span class="nm">50</span>)
+
+<span class="cm"># ─── Loop over devices, ping each one ────────────────</span>
+<span class="kw">for</span> num, device <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+    name = device[<span class="st">"hostname"</span>]
+    ip   = device[<span class="st">"ip"</span>]
+
+    r      = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"2"</span>,ip],capture_output=<span class="kw">True</span>)
+    status = <span class="st">"UP"</span> <span class="kw">if</span> r.returncode == <span class="nm">0</span> <span class="kw">else</span> <span class="st">"DOWN"</span>
+    icon   = <span class="st">"✓"</span> <span class="kw">if</span> r.returncode == <span class="nm">0</span> <span class="kw">else</span> <span class="st">"✗"</span>
+
+    <span class="fn">print</span>(f<span class="st">"[{num:02d}/{total}] {icon} {name:12} {ip:18} [{status}]"</span>)
+    report.<span class="fn">append</span>({
+        <span class="st">"hostname"</span> : name,
+        <span class="st">"ip"</span>       : ip,
+        <span class="st">"status"</span>   : status,
+        <span class="st">"time"</span>     : datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%H:%M:%S"</span>)
+    })
+
+<span class="cm"># ─── Save JSON report ─────────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"lab_report.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(report, f, indent=<span class="nm">2</span>)
+
+up = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> d <span class="kw">in</span> report <span class="kw">if</span> d[<span class="st">"status"</span>] == <span class="st">"UP"</span>)
+<span class="fn">print</span>(f<span class="st">"\nResult: {up}/{total} devices UP"</span>)
+<span class="fn">print</span>(<span class="st">"Report saved: lab_report.json"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m8-flow">
+<h3>File → Loop → Report Pattern</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 e">eve_inventory.yaml (your data source)</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2">yaml.safe_load() → Python list of dicts</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 p">for device in devices: (main loop)</div></div>
+  <div style="height:3px"></div>
+  <div class="fr" style="padding-left:16px"><div class="fn2">ping / SSH / API call per device</div></div>
+  <div style="height:3px"></div>
+  <div class="fr" style="padding-left:16px"><div class="fn2">append result to report list</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g">json.dump(report) → lab_report.json</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m8-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Create EVE-NG Inventory &amp; Read It</div><div class="pt">YAML + loop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Create a YAML file with your EVE-NG device details (or dummy data). Write Python to load it and print a formatted table: hostname, IP, type, platform.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>eve_inventory.yaml:</strong><br><code>lab_name: My EVE-NG Lab</code><br><code>devices:</code><br>&nbsp;&nbsp;<code>- hostname: R1</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>ip: "192.168.100.1"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>type: router</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>platform: cisco_ios</code><br><br><strong>read_inventory.py:</strong><br><code>import yaml</code><br><code>with open("eve_inventory.yaml") as f:</code><br>&nbsp;&nbsp;<code>lab = yaml.safe_load(f)</code><br><code>print(f"Lab: {lab['lab_name']}\n")</code><br><code>print(f"{'Hostname':15} {'IP':18} {'Type':10} {'Platform'}")</code><br><code>print("-" * 60)</code><br><code>for d in lab["devices"]:</code><br>&nbsp;&nbsp;<code>print(f"{d['hostname']:15} {d['ip']:18} {d['type']:10} {d['platform']}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Loop Over CSV &amp; Save Report</div><div class="pt">CSV in, JSON out</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Create a CSV file with columns: hostname, ip, type. Read it with csv.DictReader, loop over rows, collect results (simulate status with random), save as JSON report.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>devices.csv:</strong><br><code>hostname,ip,type</code><br><code>R1,192.168.100.1,router</code><br><code>SW-01,192.168.100.10,switch</code><br><br><strong>csv_loop.py:</strong><br><code>import csv, json, random</code><br><code>report = []</code><br><code>with open("devices.csv") as f:</code><br>&nbsp;&nbsp;<code>for row in csv.DictReader(f):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>status = "UP" if random.random() &gt; 0.2 else "DOWN"</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>report.append({"hostname":row["hostname"],"ip":row["ip"],"status":status})</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"[{status}] {row['hostname']}")</code><br><code>with open("report.json","w") as f: json.dump(report,f,indent=2)</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 9 ═══ -->
+<script type="text/x-tmpl" id="m9-theory">
+<h3>Netmiko + Loops — SSH to Many Devices</h3>
+<p>Netmiko is the Python library that simplifies SSH to network devices. Combine it with a loop and you can run commands on 100 devices as easily as one. This is where loops become actual superpowers for a network engineer.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">pip install netmiko</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="cm"># Connect to ONE device</span>
+device = {
+    <span class="st">"device_type"</span>: <span class="st">"cisco_ios"</span>,
+    <span class="st">"host"</span>       : <span class="st">"192.168.100.1"</span>,
+    <span class="st">"username"</span>   : <span class="st">"admin"</span>,
+    <span class="st">"password"</span>   : <span class="st">"admin123"</span>,
+}
+<span class="kw">with</span> <span class="fn">ConnectHandler</span>(**device) <span class="kw">as</span> net:
+    output = net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)
+    <span class="fn">print</span>(output)</pre></div>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">netmiko_loop.py — SSH to MULTIPLE devices</span><span class="etag">EVE-NG</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler, NetmikoTimeoutException
+<span class="kw">import</span> yaml
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    lab = yaml.<span class="fn">safe_load</span>(f)
+
+results = {}
+
+<span class="kw">for</span> num, d <span class="kw">in</span> <span class="fn">enumerate</span>(lab[<span class="st">"devices"</span>], start=<span class="nm">1</span>):
+    name = d[<span class="st">"hostname"</span>]
+    <span class="fn">print</span>(f<span class="st">"[{num}] Connecting to {name}..."</span>, end=<span class="st">" "</span>)
+    <span class="kw">try</span>:
+        conn = {
+            <span class="st">"device_type"</span>: d[<span class="st">"platform"</span>],
+            <span class="st">"host"</span>       : d[<span class="st">"ip"</span>],
+            <span class="st">"username"</span>   : d[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+            <span class="st">"password"</span>   : d[<span class="st">"credentials"</span>][<span class="st">"password"</span>],
+            <span class="st">"timeout"</span>    : <span class="nm">10</span>,
+        }
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            out = net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)
+            results[name] = out[:<span class="nm">80</span>]
+            <span class="fn">print</span>(<span class="st">"OK"</span>)
+    <span class="kw">except</span> NetmikoTimeoutException:
+        <span class="fn">print</span>(<span class="st">"TIMEOUT"</span>)
+        results[name] = <span class="st">"UNREACHABLE"</span>
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"ERROR: {e}"</span>)
+        results[name] = <span class="st">"ERROR"</span>
+
+<span class="fn">print</span>(<span class="st">"\nResults:"</span>)
+<span class="kw">for</span> name, result <span class="kw">in</span> results.<span class="fn">items</span>():
+    <span class="fn">print</span>(f<span class="st">"  {name}: {result[:50]}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-industry">
+<h3>Netmiko Loop Patterns in Production</h3>
+<h4>Config Push to Multiple Devices</h4>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">config_push.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+<span class="kw">import</span> yaml
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+config_commands = [
+    <span class="st">"ntp server 8.8.8.8"</span>,
+    <span class="st">"logging buffered 10000"</span>,
+    <span class="st">"no ip http server"</span>,
+]
+
+success, failed = [], []
+
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>], <span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:device[<span class="st">"credentials"</span>][<span class="st">"password"</span>]}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            net.<span class="fn">send_config_set</span>(config_commands)
+            net.<span class="fn">save_config</span>()
+            <span class="fn">print</span>(f<span class="st">"✓ {name} — config applied"</span>)
+            success.<span class="fn">append</span>(name)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"✗ {name} — FAILED: {e}"</span>)
+        failed.<span class="fn">append</span>(name)
+
+<span class="fn">print</span>(f<span class="st">"\nDone — {len(success)} OK, {len(failed)} failed"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practical">
+<h3>Multi-Command Collector</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">collect_show_commands.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+<span class="kw">import</span> yaml, os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    lab = yaml.<span class="fn">safe_load</span>(f)
+
+show_commands = [
+    <span class="st">"show version"</span>,
+    <span class="st">"show ip interface brief"</span>,
+    <span class="st">"show ip route"</span>,
+]
+
+ts = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+os.<span class="fn">makedirs</span>(<span class="st">"outputs"</span>, exist_ok=<span class="kw">True</span>)
+
+<span class="kw">for</span> device <span class="kw">in</span> lab[<span class="st">"devices"</span>]:
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>], <span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:device[<span class="st">"credentials"</span>][<span class="st">"password"</span>]}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            fname = f<span class="st">"outputs/{name}_{ts}.txt"</span>
+            <span class="kw">with</span> <span class="fn">open</span>(fname, <span class="st">"w"</span>) <span class="kw">as</span> out:
+                <span class="kw">for</span> cmd <span class="kw">in</span> show_commands:   <span class="cm"># inner loop</span>
+                    out.<span class="fn">write</span>(f<span class="st">"\n{'='*40}\n{cmd}\n{'='*40}\n"</span>)
+                    out.<span class="fn">write</span>(net.<span class="fn">send_command</span>(cmd) + <span class="st">"\n"</span>)
+            <span class="fn">print</span>(f<span class="st">"✓ {name} → {fname}"</span>)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"✗ {name} — {e}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m9-flow">
+<h3>Netmiko Loop Architecture</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 e">YAML inventory → device list</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 p">for device in devices:</div></div>
+  <div style="height:3px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 y">try: ConnectHandler → SSH session</div></div>
+  <div style="height:3px"></div>
+  <div class="fr" style="padding-left:28px"><div class="fn2">for cmd in commands: → send_command()</div></div>
+  <div style="height:3px"></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 r">except: log error, continue to next</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g">All outputs saved → summary printed</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m9-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Collect show ip int brief</div><div class="pt">Netmiko + loop — EVE-NG</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Using your EVE-NG inventory, write a script that loops only over routers, SSH connects using netmiko, runs "show ip interface brief", and prints output with the device name as a header.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>from netmiko import ConnectHandler</code><br><code>import yaml</code><br><br><code>with open("eve_inventory.yaml") as f: lab = yaml.safe_load(f)</code><br><br><code>for d in lab["devices"]:</code><br>&nbsp;&nbsp;<code>if d["type"] != "router": continue</code><br>&nbsp;&nbsp;<code>name = d["hostname"]</code><br>&nbsp;&nbsp;<code>print(f"\n{'='*50}\n{name} ({d['ip']})\n{'='*50}")</code><br>&nbsp;&nbsp;<code>try:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>conn = {"device_type":d["platform"],"host":d["ip"],"username":d["credentials"]["username"],"password":d["credentials"]["password"]}</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>with ConnectHandler(**conn) as net:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>print(net.send_command("show ip interface brief"))</code><br>&nbsp;&nbsp;<code>except Exception as e: print(f"Error: {e}")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Config Push to All Switches</div><div class="pt">send_config_set loop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Loop only over switches in your inventory. Push a list of baseline config commands (NTP, logging) to each. Print success/failure and a final count at the end.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>from netmiko import ConnectHandler</code><br><code>import yaml</code><br><br><code>with open("eve_inventory.yaml") as f: devices = yaml.safe_load(f)["devices"]</code><br><br><code>cmds = ["ntp server 8.8.8.8","logging buffered 10000","no ip http server"]</code><br><code>success=[]; failed=[]</code><br><br><code>for d in devices:</code><br>&nbsp;&nbsp;<code>if d["type"] != "switch": continue</code><br>&nbsp;&nbsp;<code>name = d["hostname"]</code><br>&nbsp;&nbsp;<code>try:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>conn = {"device_type":d["platform"],"host":d["ip"],"username":d["credentials"]["username"],"password":d["credentials"]["password"]}</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>with ConnectHandler(**conn) as net:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>net.send_config_set(cmds)</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>net.save_config()</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"✓ {name}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>success.append(name)</code><br>&nbsp;&nbsp;<code>except Exception as e:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"✗ {name}: {e}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>failed.append(name)</code><br><code>print(f"\nOK: {len(success)} | Failed: {len(failed)}")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 10 ═══ -->
+<script type="text/x-tmpl" id="m10-theory">
+<h3>Error Handling Inside Loops</h3>
+<p>One device going wrong should never kill your entire loop. When looping over 50 devices and device 12 throws an exception, the right behaviour is: log the error, skip that device, continue with 13–50.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">loop_error_handling.py</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+
+success, failed = [], []
+
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">try</span>:
+        conn = {
+            <span class="st">"device_type"</span>: device[<span class="st">"platform"</span>],
+            <span class="st">"host"</span>       : device[<span class="st">"ip"</span>],
+            <span class="st">"username"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+            <span class="st">"password"</span>   : device[<span class="st">"credentials"</span>][<span class="st">"password"</span>],
+        }
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            out = net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)
+            success.<span class="fn">append</span>(name)
+            <span class="fn">print</span>(f<span class="st">"✓ {name}"</span>)
+
+    <span class="kw">except</span> NetmikoTimeoutException:
+        <span class="fn">print</span>(f<span class="st">"✗ {name} — timeout"</span>)
+        failed.<span class="fn">append</span>({<span class="st">"name"</span>: name, <span class="st">"reason"</span>: <span class="st">"timeout"</span>})
+
+    <span class="kw">except</span> NetmikoAuthenticationException:
+        <span class="fn">print</span>(f<span class="st">"✗ {name} — auth failed"</span>)
+        failed.<span class="fn">append</span>({<span class="st">"name"</span>: name, <span class="st">"reason"</span>: <span class="st">"auth"</span>})
+
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"✗ {name} — {e}"</span>)
+        failed.<span class="fn">append</span>({<span class="st">"name"</span>: name, <span class="st">"reason"</span>: <span class="fn">str</span>(e)})
+
+<span class="fn">print</span>(f<span class="st">"\n{len(success)} OK | {len(failed)} failed"</span>)
+<span class="kw">for</span> f <span class="kw">in</span> failed:
+    <span class="fn">print</span>(f<span class="st">"  ✗ {f['name']}: {f['reason']}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-industry">
+<h3>Production Error Handling Patterns</h3>
+<div class="note g"><p><strong>Senior engineer rule:</strong> Always print a summary at the end of a bulk operation. "Done — 47 of 50 configured. Failed: SW-14, FW-02, R-EDGE-01." That summary goes into the change ticket.</p></div>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab</div><p>Some VMs in your lab may be off or crashed. Error handling in your loop means the script works on all running devices and clearly lists the ones that failed — you don't have to guess which ones it reached.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-practical">
+<h3>Complete Robust Loop — EVE-NG</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">robust_loop.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">import</span> yaml, json
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+report = {<span class="st">"run_time"</span>: datetime.<span class="fn">now</span>().<span class="fn">isoformat</span>(), <span class="st">"results"</span>: []}
+
+<span class="kw">for</span> num, d <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+    name   = d[<span class="st">"hostname"</span>]
+    result = {<span class="st">"hostname"</span>:name, <span class="st">"ip"</span>:d[<span class="st">"ip"</span>], <span class="st">"status"</span>:<span class="st">"unknown"</span>, <span class="st">"error"</span>:<span class="kw">None</span>}
+    <span class="fn">print</span>(f<span class="st">"[{num}/{len(devices)}] {name}..."</span>, end=<span class="st">" "</span>)
+
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:d[<span class="st">"platform"</span>], <span class="st">"host"</span>:d[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:d[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:d[<span class="st">"credentials"</span>][<span class="st">"password"</span>], <span class="st">"timeout"</span>:<span class="nm">10</span>}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            net.<span class="fn">send_command</span>(<span class="st">"show ip interface brief"</span>)
+            result[<span class="st">"status"</span>] = <span class="st">"success"</span>
+            <span class="fn">print</span>(<span class="st">"OK"</span>)
+    <span class="kw">except</span> NetmikoTimeoutException:
+        result.update({<span class="st">"status"</span>:<span class="st">"timeout"</span>,  <span class="st">"error"</span>:<span class="st">"Connection timed out"</span>}); <span class="fn">print</span>(<span class="st">"TIMEOUT"</span>)
+    <span class="kw">except</span> NetmikoAuthenticationException:
+        result.update({<span class="st">"status"</span>:<span class="st">"auth_fail"</span>, <span class="st">"error"</span>:<span class="st">"Wrong credentials"</span>});  <span class="fn">print</span>(<span class="st">"AUTH FAIL"</span>)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        result.update({<span class="st">"status"</span>:<span class="st">"error"</span>,    <span class="st">"error"</span>:<span class="fn">str</span>(e)});               <span class="fn">print</span>(f<span class="st">"ERROR: {e}"</span>)
+
+    report[<span class="st">"results"</span>].<span class="fn">append</span>(result)
+
+ok   = [r <span class="kw">for</span> r <span class="kw">in</span> report[<span class="st">"results"</span>] <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"success"</span>]
+errs = [r <span class="kw">for</span> r <span class="kw">in</span> report[<span class="st">"results"</span>] <span class="kw">if</span> r[<span class="st">"status"</span>] != <span class="st">"success"</span>]
+<span class="fn">print</span>(f<span class="st">"\n{len(ok)} OK | {len(errs)} failed"</span>)
+<span class="kw">for</span> e <span class="kw">in</span> errs: <span class="fn">print</span>(f<span class="st">"  ✗ {e['hostname']}: {e['error']}"</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"run_report.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(report, f, indent=<span class="nm">2</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m10-flow">
+<h3>Error Flow Inside Loop</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 p">for device in devices:</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 y">try: connect + run</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 g">success → append to success list</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 r">except Timeout → log, continue</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 r">except AuthError → log, continue</div></div>
+  <div class="fr" style="padding-left:14px"><div class="fn2 r">except Exception → log, continue</div></div>
+  <div style="height:5px"></div>
+  <div class="fr"><div class="fn2 g">After loop: print summary, save JSON</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m10-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Simulate Mixed Results</div><div class="pt">Try/except in loop</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Write a loop over 5 devices. Simulate: device 2 times out (raise TimeoutError), device 3 fails auth (raise ValueError). Handle each separately. Print a summary at the end.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>outcomes = {"R1":"ok","R2":"timeout","R3":"auth","SW-01":"ok","SW-02":"ok"}</code><br><code>success=[]; failed=[]</code><br><br><code>for name, outcome in outcomes.items():</code><br>&nbsp;&nbsp;<code>try:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if outcome=="timeout": raise TimeoutError("timed out")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if outcome=="auth":    raise ValueError("auth failed")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"✓ {name}")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>success.append(name)</code><br>&nbsp;&nbsp;<code>except TimeoutError as e:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"✗ {name} — TIMEOUT")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>failed.append({"name":name,"reason":"timeout"})</code><br>&nbsp;&nbsp;<code>except ValueError as e:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"✗ {name} — AUTH")</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>failed.append({"name":name,"reason":"auth"})</code><br><code>print(f"\n{len(success)} OK | {len(failed)} failed")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 11 ═══ -->
+<script type="text/x-tmpl" id="m11-theory">
+<h3>Concurrent Loops — Run All Devices at Once</h3>
+<p>Sequential loops wait for each device before moving to the next. With 100 devices × 5 seconds each = 500 seconds (8 minutes). Concurrent loops run all devices simultaneously — same 100 devices finish in ~5-10 seconds.</p>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">concurrent_loop.py</span></div><pre><span class="kw">from</span> concurrent.futures <span class="kw">import</span> ThreadPoolExecutor, as_completed
+<span class="kw">import</span> subprocess
+
+<span class="kw">def</span> <span class="fn">ping_device</span>(device):
+    name = device[<span class="st">"hostname"</span>]
+    ip   = device[<span class="st">"ip"</span>]
+    r    = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip], capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> {<span class="st">"name"</span>: name, <span class="st">"up"</span>: r.returncode == <span class="nm">0</span>}
+
+devices = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,    <span class="st">"ip"</span>:<span class="st">"192.168.100.1"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,    <span class="st">"ip"</span>:<span class="st">"192.168.100.2"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>, <span class="st">"ip"</span>:<span class="st">"192.168.100.10"</span>},
+]
+
+<span class="cm"># All pings run at the same time — max 10 threads</span>
+<span class="kw">with</span> <span class="fn">ThreadPoolExecutor</span>(max_workers=<span class="nm">10</span>) <span class="kw">as</span> pool:
+    futures = [pool.<span class="fn">submit</span>(ping_device, d) <span class="kw">for</span> d <span class="kw">in</span> devices]
+    <span class="kw">for</span> future <span class="kw">in</span> <span class="fn">as_completed</span>(futures):
+        r = future.<span class="fn">result</span>()
+        icon = <span class="st">"✓"</span> <span class="kw">if</span> r[<span class="st">"up"</span>] <span class="kw">else</span> <span class="st">"✗"</span>
+        <span class="fn">print</span>(f<span class="st">"{icon} {r['name']}"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-industry">
+<h3>When Concurrency Matters</h3>
+<div class="note g"><p><strong>Use concurrent loops when:</strong> You have 20+ devices and each operation involves waiting (SSH response, API call, ping). Every device waits for the network — threading lets Python work on many at once while each waits.</p></div>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Lab</div><p>Pinging all EVE-NG devices concurrently after boot: 10 devices × 1 second timeout = 1 second total with threading vs 10 seconds sequentially. Big difference when you have more devices.</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practical">
+<h3>Concurrent Netmiko Show Collection</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">fast_collector.py</span><span class="etag">EVE-NG</span></div><pre><span class="kw">from</span> concurrent.futures <span class="kw">import</span> ThreadPoolExecutor, as_completed
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+<span class="kw">import</span> yaml, json
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+<span class="kw">def</span> <span class="fn">get_data</span>(device):
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>], <span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:device[<span class="st">"credentials"</span>][<span class="st">"password"</span>], <span class="st">"timeout"</span>:<span class="nm">10</span>}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            <span class="kw">return</span> {<span class="st">"name"</span>:name, <span class="st">"status"</span>:<span class="st">"ok"</span>, <span class="st">"data"</span>:net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)[:<span class="nm">200</span>]}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"name"</span>:name, <span class="st">"status"</span>:<span class="st">"error"</span>, <span class="st">"data"</span>:<span class="fn">str</span>(e)}
+
+results = []
+<span class="kw">with</span> <span class="fn">ThreadPoolExecutor</span>(max_workers=<span class="nm">10</span>) <span class="kw">as</span> pool:
+    futures = [pool.<span class="fn">submit</span>(<span class="fn">get_data</span>, d) <span class="kw">for</span> d <span class="kw">in</span> devices]
+    <span class="kw">for</span> future <span class="kw">in</span> <span class="fn">as_completed</span>(futures):
+        r = future.<span class="fn">result</span>()
+        results.<span class="fn">append</span>(r)
+        icon = <span class="st">"✓"</span> <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"ok"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+        <span class="fn">print</span>(f<span class="st">"  {icon} {r['name']}"</span>)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"fast_report.json"</span>,<span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(results,f,indent=<span class="nm">2</span>)
+<span class="fn">print</span>(<span class="st">"Done."</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m11-flow">
+<h3>Sequential vs Concurrent</h3>
+<div class="fb">
+  <p style="color:var(--mut);font-size:12px;margin-bottom:6px">Sequential — 4 devices × 3s = 12 seconds</p>
+  <div class="fn2" style="font-family:monospace;font-size:11px;width:100%">R1▓▓▓ → R2▓▓▓ → SW-01▓▓▓ → SW-02▓▓▓</div>
+</div>
+<div class="fb">
+  <p style="color:var(--mut);font-size:12px;margin-bottom:6px">Concurrent — all at once = ~3 seconds</p>
+  <div class="fn2 g" style="font-family:monospace;font-size:11px;width:100%">R1▓▓▓<br>R2▓▓▓<br>SW-01▓▓▓<br>SW-02▓▓▓</div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m11-practice">
+<h3>Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Concurrent Ping + Timer</div><div class="pt">Compare speed</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Ping 5 IPs both sequentially and concurrently. Time both with <code>time.time()</code>. Print how much faster the concurrent version was.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>from concurrent.futures import ThreadPoolExecutor</code><br><code>import subprocess, time</code><br><br><code>ips = ["192.168.100.1","192.168.100.2","192.168.100.10","192.168.100.11","192.168.100.20"]</code><br><br><code>def ping(ip):</code><br>&nbsp;&nbsp;<code>r = subprocess.run(["ping","-c","1","-W","2",ip],capture_output=True)</code><br>&nbsp;&nbsp;<code>return {"ip":ip,"up":r.returncode==0}</code><br><br><code>t1=time.time()</code><br><code>for ip in ips: ping(ip)</code><br><code>seq=time.time()-t1</code><br><br><code>t1=time.time()</code><br><code>with ThreadPoolExecutor(10) as pool: list(pool.map(ping,ips))</code><br><code>con=time.time()-t1</code><br><br><code>print(f"Sequential: {seq:.2f}s | Concurrent: {con:.2f}s | Speedup: {seq/con:.1f}x")</code></p></div>
+  </div>
+</div>
+</script>
+
+<!-- ═══ TOPIC 12 ═══ -->
+<script type="text/x-tmpl" id="m12-theory">
+<h3>Capstone — Full EVE-NG Lab Automation Script</h3>
+<p>This is where all 11 topics come together. A complete script you can run against your EVE-NG lab right now. It combines: YAML inventory file, for loop, while loop, continue, enumerate, error handling, concurrent execution, and saving reports.</p>
+<div class="g2">
+  <div class="card e"><h5>Phase 1 — Lab Ready</h5><p>while loop: ping each device every 5 seconds until all are reachable or timeout hits.</p></div>
+  <div class="card"><h5>Phase 2 — Collect</h5><p>for loop (concurrent): SSH to all ready devices, run show commands, save output.</p></div>
+  <div class="card g"><h5>Phase 3 — Analyse</h5><p>for loop: check collected data, flag down interfaces, count issues.</p></div>
+  <div class="card y"><h5>Phase 4 — Report</h5><p>Save JSON + YAML reports. Print clean summary table.</p></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m12-industry">
+<h3>This is Real Network Automation</h3>
+<p>The capstone script below is what network automation engineers actually write and run. The only difference between lab and production is the device IPs in the YAML file.</p>
+<div class="eve-box"><div class="eve-hdr">🖥️ EVE-NG Pre-flight Checklist</div><p>For the capstone script to work:<br>
+1. EVE-NG topology started, all nodes powered on<br>
+2. Each router: <code>interface Gi0/0</code> → IP configured → <code>no shutdown</code><br>
+3. SSH enabled: <code>ip ssh version 2</code>, <code>crypto key generate rsa modulus 2048</code><br>
+4. VTY: <code>line vty 0 4</code> → <code>login local</code> → <code>transport input ssh</code><br>
+5. Local user: <code>username admin privilege 15 secret admin123</code><br>
+6. <code>eve_inventory.yaml</code> updated with your actual IPs and credentials</p></div>
+</script>
+
+<script type="text/x-tmpl" id="m12-practical">
+<h3>Full Capstone Script</h3>
+<div class="cb"><div class="ch"><span class="lg py">Python</span><span class="fn">eve_lab_automation.py — Full Capstone</span><span class="etag">EVE-NG</span></div><pre><span class="kw">from</span> concurrent.futures <span class="kw">import</span> ThreadPoolExecutor, as_completed
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+<span class="kw">import</span> yaml, json, subprocess, time
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="cm"># ═══ Phase 1: Wait for lab to be ready ═══</span>
+<span class="kw">def</span> <span class="fn">wait_for_lab</span>(devices, timeout=<span class="nm">120</span>):
+    <span class="fn">print</span>(<span class="st">"Phase 1: Waiting for devices..."</span>)
+    ready = <span class="fn">set</span>(); start = time.<span class="fn">time</span>()
+    <span class="kw">while</span> <span class="fn">len</span>(ready) &lt; <span class="fn">len</span>(devices) <span class="kw">and</span> time.<span class="fn">time</span>()-start &lt; timeout:
+        <span class="kw">for</span> d <span class="kw">in</span> devices:
+            name = d[<span class="st">"hostname"</span>]
+            <span class="kw">if</span> name <span class="kw">not in</span> ready:
+                r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,d[<span class="st">"ip"</span>]],capture_output=<span class="kw">True</span>)
+                <span class="kw">if</span> r.returncode == <span class="nm">0</span>:
+                    ready.<span class="fn">add</span>(name)
+                    <span class="fn">print</span>(f<span class="st">"  ✓ {name} UP ({len(ready)}/{len(devices)})"</span>)
+        <span class="kw">if</span> <span class="fn">len</span>(ready) &lt; <span class="fn">len</span>(devices): time.<span class="fn">sleep</span>(<span class="nm">5</span>)
+    <span class="kw">return</span> [d <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> d[<span class="st">"hostname"</span>] <span class="kw">in</span> ready]
+
+<span class="cm"># ═══ Phase 2: Collect data ═══</span>
+<span class="kw">def</span> <span class="fn">collect</span>(device):
+    name = device[<span class="st">"hostname"</span>]
+    <span class="kw">try</span>:
+        conn = {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>], <span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+                <span class="st">"username"</span>:device[<span class="st">"credentials"</span>][<span class="st">"username"</span>],
+                <span class="st">"password"</span>:device[<span class="st">"credentials"</span>][<span class="st">"password"</span>], <span class="st">"timeout"</span>:<span class="nm">10</span>}
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+            <span class="kw">return</span> {<span class="st">"hostname"</span>:name, <span class="st">"status"</span>:<span class="st">"ok"</span>,
+                    <span class="st">"version"</span> :net.<span class="fn">send_command</span>(<span class="st">"show version"</span>),
+                    <span class="st">"int_brief"</span>:net.<span class="fn">send_command</span>(<span class="st">"show ip interface brief"</span>)}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"hostname"</span>:name, <span class="st">"status"</span>:<span class="st">"error"</span>, <span class="st">"error"</span>:<span class="fn">str</span>(e)}
+
+<span class="cm"># ═══ Main ═══</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eve_inventory.yaml"</span>) <span class="kw">as</span> f:
+    lab = yaml.<span class="fn">safe_load</span>(f)
+devices = lab[<span class="st">"devices"</span>]
+
+<span class="fn">print</span>(f<span class="st">"=== EVE-NG Automation: {lab['lab_name']} ==="</span>)
+
+ready_devs = <span class="fn">wait_for_lab</span>(devices)
+
+<span class="fn">print</span>(f<span class="st">"\nPhase 2: Collecting from {len(ready_devs)} devices..."</span>)
+collected = []
+<span class="kw">with</span> <span class="fn">ThreadPoolExecutor</span>(max_workers=<span class="nm">10</span>) <span class="kw">as</span> pool:
+    futures = [pool.<span class="fn">submit</span>(<span class="fn">collect</span>, d) <span class="kw">for</span> d <span class="kw">in</span> ready_devs]
+    <span class="kw">for</span> num, f <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="fn">as_completed</span>(futures), start=<span class="nm">1</span>):
+        r = f.<span class="fn">result</span>(); collected.<span class="fn">append</span>(r)
+        icon = <span class="st">"✓"</span> <span class="kw">if</span> r[<span class="st">"status"</span>]==<span class="st">"ok"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+        <span class="fn">print</span>(f<span class="st">"  [{num}/{len(ready_devs)}] {icon} {r['hostname']}"</span>)
+
+ok  = [r <span class="kw">for</span> r <span class="kw">in</span> collected <span class="kw">if</span> r[<span class="st">"status"</span>]==<span class="st">"ok"</span>]
+err = [r <span class="kw">for</span> r <span class="kw">in</span> collected <span class="kw">if</span> r[<span class="st">"status"</span>]!=<span class="st">"ok"</span>]
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"lab_report.json"</span>,<span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>({<span class="st">"lab"</span>:lab[<span class="st">"lab_name"</span>],<span class="st">"time"</span>:datetime.<span class="fn">now</span>().<span class="fn">isoformat</span>(),<span class="st">"results"</span>:collected},f,indent=<span class="nm">2</span>)
+
+<span class="fn">print</span>(f<span class="st">"\n=== SUMMARY ==="</span>)
+<span class="fn">print</span>(f<span class="st">"Total:     {len(devices)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Ready:     {len(ready_devs)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Collected: {len(ok)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Errors:    {len(err)}"</span>)
+<span class="kw">for</span> e <span class="kw">in</span> err: <span class="fn">print</span>(f<span class="st">"  ✗ {e['hostname']}: {e.get('error','?')}"</span>)
+<span class="fn">print</span>(<span class="st">"Saved: lab_report.json"</span>)</pre></div>
+</script>
+
+<script type="text/x-tmpl" id="m12-flow">
+<h3>Capstone Architecture</h3>
+<div class="fb">
+  <div class="fr"><div class="fn2 e">YAML file → load devices (Topic 8)</div></div>
+  <div class="fr"><div class="fn2 y">while loop → wait for ping (Topic 3)</div></div>
+  <div class="fr"><div class="fn2 p">for loop (concurrent) → netmiko SSH (Topics 9, 11)</div></div>
+  <div class="fr"><div class="fn2 r">try/except per device → error handling (Topic 10)</div></div>
+  <div class="fr"><div class="fn2 b">enumerate for progress (Topic 5)</div></div>
+  <div class="fr"><div class="fn2 g">json.dump → report (Topic 8)</div></div>
+  <div style="height:6px"></div>
+  <div class="fr"><div class="fn2" style="width:100%;text-align:center">Every topic from this module used in one real script</div></div>
+</div>
+</script>
+
+<script type="text/x-tmpl" id="m12-practice">
+<h3>Capstone Practice &amp; Solutions</h3>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone 1 — Simulated Version</div><div class="pt">No lab needed</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Build the capstone using simulated data — fake ping results, fake show output. This tests all the loop logic without needing EVE-NG running.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><code>import random,time,json</code><br><code>from datetime import datetime</code><br><br><code>devices=[{"hostname":"R1","ip":"10.0.0.1"},{"hostname":"R2","ip":"10.0.0.2"},{"hostname":"SW-01","ip":"10.0.0.10"}]</code><br><br><code>def sim_ping(ip): return random.random() &gt; 0.2</code><br><br><code>print("Phase 1: Waiting...")</code><br><code>ready=set(); tick=0</code><br><code>while len(ready)&lt;len(devices) and tick&lt;10:</code><br>&nbsp;&nbsp;<code>for d in devices:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if d["hostname"] not in ready and sim_ping(d["ip"]):</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>ready.add(d["hostname"])</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>print(f"  ✓ {d['hostname']} UP")</code><br>&nbsp;&nbsp;<code>tick+=1; time.sleep(0.2)</code><br><br><code>print("\nPhase 2: Collecting...")</code><br><code>results=[]</code><br><code>for i,d in enumerate([x for x in devices if x["hostname"] in ready],1):</code><br>&nbsp;&nbsp;<code>r={"hostname":d["hostname"],"status":"ok","data":f"IOS on {d['hostname']}"}</code><br>&nbsp;&nbsp;<code>results.append(r)</code><br>&nbsp;&nbsp;<code>print(f"  [{i}] ✓ {d['hostname']}")</code><br><br><code>with open("sim_report.json","w") as f: json.dump(results,f,indent=2)</code><br><code>print(f"\nDone: {len(results)} collected. Saved sim_report.json")</code></p></div>
+  </div>
+</div>
+<div class="pi">
+  <div class="ph" onclick="tP(this)"><div><div class="pn">Capstone 2 — Run on Real EVE-NG Lab</div><div class="pt">Full lab run</div></div><span class="chv">▼</span></div>
+  <div class="pb" style="display:none"><p>Start your EVE-NG topology, configure SSH on all devices, update eve_inventory.yaml, and run the full capstone script. The output should show all 4 phases completing and a JSON report saved.</p>
+    <button class="stb" onclick="tS(this)">▶ Show Solution</button>
+    <div class="sb2"><p><strong>Expected output:</strong><br><code>=== EVE-NG Automation: My Lab ===</code><br><code>Phase 1: Waiting for devices...</code><br><code>  ✓ R1 UP (1/3)</code><br><code>  ✓ R2 UP (2/3)</code><br><code>  ✓ SW-01 UP (3/3)</code><br><code>Phase 2: Collecting from 3 devices...</code><br><code>  [1] ✓ R1</code><br><code>  [2] ✓ R2</code><br><code>  [3] ✓ SW-01</code><br><code>=== SUMMARY ===</code><br><code>Total: 3 | Ready: 3 | Collected: 3 | Errors: 0</code><br><code>Saved: lab_report.json</code><br><br>If a device fails: check SSH is enabled, credentials match inventory YAML, and the management IP is reachable from your automation host.</p></div>
+  </div>
+</div>
+</script>
+
+<script>
+var M=[
+  {id:1,  title:"What is a Loop? Why It Matters",             level:"basic"},
+  {id:2,  title:"for Loop — Every Variation",                 level:"basic"},
+  {id:3,  title:"while Loop — Until It Changes",              level:"basic"},
+  {id:4,  title:"break, continue, pass",                      level:"basic"},
+  {id:5,  title:"enumerate() and zip()",                      level:"basic"},
+  {id:6,  title:"Nested Loops — Devices × VLANs",             level:"intermediate"},
+  {id:7,  title:"List Comprehensions",                        level:"intermediate"},
+  {id:8,  title:"Looping Over Files — YAML / JSON / CSV",     level:"intermediate"},
+  {id:9,  title:"Netmiko + Loops — SSH to Many Devices",      level:"intermediate"},
+  {id:10, title:"Error Handling Inside Loops",                level:"intermediate"},
+  {id:11, title:"Concurrent Loops — Run All at Once",         level:"advanced"},
+  {id:12, title:"Capstone — Full EVE-NG Lab Script",          level:"advanced"}
+];
+
+var cur=0;
+var TABS=["theory","industry","practical","flow","practice"];
+
+function getSection(id,tab){
+  var el=document.getElementById("m"+id+"-"+tab);
+  return el?el.textContent:"<p style='color:var(--mut)'>Loading...</p>";
+}
+
+function renderSidebar(){
+  var html="";
+  for(var i=0;i<M.length;i++){
+    html+="<div class='ti"+(i===cur?" active":"")+"' onclick='selectTopic("+i+")'>"
+         +"<span class='tn'>"+String(M[i].id).padStart(2,"0")+"</span>"
+         +"<span class='tt'>"+M[i].title+"</span>"
+         +"<span class='lbg lb-"+M[i].level+"'>"+M[i].level+"</span>"
+         +"</div>";
+  }
+  document.getElementById("tlist").innerHTML=html;
+}
+
+function renderContent(){
+  var m=M[cur];
+  document.getElementById("ttl").textContent=m.title;
+  var lb=document.getElementById("tlvl");
+  lb.textContent=m.level;lb.className="lbg lb-"+m.level;lb.style.display="inline-block";
+  for(var i=0;i<TABS.length;i++)
+    document.getElementById(TABS[i]).innerHTML=getSection(m.id,TABS[i]);
+  document.getElementById("sft").textContent="Topic "+m.id+" of "+M.length+"  ·  "+m.level;
+}
+
+function selectTopic(i){
+  cur=i;renderSidebar();renderContent();switchTab("theory");
+  document.getElementById("ct").scrollTop=0;closeSidebar();
+}
+
+function switchTab(tab){
+  document.querySelectorAll(".sec").forEach(function(s){s.classList.remove("active");});
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+  document.getElementById(tab).classList.add("active");
+  var idx=TABS.indexOf(tab);
+  if(idx>=0)document.querySelectorAll(".tab")[idx].classList.add("active");
+  document.getElementById("ct").scrollTop=0;
+}
+
+document.querySelectorAll(".tab").forEach(function(el){
+  el.addEventListener("click",function(){switchTab(el.getAttribute("data-tab"));});
+});
+
+function tP(header){
+  var body=header.nextElementSibling;
+  var chev=header.querySelector(".chv");
+  var open=body.style.display==="block";
+  body.style.display=open?"none":"block";
+  if(chev)chev.classList.toggle("op",!open);
+}
+
+function tS(btn){
+  var box=btn.nextElementSibling;
+  var open=box.classList.contains("open");
+  box.classList.toggle("open",!open);
+  btn.textContent=open?"▶ Show Solution":"▼ Hide Solution";
+}
+
+function openSidebar(){document.getElementById("sb").classList.add("open");document.getElementById("ovl").classList.add("open");}
+function closeSidebar(){document.getElementById("sb").classList.remove("open");document.getElementById("ovl").classList.remove("open");}
+document.getElementById("hbg").addEventListener("click",function(){
+  document.getElementById("sb").classList.contains("open")?closeSidebar():openSidebar();
+});
+document.getElementById("ovl").addEventListener("click",closeSidebar);
+
+renderSidebar();
+renderContent();
+</script>
+</body>
+</html>
