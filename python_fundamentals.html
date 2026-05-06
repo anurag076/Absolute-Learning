@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Python Fundamentals — Network Automation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--sb:#161b22;--sur:#1e2a3a;--bdr:#2d3f55;--txt:#cdd5e0;--mut:#7a8fa6;--brt:#e8f0fe;--blu:#58a6ff;--grn:#3fb950;--yel:#e3b341;--red:#f85149;--pur:#d2a8ff;--org:#ffa657;--teal:#2dd4bf;--pyc:#4584b6;--sw:280px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+.topnav{display:flex;align-items:center;gap:10px;padding:0 16px;background:var(--sb);border-bottom:1px solid var(--bdr);height:52px;flex-shrink:0}
+.hbg{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;border:none;background:none;flex-shrink:0}
+.hbg span{display:block;width:20px;height:2px;background:var(--txt);border-radius:2px}
+.logo{font-size:14px;font-weight:800;color:var(--pyc);white-space:nowrap}
+.sep{color:var(--bdr)}
+#ttl{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;white-space:nowrap;background:#0d2038;color:var(--pyc);border:1px solid var(--pyc);flex-shrink:0}
+.lbx{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;flex-shrink:0}
+.lb-basic{background:#0d3b2e;color:#3fb950}.lb-intermediate{background:#2d1f0e;color:#e3b341}.lb-advanced{background:#2d1225;color:#f778ba}
+.layout{display:flex;flex:1;overflow:hidden;position:relative}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--sb);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:transform .25s,box-shadow .25s;flex-shrink:0}
+.sb-scroll{flex:1;overflow-y:auto}
+.sb-head{padding:12px 14px;border-bottom:1px solid var(--bdr);background:var(--bg)}
+.sb-head strong{color:var(--pyc);font-size:12px}
+.sb-head p{font-size:11px;color:var(--mut);margin-top:3px}
+.ti{padding:8px 14px;cursor:pointer;border-left:3px solid transparent;display:flex;align-items:flex-start;gap:8px;transition:background .12s}
+.ti:hover{background:var(--sur)}.ti.active{background:var(--sur);border-left-color:var(--pyc)}
+.ti .tn{font-size:10px;color:var(--mut);min-width:22px;font-weight:700;padding-top:2px;flex-shrink:0}
+.ti .tt{font-size:12px;line-height:1.4;flex:1;color:var(--txt)}.ti.active .tt{color:var(--pyc)}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bdr);font-size:11px;color:var(--mut)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tabs{display:flex;padding:0 4px;background:var(--bg);border-bottom:1px solid var(--bdr);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 13px;cursor:pointer;font-size:12px;color:var(--mut);border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;font-weight:600;transition:color .15s}
+.tab:hover{color:var(--txt)}.tab.active{color:var(--pyc);border-bottom-color:var(--pyc)}
+.content{flex:1;overflow-y:auto;padding:22px;scroll-behavior:smooth}
+.sec{display:none}.sec.active{display:block}
+h3{font-size:15px;font-weight:700;color:var(--brt);margin:24px 0 10px}
+h3:first-child{margin-top:0}
+h4{font-size:12px;font-weight:700;color:var(--pyc);margin:18px 0 7px;text-transform:uppercase;letter-spacing:.5px}
+p{line-height:1.78;color:var(--txt);margin-bottom:10px}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{line-height:1.95;color:var(--txt)}
+code{background:var(--sur);color:var(--org);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+strong{color:var(--brt);font-weight:600}
+.note{background:var(--sb);border-left:3px solid var(--pyc);padding:11px 14px;border-radius:0 6px 6px 0;margin:12px 0}
+.note.g{border-left-color:var(--grn)}.note.y{border-left-color:var(--yel)}.note.r{border-left-color:var(--red)}.note.t{border-left-color:var(--teal)}
+.note p{margin:0;font-size:13px;line-height:1.7}
+.cb{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:12px 0;overflow:hidden}
+.ch{background:var(--sur);padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);gap:8px}
+.ch .lg{font-size:11px;font-weight:700;font-family:monospace;color:var(--pyc)}
+.ch .fn{font-size:10px;color:var(--mut)}
+pre{padding:14px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;line-height:1.9;color:var(--brt)}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.cm{color:#5e7a94;font-style:italic}
+.nm{color:#79c0ff}.vr{color:#ffa657}.bi{color:var(--teal)}
+.tbl{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+.tbl th{background:var(--sur);color:var(--mut);font-weight:700;text-align:left;padding:8px 11px;border:1px solid var(--bdr);font-size:10.5px;text-transform:uppercase;letter-spacing:.4px}
+.tbl td{padding:8px 11px;border:1px solid var(--bdr);vertical-align:top;line-height:1.65}
+.tbl tr:nth-child(even) td{background:#0b1520}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.card{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;padding:13px 15px}
+.card h5{font-size:12px;font-weight:700;margin-bottom:7px;color:var(--pyc)}
+.card.g h5{color:var(--grn)}.card.y h5{color:var(--yel)}.card.r h5{color:var(--red)}.card.t h5{color:var(--teal)}
+.card p{font-size:12.5px;margin:0;line-height:1.65}
+.pi{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.ph{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.ph:hover{background:var(--sur)}
+.pn{color:var(--pyc);font-weight:700;font-size:12.5px}
+.pt{font-size:10px;color:var(--mut);margin-top:2px}
+.pb{padding:0 14px 14px;border-top:1px solid var(--bdr)}
+.pb>p{margin:8px 0 4px;font-size:13px;line-height:1.7}
+.chv{font-size:10px;color:var(--mut);transition:transform .2s}
+.chv.op{transform:rotate(180deg)}
+.stb{background:none;border:1px solid var(--bdr);color:var(--mut);padding:5px 12px;border-radius:5px;cursor:pointer;font-size:11px;margin-top:10px;display:inline-block;transition:all .15s}
+.stb:hover{border-color:var(--grn);color:var(--grn)}
+.sb2{display:none;margin-top:10px;background:var(--bg);border:1px solid var(--grn);border-radius:6px;padding:12px}
+.sb2.open{display:block}
+.sb2>p{margin:0;font-size:12.5px;color:var(--txt);line-height:1.8}
+.qa{background:var(--sb);border:1px solid var(--bdr);border-radius:8px;margin:10px 0;overflow:hidden}
+.qa-hdr{padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;user-select:none}
+.qa-hdr:hover{background:var(--sur)}
+.qbadge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.qb-q{background:#0c2d48;color:var(--blu);border:1px solid var(--blu)}
+.qb-s{background:#1a0c3d;color:var(--pur);border:1px solid var(--pur)}
+.qa-text{font-size:13px;color:var(--brt);flex:1;line-height:1.6}
+.qa-chv{font-size:10px;color:var(--mut);transition:transform .2s;flex-shrink:0;margin-top:3px}
+.qa-chv.op{transform:rotate(180deg)}
+.qa-ans{padding:0 14px 14px;border-top:1px solid var(--bdr);display:none}
+.qa-ans.open{display:block}
+.qa-ans p,.qa-ans ul{margin-top:8px;font-size:13px;line-height:1.75}
+.qa-ans ul li{line-height:1.85}
+.sbox{background:var(--sur);border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;line-height:1.8;margin-top:8px;overflow-x:auto}
+@media(max-width:768px){
+  .hbg{display:flex}#ttl{display:none}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:10;transform:translateX(-100%);width:min(var(--sw),90vw);min-width:0}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.8)}
+  .overlay.open{display:block}
+  .g2,.g3{grid-template-columns:1fr}.content{padding:14px}
+  .tbl{font-size:11px}.tbl th,.tbl td{padding:5px 7px}
+  pre{font-size:11px;padding:12px}.tab{padding:9px 10px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <button class="hbg" id="hbg"><span></span><span></span><span></span></button>
+  <span class="logo">🐍 Python Fundamentals</span>
+  <span class="sep">·</span>
+  <span id="ttl">Select a topic</span>
+  <span class="badge">Network Automation Batch</span>
+  <span class="lbx" id="tlvl" style="display:none"></span>
+</div>
+<div class="layout">
+  <div class="overlay" id="ovl"></div>
+  <div class="sidebar" id="sb">
+    <div class="sb-scroll">
+      <div class="sb-head"><strong>Python for Network Automation</strong><p>Fundamentals · 12 Topics · 5 Tabs each</p></div>
+      <div id="tlist"></div>
+    </div>
+    <div class="sb-foot" id="sft">Select a topic to begin</div>
+  </div>
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" data-tab="theory">📖 Theory</div>
+      <div class="tab" data-tab="industry">🏭 Industry Use</div>
+      <div class="tab" data-tab="practical">💻 Practical</div>
+      <div class="tab" data-tab="practice">📝 Practice</div>
+      <div class="tab" data-tab="interview">💼 Interview Q&amp;A</div>
+    </div>
+    <div class="content" id="ct">
+      <div id="theory"    class="sec active"></div>
+      <div id="industry"  class="sec"></div>
+      <div id="practical" class="sec"></div>
+      <div id="practice"  class="sec"></div>
+      <div id="interview" class="sec"></div>
+    </div>
+  </div>
+</div>
+<script type="text/x-tmpl" id="m1-theory">
+<h3>Variables and Data Types</h3>
+<p>Python uses dynamic typing — you assign a value and Python determines the type. Every piece of network data has a type: device names are strings, VLAN IDs are integers, CPU usage is a float, reachability is a boolean.</p>
+<h4>Core Data Types</h4>
+<table class="tbl"><thead><tr><th>Type</th><th>Example</th><th>Network Automation Use</th></tr></thead><tbody>
+<tr><td><code>int</code></td><td><code>vlan_id = 100</code></td><td>VLAN IDs, port numbers, AS numbers, retry counts</td></tr>
+<tr><td><code>float</code></td><td><code>cpu = 87.5</code></td><td>CPU %, latency ms, bandwidth utilisation</td></tr>
+<tr><td><code>str</code></td><td><code>hostname = "R1"</code></td><td>Device names, IPs, CLI commands, config text</td></tr>
+<tr><td><code>bool</code></td><td><code>is_up = True</code></td><td>Interface state, reachability, compliance result</td></tr>
+<tr><td><code>NoneType</code></td><td><code>result = None</code></td><td>Missing data, unset values, no-return functions</td></tr>
+</tbody></table>
+<h4>Variables, Naming and Type Conversion</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">naming conventions and conversion</span></div><pre><span class="cm"># snake_case for variables (PEP 8 standard)</span>
+<span class="vr">device_name</span>      = <span class="st">"SW-CORE-01"</span>
+<span class="vr">mgmt_ip</span>          = <span class="st">"192.168.100.1"</span>
+<span class="vr">ssh_port</span>         = <span class="nm">22</span>
+<span class="vr">cpu_percent</span>      = <span class="nm">45.7</span>
+<span class="vr">is_reachable</span>     = <span class="kw">True</span>
+<span class="vr">last_backup</span>      = <span class="kw">None</span>
+<span class="vr">DEFAULT_TIMEOUT</span>  = <span class="nm">10</span>     <span class="cm"># ALL_CAPS = constant by convention</span>
+
+<span class="cm"># Multiple assignment in one line</span>
+<span class="vr">host</span>, <span class="vr">user</span>, <span class="vr">pwd</span> = <span class="st">"10.1.1.1"</span>, <span class="st">"admin"</span>, <span class="st">"cisco"</span>
+
+<span class="cm"># Type conversion — essential for API data</span>
+<span class="vr">port_str</span> = <span class="fn">str</span>(<span class="nm">22</span>)           <span class="cm"># int  → "22"</span>
+<span class="vr">vlan_int</span> = <span class="fn">int</span>(<span class="st">"100"</span>)        <span class="cm"># str  → 100</span>
+<span class="vr">cpu_f</span>    = <span class="fn">float</span>(<span class="st">"87.5"</span>)    <span class="cm"># str  → 87.5</span>
+<span class="vr">alive</span>    = <span class="fn">bool</span>(<span class="nm">1</span>)            <span class="cm"># int  → True (0=False)</span>
+
+<span class="cm"># Check type at runtime</span>
+<span class="fn">print</span>(<span class="fn">type</span>(ssh_port))         <span class="cm"># &lt;class 'int'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(last_backup))      <span class="cm"># &lt;class 'NoneType'&gt;</span></pre></div>
+<div class="note y"><p><strong>Mutable vs Immutable:</strong> str, int, float, bool, tuple are immutable — cannot be changed in place. list, dict, set are mutable — can be modified. This matters when passing data to functions.</p></div>
+</script>
+<script type="text/x-tmpl" id="m1-industry">
+<h3>Data Types in Real Network Automation</h3>
+<p>The most common bug in automation scripts is a type mismatch — an API returns <code>"100"</code> (string) but your code treats it as <code>100</code> (integer). Always convert types at the boundary, right when data enters your script.</p>
+<div class="g2">
+  <div class="card"><h5>String data everywhere</h5><p>Hostnames, IPs, CLI commands, interface names, platform strings. Most API and SSH data arrives as strings — even numeric fields like port IDs often come as strings from REST APIs.</p></div>
+  <div class="card g"><h5>Convert at the boundary</h5><p>Convert types when reading from files, APIs, YAML, or user input — not buried in the middle of logic. One conversion at entry means zero type bugs downstream.</p></div>
+</div>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">common type bugs and fixes</span></div><pre><span class="cm"># BUG: API returns VLAN as string — arithmetic fails</span>
+<span class="vr">vlan_api</span> = <span class="st">"100"</span>                  <span class="cm"># looks like a number, it's a string</span>
+<span class="cm"># next_vlan = vlan_api + 1   →  TypeError: can only concatenate str!</span>
+<span class="vr">next_vlan</span> = <span class="fn">int</span>(vlan_api) + <span class="nm">1</span>    <span class="cm"># Fix: 101</span>
+
+<span class="cm"># BUG: comparing int to string — always False</span>
+<span class="vr">vlan_id</span> = <span class="nm">100</span>
+<span class="fn">print</span>(vlan_id == <span class="st">"100"</span>)           <span class="cm"># False — different types</span>
+<span class="fn">print</span>(vlan_id == <span class="fn">int</span>(<span class="st">"100"</span>))     <span class="cm"># True</span>
+
+<span class="cm"># BUG: bool from string</span>
+<span class="fn">print</span>(<span class="kw">True</span> == <span class="st">"True"</span>)             <span class="cm"># False!</span>
+<span class="vr">active</span> = <span class="st">"True"</span> == <span class="st">"True"</span>        <span class="cm"># Correct: bool True</span>
+
+<span class="cm"># ALWAYS use is None (not == None)</span>
+<span class="kw">if</span> result <span class="kw">is</span> <span class="kw">None</span>:                <span class="cm"># correct</span>
+    <span class="fn">print</span>(<span class="st">"No result from device"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m1-practical">
+<h3>Variables in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">device_profile.py</span></div><pre><span class="vr">hostname</span>         = <span class="st">"SW-CORE-01"</span>
+<span class="vr">mgmt_ip</span>          = <span class="st">"192.168.100.10"</span>
+<span class="vr">platform</span>         = <span class="st">"cisco_ios"</span>
+<span class="vr">ssh_port</span>         = <span class="nm">22</span>
+<span class="vr">timeout</span>          = <span class="nm">10</span>
+<span class="vr">cpu_utilisation</span>  = <span class="nm">45.7</span>
+<span class="vr">is_reachable</span>     = <span class="kw">True</span>
+<span class="vr">last_backup</span>      = <span class="kw">None</span>
+
+<span class="fn">print</span>(<span class="st">"="</span> * <span class="nm">40</span>)
+<span class="fn">print</span>(f<span class="st">"Device  : {hostname}"</span>)
+<span class="fn">print</span>(f<span class="st">"IP      : {mgmt_ip}:{ssh_port}"</span>)
+<span class="fn">print</span>(f<span class="st">"CPU     : {cpu_utilisation:.1f}%"</span>)
+<span class="fn">print</span>(f<span class="st">"Status  : {'UP' if is_reachable else 'DOWN'}"</span>)
+<span class="fn">print</span>(f<span class="st">"Backup  : {last_backup or 'Never'}"</span>)
+<span class="fn">print</span>(<span class="st">"="</span> * <span class="nm">40</span>)
+<span class="fn">print</span>(f<span class="st">"\nType of ssh_port     : {type(ssh_port).__name__}"</span>)
+<span class="fn">print</span>(f<span class="st">"Type of cpu         : {type(cpu_utilisation).__name__}"</span>)
+<span class="fn">print</span>(f<span class="st">"Type of is_reachable: {type(is_reachable).__name__}"</span>)
+<span class="fn">print</span>(f<span class="st">"Type of last_backup : {type(last_backup).__name__}"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m1-practice">
+<h3>Practice — Variables &amp; Data Types</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Device Profile Variables</div><div class="pt">Create typed variables and print a formatted report</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Create variables for a router: hostname (str), ip (str), vlan_count (int), uptime_hours (float), managed (bool), last_push = None. Print a formatted summary using f-strings.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">hostname</span>     = <span class="st">"R1-BRANCH"</span>
+<span class="vr">ip</span>           = <span class="st">"10.10.10.1"</span>
+<span class="vr">vlan_count</span>   = <span class="nm">25</span>
+<span class="vr">uptime_hours</span> = <span class="nm">1248.5</span>
+<span class="vr">managed</span>      = <span class="kw">True</span>
+<span class="vr">last_push</span>    = <span class="kw">None</span>
+
+<span class="fn">print</span>(f<span class="st">"Hostname  : {hostname}"</span>)
+<span class="fn">print</span>(f<span class="st">"IP        : {ip}"</span>)
+<span class="fn">print</span>(f<span class="st">"VLANs     : {vlan_count}"</span>)
+<span class="fn">print</span>(f<span class="st">"Uptime    : {uptime_hours:.1f} hrs"</span>)
+<span class="fn">print</span>(f<span class="st">"Managed   : {managed}"</span>)
+<span class="fn">print</span>(f<span class="st">"Last Push : {last_push or 'Never'}"</span>)</pre></div></div></div></div>
+
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Fix API Type Mismatches</div><div class="pt">Convert strings to correct types</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>API returns: <code>port="22"</code>, <code>vlan="100"</code>, <code>cpu="78.3"</code>, <code>active="True"</code>. Convert each to the correct Python type. Verify with type(). Check if cpu &gt; 75.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">port</span>   = <span class="fn">int</span>(<span class="st">"22"</span>)
+<span class="vr">vlan</span>   = <span class="fn">int</span>(<span class="st">"100"</span>)
+<span class="vr">cpu</span>    = <span class="fn">float</span>(<span class="st">"78.3"</span>)
+<span class="vr">active</span> = <span class="st">"True"</span> == <span class="st">"True"</span>   <span class="cm"># bool True</span>
+
+<span class="fn">print</span>(<span class="fn">type</span>(port),   port)    <span class="cm"># &lt;class 'int'&gt; 22</span>
+<span class="fn">print</span>(<span class="fn">type</span>(vlan),   vlan)    <span class="cm"># &lt;class 'int'&gt; 100</span>
+<span class="fn">print</span>(<span class="fn">type</span>(cpu),    cpu)     <span class="cm"># &lt;class 'float'&gt; 78.3</span>
+<span class="fn">print</span>(<span class="fn">type</span>(active), active)  <span class="cm"># &lt;class 'bool'&gt; True</span>
+<span class="kw">if</span> cpu > <span class="nm">75</span>:
+    <span class="fn">print</span>(<span class="st">"WARNING: CPU above 75%"</span>)</pre></div></div></div></div>
+
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Multiple Assignment</div><div class="pt">Unpack connection details in one line</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>In one line, assign hostname="FW-01", ip="10.0.0.254", role="firewall". Print: <code>FW-01 (firewall) — 10.0.0.254</code></p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">hostname</span>, <span class="vr">ip</span>, <span class="vr">role</span> = <span class="st">"FW-01"</span>, <span class="st">"10.0.0.254"</span>, <span class="st">"firewall"</span>
+<span class="fn">print</span>(f<span class="st">"{hostname} ({role}) — {ip}"</span>)
+<span class="cm"># FW-01 (firewall) — 10.0.0.254</span></pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m1-interview">
+<h3>Interview Questions — Variables &amp; Data Types</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is dynamic typing and what risks does it create in network automation?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Dynamic typing means Python determines types at runtime — you write <code>x = 5</code> without declaring <code>int x</code>. Faster to write, but type mismatches only appear at runtime, not at compile time.</p><p><strong>Risk:</strong> An API returning <code>"100"</code> instead of <code>100</code> won't fail until you try arithmetic — possibly after successfully processing 49 other devices. Always validate and convert types at boundaries (when reading from APIs, files, user input).</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">Why use <code>is None</code> instead of <code>== None</code>?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><code>is</code> checks identity — whether both variables point to the same object. <code>None</code> is a singleton in Python, so <code>is None</code> is the definitive check. A class can override <code>__eq__</code> to return <code>True</code> when compared to None, making <code>== None</code> unreliable. PEP 8 explicitly states: always use <code>is None</code> or <code>is not None</code>.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-s">SCENARIO</span><span class="qa-text">Your script reads VLAN IDs from YAML and gets a list of strings. <code>vlans[-1] + 1</code> throws TypeError. Fix it cleanly.</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Convert at the boundary — when you read the YAML — so the rest of your script always works with integers:</p><div class="sbox"><span style="color:#8b949e"># Convert entire list at load time</span>
+<span style="color:#ffa657">vlans</span> = [<span style="color:#d2a8ff">int</span>(v) <span style="color:#ff7b72">for</span> v <span style="color:#ff7b72">in</span> yaml_data[<span style="color:#a5d6ff">"vlans"</span>]]
+<span style="color:#ffa657">next_vlan</span> = vlans[-<span style="color:#79c0ff">1</span>] + <span style="color:#79c0ff">1</span>   <span style="color:#8b949e"># works correctly now</span></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m2-theory">
+<h3>Strings — The Backbone of CLI Automation</h3>
+<p>Almost everything from a network device is text — CLI output, API JSON, config files. Python's string toolkit makes parsing device output, building commands, and formatting reports straightforward.</p>
+<h4>Essential String Methods</h4>
+<table class="tbl"><thead><tr><th>Method</th><th>Example</th><th>Result</th><th>Network Use</th></tr></thead><tbody>
+<tr><td><code>.strip()</code></td><td><code>" R1 ".strip()</code></td><td><code>"R1"</code></td><td>Clean CLI output whitespace</td></tr>
+<tr><td><code>.split()</code></td><td><code>"10.1.1.1".split(".")</code></td><td><code>["10","1","1","1"]</code></td><td>Parse IP octets, CLI columns</td></tr>
+<tr><td><code>.splitlines()</code></td><td><code>output.splitlines()</code></td><td>list of lines</td><td>Parse multi-line CLI output</td></tr>
+<tr><td><code>.join()</code></td><td><code>",".join(["10","20"])</code></td><td><code>"10,20"</code></td><td>Build trunk VLAN strings</td></tr>
+<tr><td><code>.replace()</code></td><td><code>"Gi0/0".replace("Gi","GigE")</code></td><td><code>"GigE0/0"</code></td><td>Normalise interface names</td></tr>
+<tr><td><code>.upper()/.lower()</code></td><td><code>"sw-01".upper()</code></td><td><code>"SW-01"</code></td><td>Case-insensitive comparison</td></tr>
+<tr><td><code>.startswith()</code></td><td><code>"Gi0/0".startswith("Gi")</code></td><td><code>True</code></td><td>Filter interface types</td></tr>
+<tr><td><code>.endswith()</code></td><td><code>"backup.cfg".endswith(".cfg")</code></td><td><code>True</code></td><td>Filter file types</td></tr>
+<tr><td><code>.find()</code></td><td><code>output.find("down")</code></td><td>int or -1</td><td>Locate keyword in output</td></tr>
+<tr><td><code>.count()</code></td><td><code>output.count("!")</code></td><td>int</td><td>Count config sections</td></tr>
+</tbody></table>
+<h4>f-Strings — Modern Formatting</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">f-string features</span></div><pre><span class="vr">hostname</span> = <span class="st">"SW-01"</span>; <span class="vr">ip</span> = <span class="st">"10.1.1.10"</span>; <span class="vr">cpu</span> = <span class="nm">87.512</span>; <span class="vr">status</span> = <span class="st">"up"</span>
+
+<span class="fn">print</span>(f<span class="st">"{hostname} → {ip}"</span>)              <span class="cm"># basic substitution</span>
+<span class="fn">print</span>(f<span class="st">"{hostname:15} {ip:18} {cpu:.1f}%"</span>) <span class="cm"># width alignment</span>
+<span class="fn">print</span>(f<span class="st">"{'✓ UP' if status=='up' else '✗ DOWN'}"</span>) <span class="cm"># inline expression</span>
+
+<span class="cm"># Multiline config block</span>
+<span class="vr">cfg</span> = f<span class="st">"""interface Gi0/0
+ ip address {ip} 255.255.255.0
+ description {hostname}
+ no shutdown"""</span></pre></div>
+</script>
+<script type="text/x-tmpl" id="m2-industry">
+<h3>String Parsing in Network Automation</h3>
+<p>Parsing CLI output is the most common string task in network automation. Devices return walls of text — extract the specific values you need line by line.</p>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">parse show ip interface brief</span></div><pre><span class="vr">output</span> = <span class="st">"""Interface      IP-Address   OK? Method Status   Protocol
+GigabitEthernet0/0  10.1.1.1  YES NVRAM  up       up
+GigabitEthernet0/1  10.1.2.1  YES NVRAM  up       up
+GigabitEthernet0/2  unassigned YES NVRAM  down     down"""</span>
+
+<span class="vr">down_list</span> = []
+<span class="kw">for</span> line <span class="kw">in</span> output.<span class="fn">splitlines</span>()[<span class="nm">1</span>:]:  <span class="cm"># skip header row</span>
+    <span class="kw">if not</span> line.<span class="fn">strip</span>(): <span class="kw">continue</span>
+    <span class="vr">parts</span>  = line.<span class="fn">split</span>()             <span class="cm"># split on any whitespace</span>
+    <span class="vr">iface</span>  = parts[<span class="nm">0</span>]
+    <span class="vr">status</span> = parts[<span class="nm">4</span>]
+    <span class="vr">icon</span>   = <span class="st">"✓"</span> <span class="kw">if</span> status == <span class="st">"up"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(f<span class="st">"  {icon} {iface:30} [{status}]"</span>)
+    <span class="kw">if</span> status == <span class="st">"down"</span>:
+        down_list.<span class="fn">append</span>(iface)
+
+<span class="fn">print</span>(f<span class="st">"\n⚠ Down interfaces: {down_list}"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m2-practical">
+<h3>String Methods in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">string_toolkit.py</span></div><pre><span class="cm"># 1. Normalise interface names</span>
+<span class="kw">def</span> <span class="fn">short_int</span>(name):
+    <span class="kw">return</span> (name.<span class="fn">strip</span>()
+               .<span class="fn">replace</span>(<span class="st">"GigabitEthernet"</span>, <span class="st">"Gi"</span>)
+               .<span class="fn">replace</span>(<span class="st">"FastEthernet"</span>,    <span class="st">"Fa"</span>)
+               .<span class="fn">replace</span>(<span class="st">"TenGigabitEthernet"</span>, <span class="st">"Te"</span>))
+
+<span class="fn">print</span>(<span class="fn">short_int</span>(<span class="st">" GigabitEthernet0/1 "</span>))  <span class="cm"># Gi0/1</span>
+
+<span class="cm"># 2. Extract network from IP address</span>
+<span class="vr">ip</span>     = <span class="st">"192.168.10.5"</span>
+<span class="vr">octets</span> = ip.<span class="fn">split</span>(<span class="st">"."</span>)
+<span class="fn">print</span>(f<span class="st">"{'.'.join(octets[:3])}.0/24"</span>)  <span class="cm"># 192.168.10.0/24</span>
+
+<span class="cm"># 3. Build trunk VLAN command string</span>
+<span class="vr">vlans</span>    = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>]
+<span class="vr">vlan_str</span> = <span class="st">","</span>.<span class="fn">join</span>(<span class="fn">str</span>(v) <span class="kw">for</span> v <span class="kw">in</span> vlans)
+<span class="fn">print</span>(f<span class="st">"switchport trunk allowed vlan {vlan_str}"</span>)
+
+<span class="cm"># 4. Generate IOS interface config blocks</span>
+<span class="vr">ifaces</span> = [(<span class="st">"Gi0/0"</span>, <span class="st">"10.1.1.1"</span>), (<span class="st">"Gi0/1"</span>, <span class="st">"10.1.2.1"</span>)]
+<span class="kw">for</span> iface, ip <span class="kw">in</span> ifaces:
+    <span class="fn">print</span>(f<span class="st">"interface {iface}\n ip address {ip} 255.255.255.0\n no shutdown\n!"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m2-practice">
+<h3>Practice — Strings</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Parse CLI Line</div><div class="pt">split() and index access</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Given: <code>line = "GigabitEthernet0/0    10.1.1.1    YES NVRAM  up   up"</code>. Extract and print the interface name, IP address, and status using split().</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">line</span>  = <span class="st">"GigabitEthernet0/0    10.1.1.1    YES NVRAM  up   up"</span>
+<span class="vr">parts</span> = line.<span class="fn">split</span>()
+<span class="fn">print</span>(f<span class="st">"Interface : {parts[0]}"</span>)
+<span class="fn">print</span>(f<span class="st">"IP        : {parts[1]}"</span>)
+<span class="fn">print</span>(f<span class="st">"Status    : {parts[4]}"</span>)</pre></div></div></div></div>
+
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Build IOS Config Commands</div><div class="pt">f-strings and join()</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Given iface="GigabitEthernet0/1", ip="10.2.2.1", mask="255.255.255.0" — build a list of IOS commands and print them joined by newlines.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">iface</span> = <span class="st">"GigabitEthernet0/1"</span>
+<span class="vr">ip</span>    = <span class="st">"10.2.2.1"</span>
+<span class="vr">mask</span>  = <span class="st">"255.255.255.0"</span>
+<span class="vr">cmds</span>  = [f<span class="st">"interface {iface}"</span>, f<span class="st">" ip address {ip} {mask}"</span>, <span class="st">" no shutdown"</span>, <span class="st">"!"</span>]
+<span class="fn">print</span>(<span class="st">"\n"</span>.<span class="fn">join</span>(cmds))</pre></div></div></div></div>
+
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Hostname Normalisation</div><div class="pt">Method chaining: strip → upper → replace</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Normalise <code>" sw-core-01 "</code>: strip whitespace, convert to uppercase, replace hyphens with underscores. Print the result.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">clean</span> = <span class="st">" sw-core-01 "</span>.<span class="fn">strip</span>().<span class="fn">upper</span>().<span class="fn">replace</span>(<span class="st">"-"</span>, <span class="st">"_"</span>)
+<span class="fn">print</span>(clean)   <span class="cm"># SW_CORE_01</span></pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m2-interview">
+<h3>Interview Questions — Strings</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the difference between <code>split()</code> with no argument and <code>split(" ")</code>? Which should you use for CLI parsing?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><code>split()</code> splits on any whitespace (spaces, tabs, newlines) and discards empty strings — robust for CLI output with inconsistent spacing. <code>split(" ")</code> splits only on a single space and keeps empty strings between consecutive spaces, giving wrong index positions for CLI output like <code>"Gi0/0    10.1.1.1"</code>. Always use <code>split()</code> with no argument for CLI parsing.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-s">SCENARIO</span><span class="qa-text">Parse the IOS version from: "Cisco IOS Software, Version 15.6(3)M4, RELEASE SOFTWARE". Extract just "15.6(3)M4".</span><span class="qa-chv">▼</span></div><div class="qa-ans"><div class="sbox"><span style="color:#ffa657">line</span> = <span style="color:#a5d6ff">"Cisco IOS Software, Version 15.6(3)M4, RELEASE SOFTWARE"</span>
+<span style="color:#ffa657">version</span> = line.<span style="color:#d2a8ff">split</span>(<span style="color:#a5d6ff">"Version "</span>)[<span style="color:#79c0ff">1</span>].<span style="color:#d2a8ff">split</span>(<span style="color:#a5d6ff">","</span>)[<span style="color:#79c0ff">0</span>]
+<span style="color:#d2a8ff">print</span>(version)   <span style="color:#8b949e"># 15.6(3)M4</span></div><p style="margin-top:8px">For production, use Netmiko's TextFSM integration (<code>use_textfsm=True</code>) which handles all IOS version formats automatically across platforms.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m3-theory">
+<h3>Lists and Tuples — Ordered Collections</h3>
+<p>Lists store multiple values in order and can be changed. Tuples are immutable versions. Lists power every bulk operation — device inventories, command queues, API results, collected outputs.</p>
+<h4>List Operations</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">list operations</span></div><pre><span class="vr">devices</span> = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"SW-01"</span>, <span class="st">"SW-02"</span>]
+<span class="cm"># Access</span>
+<span class="fn">print</span>(devices[<span class="nm">0</span>])      <span class="cm"># "R1"  — first</span>
+<span class="fn">print</span>(devices[-<span class="nm">1</span>])     <span class="cm"># "SW-02" — last</span>
+<span class="fn">print</span>(devices[<span class="nm">1</span>:<span class="nm">3</span>])    <span class="cm"># ["R2","SW-01"] — slice</span>
+<span class="cm"># Modify</span>
+devices.<span class="fn">append</span>(<span class="st">"FW-01"</span>)       <span class="cm"># add to end</span>
+devices.<span class="fn">insert</span>(<span class="nm">0</span>, <span class="st">"CORE"</span>)    <span class="cm"># insert at index 0</span>
+devices.<span class="fn">remove</span>(<span class="st">"R2"</span>)         <span class="cm"># remove by value</span>
+devices.<span class="fn">pop</span>()                <span class="cm"># remove and return last</span>
+devices.<span class="fn">extend</span>([<span class="st">"R3"</span>,<span class="st">"R4"</span>]) <span class="cm"># merge — keeps list flat</span>
+<span class="cm"># Info</span>
+<span class="fn">print</span>(<span class="fn">len</span>(devices))           <span class="cm"># count</span>
+<span class="fn">print</span>(<span class="st">"R1"</span> <span class="kw">in</span> devices)       <span class="cm"># True/False</span>
+devices.<span class="fn">sort</span>()               <span class="cm"># sort in place</span>
+<span class="cm"># List comprehension</span>
+<span class="vr">routers</span> = [d <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> d.<span class="fn">startswith</span>(<span class="st">"R"</span>)]
+<span class="vr">upper</span>   = [d.<span class="fn">upper</span>() <span class="kw">for</span> d <span class="kw">in</span> devices]
+<span class="vr">cmds</span>    = [f<span class="st">"vlan {v}"</span> <span class="kw">for</span> v <span class="kw">in</span> [<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>]]</pre></div>
+<h4>Tuples — Immutable Fixed Records</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">tuples</span></div><pre><span class="vr">reserved_vlans</span>  = (<span class="nm">1</span>, <span class="nm">1002</span>, <span class="nm">1003</span>, <span class="nm">1004</span>, <span class="nm">1005</span>)
+<span class="vr">conn_details</span>    = (<span class="st">"10.1.1.1"</span>, <span class="nm">22</span>, <span class="st">"admin"</span>)
+<span class="cm"># Tuple unpacking — very clean</span>
+<span class="vr">ip</span>, <span class="vr">port</span>, <span class="vr">user</span> = conn_details
+<span class="fn">print</span>(f<span class="st">"ssh {user}@{ip}:{port}"</span>)
+<span class="cm"># Tuples can be dict keys (lists cannot)</span>
+<span class="vr">routes</span> = {(<span class="st">"10.1.0.0"</span>, <span class="nm">16</span>): <span class="st">"via R1"</span>}</pre></div>
+</script>
+<script type="text/x-tmpl" id="m3-industry">
+<h3>Lists in Real Network Automation</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">device scan and VLAN trunk builder</span></div><pre><span class="cm"># Track online / offline devices</span>
+<span class="vr">lab_devices</span> = [<span class="st">"192.168.100.1"</span>, <span class="st">"192.168.100.2"</span>, <span class="st">"192.168.100.10"</span>]
+<span class="vr">online</span>  = []
+<span class="vr">offline</span> = []
+<span class="kw">for</span> ip <span class="kw">in</span> lab_devices:
+    (online <span class="kw">if</span> <span class="fn">ping_ok</span>(ip) <span class="kw">else</span> offline).<span class="fn">append</span>(ip)
+<span class="fn">print</span>(f<span class="st">"Online: {len(online)}/{len(lab_devices)}"</span>)
+<span class="cm"># Build trunk VLAN string from list</span>
+<span class="vr">allowed_vlans</span> = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>]
+<span class="vr">trunk_cmd</span> = <span class="st">"switchport trunk allowed vlan "</span> + \
+    <span class="st">","</span>.<span class="fn">join</span>(<span class="fn">str</span>(v) <span class="kw">for</span> v <span class="kw">in</span> sorted(allowed_vlans))
+<span class="fn">print</span>(trunk_cmd)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m3-practical">
+<h3>Lists in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">vlan_manager.py</span></div><pre><span class="vr">allowed</span> = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>]
+<span class="kw">for</span> v <span class="kw">in</span> [<span class="nm">200</span>, <span class="nm">300</span>]:
+    <span class="kw">if</span> v <span class="kw">not in</span> allowed: allowed.<span class="fn">append</span>(v)
+<span class="kw">for</span> v <span class="kw">in</span> [<span class="nm">30</span>]:
+    <span class="kw">if</span> v <span class="kw">in</span> allowed: allowed.<span class="fn">remove</span>(v)
+allowed.<span class="fn">sort</span>()
+<span class="fn">print</span>(<span class="st">"VLANs:"</span>, allowed)
+<span class="fn">print</span>(<span class="st">"switchport trunk allowed vlan"</span>, <span class="st">","</span>.<span class="fn">join</span>(<span class="fn">str</span>(v) <span class="kw">for</span> v <span class="kw">in</span> allowed))
+<span class="cm"># Command queue pattern</span>
+<span class="vr">commands</span> = []
+<span class="kw">for</span> v <span class="kw">in</span> allowed:
+    commands.<span class="fn">append</span>(f<span class="st">"vlan {v}"</span>)
+    commands.<span class="fn">append</span>(f<span class="st">" name DATA_{v}"</span>)
+<span class="fn">print</span>(<span class="st">"\n"</span>.<span class="fn">join</span>(commands))</pre></div>
+</script>
+<script type="text/x-tmpl" id="m3-practice">
+<h3>Practice — Lists &amp; Tuples</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Device Inventory</div><div class="pt">append, remove, sort, len</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Start with <code>["R1","R2","SW-01","SW-02"]</code>. Add "FW-01", remove "R2", sort alphabetically, print count and final list.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">devices</span> = [<span class="st">"R1"</span>,<span class="st">"R2"</span>,<span class="st">"SW-01"</span>,<span class="st">"SW-02"</span>]
+devices.<span class="fn">append</span>(<span class="st">"FW-01"</span>)
+devices.<span class="fn">remove</span>(<span class="st">"R2"</span>)
+devices.<span class="fn">sort</span>()
+<span class="fn">print</span>(f<span class="st">"Count  : {len(devices)}"</span>)
+<span class="fn">print</span>(f<span class="st">"Devices: {devices}"</span>)
+<span class="cm"># ['FW-01', 'R1', 'SW-01', 'SW-02']</span></pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — List Comprehension</div><div class="pt">Filter routers into uppercase</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>From <code>["R1","R2","SW-01","SW-02","FW-01","R3"]</code> use a comprehension to get only routers (start with "R") in uppercase.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">devices</span> = [<span class="st">"R1"</span>,<span class="st">"R2"</span>,<span class="st">"SW-01"</span>,<span class="st">"SW-02"</span>,<span class="st">"FW-01"</span>,<span class="st">"R3"</span>]
+<span class="vr">routers</span> = [d.<span class="fn">upper</span>() <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> d.<span class="fn">startswith</span>(<span class="st">"R"</span>)]
+<span class="fn">print</span>(routers)  <span class="cm"># ['R1', 'R2', 'R3']</span></pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Tuple Unpacking</div><div class="pt">Unpack connection tuple</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Given <code>conn = ("192.168.1.1", 22, "admin", "cisco123")</code>, unpack to ip, port, user, pwd and print an SSH connection string.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">conn</span> = (<span class="st">"192.168.1.1"</span>, <span class="nm">22</span>, <span class="st">"admin"</span>, <span class="st">"cisco123"</span>)
+<span class="vr">ip</span>, <span class="vr">port</span>, <span class="vr">user</span>, <span class="vr">pwd</span> = conn
+<span class="fn">print</span>(f<span class="st">"ssh {user}@{ip} -p {port}"</span>)
+<span class="cm"># ssh admin@192.168.1.1 -p 22</span></pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m3-interview">
+<h3>Interview Questions — Lists &amp; Tuples</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the difference between <code>append()</code> and <code>extend()</code>?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><code>append(x)</code> adds x as a single element — if x is a list it becomes a nested list. <code>extend(iterable)</code> unpacks and adds each item individually, keeping the list flat. Use <code>extend()</code> to merge device lists. Use <code>append()</code> to add one device or one command.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">When would you choose a tuple over a list?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Use tuples for data that must not change: connection parameters <code>(host, port, user)</code>, reserved VLANs, dict keys (lists cannot be dict keys), or when returning multiple values from a function. Tuples communicate intent — "this data is fixed." For anything you'll add/remove items from, use a list.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m4-theory">
+<h3>Dictionaries and Sets</h3>
+<p>Dictionaries map keys to values — the most important structure in network automation. Every API response, YAML inventory, and Netmiko connection parameter is a dict. Sets hold unique values — perfect for VLAN deduplication.</p>
+<h4>Dictionary Operations</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">dict operations</span></div><pre><span class="vr">device</span> = {
+    <span class="st">"hostname"</span> : <span class="st">"R1"</span>,
+    <span class="st">"ip"</span>       : <span class="st">"192.168.1.1"</span>,
+    <span class="st">"platform"</span> : <span class="st">"cisco_ios"</span>,
+    <span class="st">"port"</span>     : <span class="nm">22</span>,
+    <span class="st">"reachable"</span>: <span class="kw">True</span>,
+}
+<span class="cm"># Access — always prefer .get() for safety</span>
+<span class="fn">print</span>(device[<span class="st">"hostname"</span>])          <span class="cm"># "R1" — KeyError if missing</span>
+<span class="fn">print</span>(device.<span class="fn">get</span>(<span class="st">"hostname"</span>))      <span class="cm"># "R1" — None if missing</span>
+<span class="fn">print</span>(device.<span class="fn">get</span>(<span class="st">"secret"</span>, <span class="st">""</span>))    <span class="cm"># ""  — default value</span>
+<span class="cm"># Modify</span>
+device[<span class="st">"timeout"</span>] = <span class="nm">30</span>            <span class="cm"># add / update</span>
+<span class="kw">del</span> device[<span class="st">"timeout"</span>]             <span class="cm"># delete key</span>
+<span class="kw">if</span> <span class="st">"ip"</span> <span class="kw">in</span> device: <span class="fn">print</span>(<span class="st">"IP set"</span>)
+<span class="cm"># Iterate all key-value pairs</span>
+<span class="kw">for</span> k, v <span class="kw">in</span> device.<span class="fn">items</span>():
+    <span class="fn">print</span>(f<span class="st">"  {k}: {v}"</span>)
+<span class="cm"># Dict comprehension — hostname:ip map</span>
+<span class="vr">ip_map</span> = {d[<span class="st">"hostname"</span>]:d[<span class="st">"ip"</span>] <span class="kw">for</span> d <span class="kw">in</span> inventory}</pre></div>
+<h4>Sets — Unique Values and Set Algebra</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">set operations for VLAN compliance</span></div><pre><span class="vr">sw01</span> = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>}
+<span class="vr">sw02</span> = {<span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">200</span>}
+<span class="fn">print</span>(sw01 | sw02)   <span class="cm"># union:        {10,20,30,100,200}</span>
+<span class="fn">print</span>(sw01 &amp; sw02)   <span class="cm"># intersection: {20,30} — on both</span>
+<span class="fn">print</span>(sw01 - sw02)   <span class="cm"># difference:   {10,100} — SW-01 only</span>
+<span class="cm"># Deduplicate a list</span>
+<span class="vr">raw</span>    = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">10</span>, <span class="nm">30</span>, <span class="nm">20</span>]
+<span class="vr">unique</span> = <span class="fn">sorted</span>(<span class="fn">set</span>(raw))  <span class="cm"># [10, 20, 30]</span></pre></div>
+</script>
+<script type="text/x-tmpl" id="m4-industry">
+<h3>Dictionaries in Real Network Automation</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Netmiko dict, safe nested access, report building</span></div><pre><span class="cm"># Netmiko connection dict — ** unpacks as kwargs</span>
+<span class="vr">conn</span> = {
+    <span class="st">"device_type"</span>: <span class="st">"cisco_ios"</span>,
+    <span class="st">"host"</span>       : <span class="st">"10.1.1.1"</span>,
+    <span class="st">"username"</span>   : <span class="st">"admin"</span>,
+    <span class="st">"password"</span>   : <span class="st">"cisco"</span>,
+    <span class="st">"timeout"</span>    : <span class="nm">10</span>,
+}
+<span class="cm"># ConnectHandler(**conn)</span>
+
+<span class="cm"># Safe nested access — chain .get() calls</span>
+<span class="vr">ip</span> = (response
+       .<span class="fn">get</span>(<span class="st">"data"</span>, {})
+       .<span class="fn">get</span>(<span class="st">"devices"</span>, [{}])[<span class="nm">0</span>]
+       .<span class="fn">get</span>(<span class="st">"mgmtIpAddress"</span>, <span class="st">"unknown"</span>))
+
+<span class="cm"># Build report dict during loop</span>
+<span class="vr">report</span> = {}
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    report[d[<span class="st">"hostname"</span>]] = {
+        <span class="st">"status"</span>  : <span class="st">"UP"</span> <span class="kw">if</span> <span class="fn">ping_ok</span>(d[<span class="st">"ip"</span>]) <span class="kw">else</span> <span class="st">"DOWN"</span>,
+        <span class="st">"platform"</span>: d[<span class="st">"platform"</span>],
+    }</pre></div>
+</script>
+<script type="text/x-tmpl" id="m4-practical">
+<h3>Dictionaries in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">inventory_report.py</span></div><pre><span class="vr">inventory</span> = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,   <span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>,  <span class="st">"type"</span>:<span class="st">"router"</span>, <span class="st">"up"</span>:<span class="kw">True</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,   <span class="st">"ip"</span>:<span class="st">"10.1.1.2"</span>,  <span class="st">"type"</span>:<span class="st">"router"</span>, <span class="st">"up"</span>:<span class="kw">False</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.10"</span>, <span class="st">"type"</span>:<span class="st">"switch"</span>, <span class="st">"up"</span>:<span class="kw">True</span>},
+]
+<span class="fn">print</span>(f<span class="st">"{'Hostname':12} {'IP':16} {'Type':8} Status"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span>*<span class="nm">50</span>)
+<span class="kw">for</span> d <span class="kw">in</span> inventory:
+    icon = <span class="st">"✓"</span> <span class="kw">if</span> d[<span class="st">"up"</span>] <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(f<span class="st">"{d['hostname']:12} {d['ip']:16} {d['type']:8} {icon}"</span>)
+<span class="vr">up_count</span> = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> d <span class="kw">in</span> inventory <span class="kw">if</span> d[<span class="st">"up"</span>])
+<span class="fn">print</span>(f<span class="st">"\n{up_count}/{len(inventory)} UP"</span>)
+<span class="vr">ip_map</span> = {d[<span class="st">"hostname"</span>]:d[<span class="st">"ip"</span>] <span class="kw">for</span> d <span class="kw">in</span> inventory}
+<span class="fn">print</span>(<span class="st">"R1 IP:"</span>, ip_map[<span class="st">"R1"</span>])</pre></div>
+</script>
+<script type="text/x-tmpl" id="m4-practice">
+<h3>Practice — Dictionaries &amp; Sets</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Safe Dict Access</div><div class="pt">get() with defaults</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Create a device dict (hostname, ip, platform). Safely access a missing key "secret" using <code>.get()</code> with default "not set". Check if "ip" exists before printing.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">device</span> = {<span class="st">"hostname"</span>:<span class="st">"SW-CORE"</span>, <span class="st">"ip"</span>:<span class="st">"10.0.0.1"</span>, <span class="st">"platform"</span>:<span class="st">"cisco_ios"</span>}
+<span class="fn">print</span>(device.<span class="fn">get</span>(<span class="st">"hostname"</span>))
+<span class="fn">print</span>(device.<span class="fn">get</span>(<span class="st">"secret"</span>, <span class="st">"not set"</span>))
+<span class="kw">if</span> <span class="st">"ip"</span> <span class="kw">in</span> device:
+    <span class="fn">print</span>(f<span class="st">"IP: {device['ip']}"</span>)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Dict Comprehension</div><div class="pt">Build hostname → ip mapping</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>From a list of device dicts with "hostname" and "ip" keys, build a dict comprehension mapping hostname to ip. Look up "SW-01"'s IP.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">devices</span> = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,   <span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.10"</span>},
+]
+<span class="vr">ip_map</span> = {d[<span class="st">"hostname"</span>]:d[<span class="st">"ip"</span>] <span class="kw">for</span> d <span class="kw">in</span> devices}
+<span class="fn">print</span>(ip_map[<span class="st">"SW-01"</span>])  <span class="cm"># 10.1.1.10</span></pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — VLAN Compliance with Sets</div><div class="pt">Set difference and intersection</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Required VLANs: <code>{10,20,30,100}</code>. Found on switch: <code>{10,20,99,100,200}</code>. Print missing VLANs and unauthorised VLANs.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">required</span>     = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>}
+<span class="vr">actual</span>       = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">99</span>, <span class="nm">100</span>, <span class="nm">200</span>}
+<span class="vr">missing</span>      = required - actual   <span class="cm"># {30}</span>
+<span class="vr">unauthorised</span> = actual - required   <span class="cm"># {99, 200}</span>
+<span class="fn">print</span>(<span class="st">"Missing:     "</span>, missing)
+<span class="fn">print</span>(<span class="st">"Unauthorised:"</span>, unauthorised)</pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m4-interview">
+<h3>Interview Questions — Dictionaries &amp; Sets</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">Why use <code>.get()</code> instead of direct bracket access for API responses?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Direct access <code>dict["key"]</code> raises <code>KeyError</code> if the key is missing — crashing your script. API responses frequently have optional fields depending on device model or software version. <code>.get("key", default)</code> returns the default safely. In production: use <code>.get()</code> for optional fields, and bracket access only where you know the key is always present and want to fail loudly if it isn't.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-s">SCENARIO</span><span class="qa-text">Find VLANs configured on one switch but not another for a compliance audit. How do you do this efficiently in Python?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Set difference — built exactly for this:</p><div class="sbox"><span style="color:#ffa657">sw01</span> = {<span style="color:#79c0ff">10</span>,<span style="color:#79c0ff">20</span>,<span style="color:#79c0ff">30</span>,<span style="color:#79c0ff">100</span>}
+<span style="color:#ffa657">required</span> = {<span style="color:#79c0ff">10</span>,<span style="color:#79c0ff">20</span>,<span style="color:#79c0ff">30</span>}
+<span style="color:#d2a8ff">print</span>(<span style="color:#a5d6ff">"Missing:"</span>, required - sw01)
+<span style="color:#d2a8ff">print</span>(<span style="color:#a5d6ff">"Extra:  "</span>, sw01 - required)</div><p style="margin-top:8px">Much cleaner and faster than nested for loops — O(n) vs O(n²).</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m5-theory">
+<h3>Conditional Statements — Decision Making</h3>
+<p>Conditionals let your script make decisions — check reachability before connecting, classify device status, trigger alerts when thresholds are crossed. Every automation script is full of conditionals.</p>
+<h4>if / elif / else</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">conditionals with network examples</span></div><pre><span class="vr">cpu</span> = <span class="nm">87.5</span>
+<span class="kw">if</span> cpu >= <span class="nm">90</span>:
+    <span class="fn">print</span>(<span class="st">"CRITICAL"</span>)
+<span class="kw">elif</span> cpu >= <span class="nm">75</span>:
+    <span class="fn">print</span>(<span class="st">"WARNING"</span>)
+<span class="kw">elif</span> cpu >= <span class="nm">50</span>:
+    <span class="fn">print</span>(<span class="st">"MODERATE"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"OK"</span>)           <span class="cm"># WARNING</span>
+
+<span class="cm"># Comparison operators: == != > < >= <= in not-in is is-not</span>
+<span class="cm"># Logical operators: and  or  not</span>
+
+<span class="cm"># Truthy/Falsy — Falsy: 0, "", [], {}, None, False</span>
+<span class="vr">failed</span> = []
+<span class="kw">if</span> failed:              <span class="cm"># empty list is Falsy — won't run</span>
+    <span class="fn">print</span>(<span class="st">"some failed"</span>)
+
+<span class="cm"># Ternary (one-line) conditional</span>
+<span class="vr">icon</span>    = <span class="st">"✓"</span> <span class="kw">if</span> status == <span class="st">"up"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+<span class="vr">timeout</span> = custom_t <span class="kw">if</span> custom_t <span class="kw">else</span> <span class="nm">10</span>  <span class="cm"># use default if None/0</span></pre></div>
+<h4>Compound Conditions</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">and / or / not / in</span></div><pre><span class="cm"># and — both must be True</span>
+<span class="kw">if</span> is_reachable <span class="kw">and</span> is_authenticated:
+    <span class="fn">configure_device</span>()
+<span class="cm"># or — at least one True</span>
+<span class="kw">if</span> status == <span class="st">"up"</span> <span class="kw">or</span> status == <span class="st">"active"</span>:
+    <span class="fn">print</span>(<span class="st">"interface running"</span>)
+<span class="cm"># not — negate</span>
+<span class="kw">if not</span> is_reachable:
+    <span class="fn">print</span>(<span class="st">"skipping offline device"</span>)
+<span class="cm"># in — membership test</span>
+<span class="kw">if</span> vlan <span class="kw">not in</span> allowed_vlans:
+    <span class="fn">print</span>(f<span class="st">"VLAN {vlan} not authorised"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m5-industry">
+<h3>Conditionals in Real Network Automation</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">device compliance checker</span></div><pre><span class="kw">def</span> <span class="fn">check_device</span>(device):
+    <span class="kw">if not</span> device.<span class="fn">get</span>(<span class="st">"reachable"</span>):
+        <span class="kw">return</span> <span class="st">"SKIP"</span>, <span class="st">"Unreachable"</span>
+    <span class="vr">cpu</span> = device.<span class="fn">get</span>(<span class="st">"cpu"</span>, <span class="nm">0</span>)
+    <span class="kw">if</span> cpu > <span class="nm">90</span>:
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, f<span class="st">"CPU critical: {cpu}%"</span>
+    <span class="kw">if not</span> device.<span class="fn">get</span>(<span class="st">"ntp_synced"</span>):
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="st">"NTP not synced"</span>
+    <span class="vr">ios</span> = device.<span class="fn">get</span>(<span class="st">"ios_version"</span>, <span class="st">""</span>)
+    <span class="kw">if</span> ios <span class="kw">and</span> <span class="st">"12."</span> <span class="kw">in</span> ios:
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="st">"EOL IOS version"</span>
+    <span class="kw">return</span> <span class="st">"PASS"</span>, <span class="st">"All checks OK"</span></pre></div>
+</script>
+<script type="text/x-tmpl" id="m5-practical">
+<h3>Conditionals in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">interface_audit.py</span></div><pre><span class="vr">interfaces</span> = [
+    {<span class="st">"name"</span>:<span class="st">"Gi0/0"</span>, <span class="st">"status"</span>:<span class="st">"up"</span>,   <span class="st">"errors"</span>:<span class="nm">0</span>},
+    {<span class="st">"name"</span>:<span class="st">"Gi0/1"</span>, <span class="st">"status"</span>:<span class="st">"down"</span>, <span class="st">"errors"</span>:<span class="nm">0</span>},
+    {<span class="st">"name"</span>:<span class="st">"Gi0/2"</span>, <span class="st">"status"</span>:<span class="st">"up"</span>,   <span class="st">"errors"</span>:<span class="nm">1500</span>},
+]
+<span class="kw">for</span> i <span class="kw">in</span> interfaces:
+    <span class="kw">if</span> i[<span class="st">"status"</span>] == <span class="st">"down"</span>:
+        <span class="fn">print</span>(f<span class="st">"[DOWN] {i['name']} — investigate"</span>)
+    <span class="kw">elif</span> i[<span class="st">"status"</span>] == <span class="st">"up"</span> <span class="kw">and</span> i[<span class="st">"errors"</span>] > <span class="nm">1000</span>:
+        <span class="fn">print</span>(f<span class="st">"[WARN] {i['name']} — {i['errors']} errors"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(f<span class="st">"[OK]   {i['name']}"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m5-practice">
+<h3>Practice — Conditionals</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — CPU Alert Function</div><div class="pt">if/elif/else with thresholds</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Write <code>cpu_alert(cpu)</code> that returns "CRITICAL" if cpu≥90, "WARNING" if ≥75, "MODERATE" if ≥50, else "OK". Test with 95, 80, 60, 30.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">def</span> <span class="fn">cpu_alert</span>(cpu):
+    <span class="kw">if</span>   cpu >= <span class="nm">90</span>: <span class="kw">return</span> <span class="st">"CRITICAL"</span>
+    <span class="kw">elif</span> cpu >= <span class="nm">75</span>: <span class="kw">return</span> <span class="st">"WARNING"</span>
+    <span class="kw">elif</span> cpu >= <span class="nm">50</span>: <span class="kw">return</span> <span class="st">"MODERATE"</span>
+    <span class="kw">else</span>:           <span class="kw">return</span> <span class="st">"OK"</span>
+
+<span class="kw">for</span> v <span class="kw">in</span> [<span class="nm">95</span>, <span class="nm">80</span>, <span class="nm">60</span>, <span class="nm">30</span>]:
+    <span class="fn">print</span>(f<span class="st">"CPU {v:3}% → {cpu_alert(v)}"</span>)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — VLAN Compliance Check</div><div class="pt">in / not in operators</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Given <code>allowed=[10,20,30,100]</code> and <code>found=[10,20,99,100,200]</code>, print which VLANs are unauthorised.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">allowed</span> = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">100</span>]
+<span class="vr">found</span>   = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">99</span>, <span class="nm">100</span>, <span class="nm">200</span>]
+<span class="kw">for</span> vlan <span class="kw">in</span> found:
+    <span class="kw">if</span> vlan <span class="kw">not in</span> allowed:
+        <span class="fn">print</span>(f<span class="st">"[UNAUTHORISED] VLAN {vlan}"</span>)
+<span class="cm"># VLAN 99, VLAN 200</span></pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Device Classifier</div><div class="pt">startswith with elif chain</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Write <code>classify(hostname)</code> that returns "router" if starts with R, "switch" if SW, "firewall" if FW, else "unknown". Test with several hostnames.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">def</span> <span class="fn">classify</span>(hostname):
+    h = hostname.<span class="fn">upper</span>()
+    <span class="kw">if</span>   h.<span class="fn">startswith</span>(<span class="st">"R"</span>):  <span class="kw">return</span> <span class="st">"router"</span>
+    <span class="kw">elif</span> h.<span class="fn">startswith</span>(<span class="st">"SW"</span>): <span class="kw">return</span> <span class="st">"switch"</span>
+    <span class="kw">elif</span> h.<span class="fn">startswith</span>(<span class="st">"FW"</span>): <span class="kw">return</span> <span class="st">"firewall"</span>
+    <span class="kw">else</span>:                     <span class="kw">return</span> <span class="st">"unknown"</span>
+
+<span class="kw">for</span> h <span class="kw">in</span> [<span class="st">"R1"</span>, <span class="st">"SW-CORE"</span>, <span class="st">"FW-01"</span>, <span class="st">"AP-01"</span>]:
+    <span class="fn">print</span>(f<span class="st">"{h:12} → {classify(h)}"</span>)</pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m5-interview">
+<h3>Interview Questions — Conditionals</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the difference between <code>==</code> and <code>is</code>? When should you use each?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><code>==</code> checks value equality. <code>is</code> checks identity — both variables point to the exact same object in memory. Always use <code>is None</code> / <code>is not None</code> for None checks (PEP 8 requirement). For all other comparisons use <code>==</code>. Never use <code>is</code> with strings or numbers — Python caches some values so it may accidentally work, but it's not guaranteed.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-s">SCENARIO</span><span class="qa-text">Your script checks <code>if device["status"] == "Up":</code> but never matches even though devices are up. What is the likely cause?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Case sensitivity. Different APIs and device platforms return status in different cases — <code>"up"</code>, <code>"UP"</code>, <code>"Up"</code>, <code>"active"</code>. Python string comparison is case-sensitive so <code>"up" == "Up"</code> is False.</p><p><strong>Fix:</strong> Normalise before comparing: <code>device["status"].lower() == "up"</code> — handles any capitalisation. This is one of the most common bugs in multi-vendor automation.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m6-theory">
+<h3>Loops — The Engine of Automation</h3>
+<p>Loops are why automation exists. Write an operation once and execute it across all 50 devices. Python has two loop types: <code>for</code> iterates over a known collection; <code>while</code> repeats while a condition is True.</p>
+<h4>for Loop — Every Pattern</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">for loop patterns</span></div><pre><span class="vr">devices</span> = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"SW-01"</span>]
+
+<span class="cm"># Basic — iterate list</span>
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    <span class="fn">print</span>(f<span class="st">"Connecting to {device}"</span>)
+
+<span class="cm"># enumerate — index + value (most useful)</span>
+<span class="kw">for</span> i, device <span class="kw">in</span> <span class="fn">enumerate</span>(devices, start=<span class="nm">1</span>):
+    <span class="fn">print</span>(f<span class="st">"[{i}/{len(devices)}] {device}"</span>)
+
+<span class="cm"># dict items</span>
+<span class="kw">for</span> k, v <span class="kw">in</span> device_info.<span class="fn">items</span>():
+    <span class="fn">print</span>(f<span class="st">"  {k}: {v}"</span>)
+
+<span class="cm"># range() — numeric range</span>
+<span class="kw">for</span> vlan <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">10</span>, <span class="nm">51</span>, <span class="nm">10</span>):  <span class="cm"># 10,20,30,40,50</span>
+    <span class="fn">print</span>(f<span class="st">"vlan {vlan}"</span>)
+
+<span class="cm"># zip() — two lists in parallel</span>
+<span class="kw">for</span> name, ip <span class="kw">in</span> <span class="fn">zip</span>([<span class="st">"R1"</span>,<span class="st">"R2"</span>], [<span class="st">"10.1.1.1"</span>,<span class="st">"10.1.1.2"</span>]):
+    <span class="fn">print</span>(f<span class="st">"{name} → {ip}"</span>)
+
+<span class="cm"># break and continue</span>
+<span class="kw">for</span> device <span class="kw">in</span> devices:
+    <span class="kw">if not</span> <span class="fn">is_reachable</span>(device):
+        <span class="kw">continue</span>          <span class="cm"># skip offline, move to next</span>
+    <span class="fn">configure</span>(device)</pre></div>
+<h4>while Loop — Retry and Polling</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">while loop: retry and poll patterns</span></div><pre><span class="kw">import</span> time
+
+<span class="cm"># Retry pattern</span>
+<span class="vr">attempts</span>  = <span class="nm">0</span>
+<span class="vr">connected</span> = <span class="kw">False</span>
+<span class="kw">while</span> attempts < <span class="nm">3</span> <span class="kw">and not</span> connected:
+    <span class="kw">try</span>:
+        <span class="fn">connect</span>(<span class="st">"10.1.1.1"</span>); connected = <span class="kw">True</span>
+    <span class="kw">except</span>:
+        attempts += <span class="nm">1</span>; time.<span class="fn">sleep</span>(<span class="nm">5</span>)
+
+<span class="cm"># Poll until device is up</span>
+<span class="kw">while not</span> <span class="fn">ping_ok</span>(<span class="st">"10.1.1.1"</span>):
+    <span class="fn">print</span>(<span class="st">"Waiting for device..."</span>)
+    time.<span class="fn">sleep</span>(<span class="nm">5</span>)
+<span class="fn">print</span>(<span class="st">"Device is UP!"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m6-industry">
+<h3>Loops in Real Network Automation</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">multi-device config push with error tracking</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="vr">devices</span>  = [<span class="st">"192.168.1.1"</span>, <span class="st">"192.168.1.2"</span>, <span class="st">"192.168.1.3"</span>]
+<span class="vr">commands</span> = [<span class="st">"ntp server 8.8.8.8"</span>, <span class="st">"logging buffered 10000"</span>]
+<span class="vr">success</span>, <span class="vr">failed</span> = [], []
+
+<span class="kw">for</span> num, ip <span class="kw">in</span> <span class="fn">enumerate</span>(devices, <span class="nm">1</span>):
+    <span class="fn">print</span>(f<span class="st">"[{num}/{len(devices)}] {ip}..."</span>, end=<span class="st">" "</span>)
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(device_type=<span class="st">"cisco_ios"</span>, host=ip,
+                            username=<span class="st">"admin"</span>, password=<span class="st">"cisco"</span>) <span class="kw">as</span> net:
+            net.<span class="fn">send_config_set</span>(commands)
+            net.<span class="fn">save_config</span>()
+        success.<span class="fn">append</span>(ip); <span class="fn">print</span>(<span class="st">"OK"</span>)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        failed.<span class="fn">append</span>(ip); <span class="fn">print</span>(f<span class="st">"FAILED: {e}"</span>)
+
+<span class="fn">print</span>(f<span class="st">"\nDone: {len(success)} OK | {len(failed)} failed"</span>)
+<span class="kw">if</span> failed: <span class="fn">print</span>(<span class="st">"Failed:"</span>, failed)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m6-practical">
+<h3>Loops in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">device_scanner.py</span></div><pre><span class="kw">import</span> subprocess
+
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip):
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip], capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="vr">devices</span> = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,   <span class="st">"ip"</span>:<span class="st">"192.168.1.1"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,   <span class="st">"ip"</span>:<span class="st">"192.168.1.2"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>,<span class="st">"ip"</span>:<span class="st">"192.168.1.10"</span>},
+]
+<span class="vr">results</span> = []
+<span class="kw">for</span> num, d <span class="kw">in</span> <span class="fn">enumerate</span>(devices, <span class="nm">1</span>):
+    up     = <span class="fn">ping_ok</span>(d[<span class="st">"ip"</span>])
+    status = <span class="st">"UP"</span> <span class="kw">if</span> up <span class="kw">else</span> <span class="st">"DOWN"</span>
+    results.<span class="fn">append</span>({**d, <span class="st">"status"</span>: status})
+    <span class="fn">print</span>(f<span class="st">"[{num}/{len(devices)}] {d['hostname']:10} [{status}]"</span>)
+
+<span class="vr">up_count</span> = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"status"</span>]==<span class="st">"UP"</span>)
+<span class="fn">print</span>(f<span class="st">"\n{up_count}/{len(devices)} reachable"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m6-practice">
+<h3>Practice — Loops</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Progress Report Loop</div><div class="pt">enumerate with count</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Loop over <code>["R1","R2","SW-01","SW-02","FW-01"]</code> with enumerate and print <code>[1/5] Processing R1...</code> for each device.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">devices</span> = [<span class="st">"R1"</span>,<span class="st">"R2"</span>,<span class="st">"SW-01"</span>,<span class="st">"SW-02"</span>,<span class="st">"FW-01"</span>]
+<span class="kw">for</span> i, d <span class="kw">in</span> <span class="fn">enumerate</span>(devices, <span class="nm">1</span>):
+    <span class="fn">print</span>(f<span class="st">"[{i}/{len(devices)}] Processing {d}..."</span>)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Skip Offline Devices</div><div class="pt">continue with condition</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Loop over device dicts with "hostname" and "online" keys. Skip offline devices with continue. Print "Configuring [name]" for online ones. Print final count.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">devices</span> = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,   <span class="st">"online"</span>:<span class="kw">True</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,   <span class="st">"online"</span>:<span class="kw">False</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>,<span class="st">"online"</span>:<span class="kw">True</span>},
+]
+<span class="vr">done</span> = <span class="nm">0</span>
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="kw">if not</span> d[<span class="st">"online"</span>]:
+        <span class="fn">print</span>(f<span class="st">"[SKIP] {d['hostname']}"</span>); <span class="kw">continue</span>
+    <span class="fn">print</span>(f<span class="st">"[OK]   Configuring {d['hostname']}"</span>)
+    done += <span class="nm">1</span>
+<span class="fn">print</span>(f<span class="st">"\nConfigured: {done}/{len(devices)}"</span>)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Nested VLAN Config Generator</div><div class="pt">Nested loop over dict of lists</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>For <code>{"SW-01":[10,20,30], "SW-02":[10,40]}</code>, print a header and vlan commands for each switch.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">switches</span> = {<span class="st">"SW-01"</span>:[<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>], <span class="st">"SW-02"</span>:[<span class="nm">10</span>,<span class="nm">40</span>]}
+<span class="kw">for</span> sw, vlans <span class="kw">in</span> switches.<span class="fn">items</span>():
+    <span class="fn">print</span>(f<span class="st">"! === {sw} ==="</span>)
+    <span class="kw">for</span> v <span class="kw">in</span> vlans:
+        <span class="fn">print</span>(f<span class="st">"vlan {v}"</span>)
+        <span class="fn">print</span>(f<span class="st">" name DATA_{v}"</span>)
+    <span class="fn">print</span>(<span class="st">"!"</span>)</pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m6-interview">
+<h3>Interview Questions — Loops</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">When would you use a <code>while</code> loop instead of a <code>for</code> loop in network automation?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Use <code>while</code> when you don't know how many iterations are needed: waiting for a device to boot (poll until it responds), retrying a connection up to N times with delays, reading a stream until EOF, or processing a queue until empty. Use <code>for</code> when you have a known collection to iterate — it's cleaner and cannot accidentally become an infinite loop.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-s">SCENARIO</span><span class="qa-text">Your loop sends commands to 100 devices. Device 47 raises an exception crashing the entire loop. How do you fix it so the loop continues with device 48?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Wrap the loop body in try/except. One bad device must never kill the entire batch:</p><div class="sbox"><span style="color:#ffa657">failed</span> = []
+<span style="color:#ff7b72">for</span> device <span style="color:#ff7b72">in</span> devices:
+    <span style="color:#ff7b72">try</span>:
+        <span style="color:#d2a8ff">configure</span>(device)
+    <span style="color:#ff7b72">except</span> Exception <span style="color:#ff7b72">as</span> e:
+        <span style="color:#d2a8ff">print</span>(f<span style="color:#a5d6ff">"✗ {device['hostname']}: {e}"</span>)
+        failed.<span style="color:#d2a8ff">append</span>(device[<span style="color:#a5d6ff">"hostname"</span>])</div><p style="margin-top:8px">Always collect failures to a list and print a summary at the end. This is a fundamental pattern in production automation.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m7-theory">
+<h3>Functions — Write Once, Reuse Everywhere</h3>
+<p>Functions are named reusable blocks of code. Instead of repeating SSH logic for every device, write it once as a function and call it anywhere. Functions make code readable, testable, and maintainable.</p>
+<h4>Defining and Calling Functions</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">function syntax and features</span></div><pre><span class="cm"># Basic function with docstring</span>
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip: str, timeout: int = <span class="nm">1</span>) -> bool:
+    <span class="st">"""Return True if device responds to ping."""</span>
+    <span class="kw">import</span> subprocess
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],
+                        capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="cm"># Default parameters</span>
+<span class="kw">def</span> <span class="fn">build_conn</span>(host, platform=<span class="st">"cisco_ios"</span>, port=<span class="nm">22</span>, timeout=<span class="nm">10</span>):
+    <span class="kw">return</span> {<span class="st">"device_type"</span>:platform, <span class="st">"host"</span>:host,
+             <span class="st">"port"</span>:port, <span class="st">"timeout"</span>:timeout}
+
+<span class="cm"># Return multiple values (as tuple)</span>
+<span class="kw">def</span> <span class="fn">scan</span>(devices):
+    <span class="vr">up</span>   = [d <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> <span class="fn">ping_ok</span>(d[<span class="st">"ip"</span>])]
+    <span class="vr">down</span> = [d <span class="kw">for</span> d <span class="kw">in</span> devices <span class="kw">if</span> <span class="kw">not</span> <span class="fn">ping_ok</span>(d[<span class="st">"ip"</span>])]
+    <span class="kw">return</span> up, down
+
+<span class="vr">online</span>, <span class="vr">offline</span> = <span class="fn">scan</span>(inventory)
+
+<span class="cm"># Call with keyword args — readable</span>
+<span class="vr">c1</span> = <span class="fn">build_conn</span>(<span class="st">"10.1.1.1"</span>)
+<span class="vr">c2</span> = <span class="fn">build_conn</span>(<span class="st">"10.1.1.2"</span>, platform=<span class="st">"juniper_junos"</span>)</pre></div>
+<h4>*args and **kwargs</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">flexible arguments</span></div><pre><span class="cm"># *args — variable positional arguments</span>
+<span class="kw">def</span> <span class="fn">add_vlans</span>(*vlans):
+    <span class="kw">for</span> v <span class="kw">in</span> vlans: <span class="fn">print</span>(f<span class="st">"vlan {v}"</span>)
+<span class="fn">add_vlans</span>(<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>)
+
+<span class="cm"># **kwargs — variable keyword arguments</span>
+<span class="kw">def</span> <span class="fn">debug_device</span>(**info):
+    <span class="kw">for</span> k, v <span class="kw">in</span> info.<span class="fn">items</span>(): <span class="fn">print</span>(f<span class="st">"  {k}: {v}"</span>)
+<span class="fn">debug_device</span>(host=<span class="st">"10.1.1.1"</span>, user=<span class="st">"admin"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m7-industry">
+<h3>Functions in Real Network Automation</h3>
+<p>Build a personal toolkit of reusable functions. A well-structured automation script has small, focused functions and a clean main block that calls them — like three layers: primitives → operations → main.</p>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">three-layer architecture</span></div><pre><span class="cm"># Layer 1 — primitives</span>
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip): ...
+<span class="kw">def</span> <span class="fn">ssh_run</span>(device, cmd): ...
+<span class="kw">def</span> <span class="fn">build_conn</span>(device): ...
+
+<span class="cm"># Layer 2 — device operations</span>
+<span class="kw">def</span> <span class="fn">get_version</span>(device):
+    <span class="kw">return</span> <span class="fn">ssh_run</span>(device, <span class="st">"show version"</span>)
+
+<span class="kw">def</span> <span class="fn">audit_device</span>(device):
+    <span class="kw">if not</span> <span class="fn">ping_ok</span>(device[<span class="st">"ip"</span>]):
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"error"</span>:<span class="st">"unreachable"</span>}
+    ver = <span class="fn">get_version</span>(device)
+    <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>, <span class="st">"version"</span>:ver}
+
+<span class="cm"># Layer 3 — main</span>
+<span class="vr">results</span> = [<span class="fn">audit_device</span>(d) <span class="kw">for</span> d <span class="kw">in</span> inventory]</pre></div>
+</script>
+<script type="text/x-tmpl" id="m7-practical">
+<h3>Functions in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">net_toolkit.py — reusable function library</span></div><pre><span class="kw">import</span> subprocess, json
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip: str, timeout: int = <span class="nm">1</span>) -> bool:
+    <span class="st">"""True if device responds to ping."""</span>
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],
+                        capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">build_conn</span>(device: dict) -> dict:
+    <span class="st">"""Build Netmiko connection dict from device record."""</span>
+    <span class="kw">return</span> {
+        <span class="st">"device_type"</span>: device[<span class="st">"platform"</span>],
+        <span class="st">"host"</span>       : device[<span class="st">"ip"</span>],
+        <span class="st">"username"</span>   : device[<span class="st">"username"</span>],
+        <span class="st">"password"</span>   : device[<span class="st">"password"</span>],
+        <span class="st">"timeout"</span>    : device.<span class="fn">get</span>(<span class="st">"timeout"</span>, <span class="nm">10</span>),
+    }
+
+<span class="kw">def</span> <span class="fn">save_report</span>(data, name: str = <span class="st">"report"</span>) -> str:
+    <span class="st">"""Save data to timestamped JSON file."""</span>
+    ts   = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+    path = f<span class="st">"{name}_{ts}.json"</span>
+    <span class="kw">with</span> <span class="fn">open</span>(path, <span class="st">"w"</span>) <span class="kw">as</span> f:
+        json.<span class="fn">dump</span>(data, f, indent=<span class="nm">2</span>)
+    <span class="fn">print</span>(f<span class="st">"Saved: {path}"</span>)
+    <span class="kw">return</span> path
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    <span class="fn">print</span>(<span class="st">"net_toolkit — import this module, don't run it directly"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m7-practice">
+<h3>Practice — Functions</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Device Header Function</div><div class="pt">Parameters, return value, default arg</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Write <code>device_header(hostname, ip, width=50)</code> that returns a centred string like <code>"========= R1 (10.1.1.1) ========="</code>.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">def</span> <span class="fn">device_header</span>(hostname, ip, width=<span class="nm">50</span>):
+    <span class="st">"""Return centred section header for a device."""</span>
+    <span class="vr">content</span> = f<span class="st">" {hostname} ({ip}) "</span>
+    <span class="kw">return</span> content.<span class="fn">center</span>(width, <span class="st">"="</span>)
+
+<span class="fn">print</span>(<span class="fn">device_header</span>(<span class="st">"R1"</span>, <span class="st">"10.1.1.1"</span>))
+<span class="fn">print</span>(<span class="fn">device_header</span>(<span class="st">"SW-01"</span>, <span class="st">"10.1.1.10"</span>, <span class="nm">60</span>))</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Compliance Checker</div><div class="pt">Return multiple values, default params</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Write <code>check_device(device, cpu_threshold=90, check_ntp=True)</code> returning (status, message). Status: "PASS", "FAIL", or "SKIP". Test with three device dicts.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">def</span> <span class="fn">check_device</span>(device, cpu_threshold=<span class="nm">90</span>, check_ntp=<span class="kw">True</span>):
+    <span class="kw">if not</span> device.<span class="fn">get</span>(<span class="st">"reachable"</span>):
+        <span class="kw">return</span> <span class="st">"SKIP"</span>, <span class="st">"Device unreachable"</span>
+    <span class="kw">if</span> device.<span class="fn">get</span>(<span class="st">"cpu"</span>, <span class="nm">0</span>) > cpu_threshold:
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, f<span class="st">"CPU {device['cpu']}% above {cpu_threshold}%"</span>
+    <span class="kw">if</span> check_ntp <span class="kw">and not</span> device.<span class="fn">get</span>(<span class="st">"ntp_synced"</span>):
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="st">"NTP not synchronised"</span>
+    <span class="kw">return</span> <span class="st">"PASS"</span>, <span class="st">"All checks OK"</span>
+
+<span class="vr">tests</span> = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,<span class="st">"reachable"</span>:<span class="kw">True</span>, <span class="st">"cpu"</span>:<span class="nm">45</span>,<span class="st">"ntp_synced"</span>:<span class="kw">True</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,<span class="st">"reachable"</span>:<span class="kw">True</span>, <span class="st">"cpu"</span>:<span class="nm">95</span>,<span class="st">"ntp_synced"</span>:<span class="kw">True</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R3"</span>,<span class="st">"reachable"</span>:<span class="kw">False</span>},
+]
+<span class="kw">for</span> d <span class="kw">in</span> tests:
+    status, msg = <span class="fn">check_device</span>(d)
+    <span class="fn">print</span>(f<span class="st">"{d['hostname']:6} [{status}] {msg}"</span>)</pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m7-interview">
+<h3>Interview Questions — Functions</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the mutable default argument bug and how do you avoid it?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Default parameter values are evaluated once at function definition, not each call. If you use a mutable default (like a list), all calls share the same object:</p><div class="sbox"><span style="color:#8b949e"># BUG — same list reused across calls</span>
+<span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">add_device</span>(name, devices=[]):
+    devices.<span style="color:#d2a8ff">append</span>(name); <span style="color:#ff7b72">return</span> devices
+
+<span style="color:#8b949e"># FIX — use None as sentinel</span>
+<span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">add_device</span>(name, devices=<span style="color:#ff7b72">None</span>):
+    <span style="color:#ff7b72">if</span> devices <span style="color:#ff7b72">is</span> <span style="color:#ff7b72">None</span>: devices = []
+    devices.<span style="color:#d2a8ff">append</span>(name); <span style="color:#ff7b72">return</span> devices</div></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">Why is a docstring important in network automation functions?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Functions in automation teams are reused by colleagues. A clear docstring means teammates can use your <code>build_conn()</code> or <code>ping_ok()</code> without reading the implementation. IDEs display docstrings as tooltips. Functions without docstrings become black boxes that nobody trusts. Always include: what it does, parameters, return value, and example if complex.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m8-theory">
+<h3>File Handling — Reading and Writing Data</h3>
+<p>Network automation reads inventories from YAML/CSV, writes config backups to text files, saves audit reports as JSON. Python's file handling makes all of this simple and safe using the <code>with</code> statement.</p>
+<h4>Basic File Operations</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">open, read, write — always use with statement</span></div><pre><span class="cm"># Write to file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"config.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(<span class="st">"interface Gi0/0\n"</span>)
+    f.<span class="fn">write</span>(<span class="st">" ip address 10.1.1.1 255.255.255.0\n"</span>)
+
+<span class="cm"># Append to existing file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"audit.log"</span>, <span class="st">"a"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(f<span class="st">"R1 checked at 10:30\n"</span>)
+
+<span class="cm"># Read entire file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"config.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> f:
+    content = f.<span class="fn">read</span>()
+
+<span class="cm"># Read line by line (memory-efficient for large files)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"ip_list.txt"</span>) <span class="kw">as</span> f:
+    ips = [line.<span class="fn">strip</span>() <span class="kw">for</span> line <span class="kw">in</span> f <span class="kw">if</span> line.<span class="fn">strip</span>()]</pre></div>
+<h4>JSON and YAML</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">JSON and YAML read/write</span></div><pre><span class="kw">import</span> json
+<span class="kw">import</span> yaml       <span class="cm"># pip install pyyaml</span>
+
+<span class="cm"># JSON — write and read</span>
+<span class="vr">report</span> = {<span class="st">"devices"</span>:[<span class="st">"R1"</span>,<span class="st">"R2"</span>], <span class="st">"timestamp"</span>:<span class="st">"2024-01-01"</span>}
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"report.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(report, f, indent=<span class="nm">2</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"report.json"</span>) <span class="kw">as</span> f:
+    data = json.<span class="fn">load</span>(f)
+
+<span class="cm"># YAML — safe_load always (never load)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.yaml"</span>) <span class="kw">as</span> f:
+    inv = yaml.<span class="fn">safe_load</span>(f)
+<span class="kw">for</span> device <span class="kw">in</span> inv[<span class="st">"devices"</span>]:
+    <span class="fn">print</span>(device[<span class="st">"hostname"</span>], device[<span class="st">"ip"</span>])</pre></div>
+<h4>CSV Files</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">CSV with DictReader/DictWriter</span></div><pre><span class="kw">import</span> csv
+
+<span class="cm"># Read CSV → list of dicts</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"devices.csv"</span>, newline=<span class="st">""</span>) <span class="kw">as</span> f:
+    devices = <span class="fn">list</span>(csv.<span class="fn">DictReader</span>(f))
+
+<span class="cm"># Write list of dicts → CSV</span>
+<span class="vr">fields</span> = [<span class="st">"hostname"</span>, <span class="st">"ip"</span>, <span class="st">"status"</span>]
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"report.csv"</span>, <span class="st">"w"</span>, newline=<span class="st">""</span>) <span class="kw">as</span> f:
+    w = csv.<span class="fn">DictWriter</span>(f, fieldnames=fields)
+    w.<span class="fn">writeheader</span>()
+    w.<span class="fn">writerows</span>(results)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m8-industry">
+<h3>File Handling in Real Network Automation</h3>
+<p>Standard workflow: load YAML inventory at startup → collect results during execution → save timestamped JSON report at the end. Config backups go to per-device text files. Logs append to a shared log file.</p>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">config_backup.py — complete file handling pattern</span></div><pre><span class="kw">import</span> yaml, json, os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.yaml"</span>) <span class="kw">as</span> f:
+    devices = yaml.<span class="fn">safe_load</span>(f)[<span class="st">"devices"</span>]
+
+<span class="vr">ts</span>      = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+<span class="vr">bkp_dir</span> = f<span class="st">"backups/{ts}"</span>
+os.<span class="fn">makedirs</span>(bkp_dir, exist_ok=<span class="kw">True</span>)
+
+<span class="vr">report</span> = []
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**<span class="fn">build_conn</span>(d)) <span class="kw">as</span> net:
+            cfg = net.<span class="fn">send_command</span>(<span class="st">"show running-config"</span>)
+        path = f<span class="st">"{bkp_dir}/{d['hostname']}.cfg"</span>
+        <span class="kw">with</span> <span class="fn">open</span>(path, <span class="st">"w"</span>) <span class="kw">as</span> f: f.<span class="fn">write</span>(cfg)
+        report.<span class="fn">append</span>({<span class="st">"hostname"</span>:d[<span class="st">"hostname"</span>],<span class="st">"status"</span>:<span class="st">"OK"</span>})
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        report.<span class="fn">append</span>({<span class="st">"hostname"</span>:d[<span class="st">"hostname"</span>],<span class="st">"status"</span>:<span class="st">"FAIL"</span>,<span class="st">"error"</span>:<span class="fn">str</span>(e)})
+
+<span class="kw">with</span> <span class="fn">open</span>(f<span class="st">"{bkp_dir}/report.json"</span>,<span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(report, f, indent=<span class="nm">2</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m8-practical">
+<h3>File Handling in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">file_operations.py</span></div><pre><span class="kw">import</span> json, csv, yaml
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="cm"># Write VLAN config to file</span>
+<span class="vr">vlans</span> = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>]
+<span class="vr">lines</span> = []
+<span class="kw">for</span> v <span class="kw">in</span> vlans:
+    lines.<span class="fn">append</span>(f<span class="st">"vlan {v}"</span>)
+    lines.<span class="fn">append</span>(f<span class="st">" name DATA_{v}"</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"vlans.cfg"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(<span class="st">"\n"</span>.<span class="fn">join</span>(lines))
+<span class="fn">print</span>(<span class="st">"Saved vlans.cfg"</span>)
+
+<span class="cm"># Save timestamped JSON report</span>
+<span class="vr">results</span> = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>, <span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>, <span class="st">"status"</span>:<span class="st">"UP"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>, <span class="st">"ip"</span>:<span class="st">"10.1.1.2"</span>, <span class="st">"status"</span>:<span class="st">"DOWN"</span>},
+]
+<span class="vr">ts</span>   = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+<span class="vr">path</span> = f<span class="st">"report_{ts}.json"</span>
+<span class="kw">with</span> <span class="fn">open</span>(path, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(results, f, indent=<span class="nm">2</span>)
+<span class="fn">print</span>(f<span class="st">"Saved: {path}"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m8-practice">
+<h3>Practice — File Handling</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Write Config to File</div><div class="pt">open, write, join</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Generate IOS VLAN config for VLANs 10, 20, 30 (vlan X + name DATA_X per VLAN) and write it to "vlans.cfg". Read it back and print it.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">vlans</span> = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>]
+<span class="vr">lines</span> = []
+<span class="kw">for</span> v <span class="kw">in</span> vlans:
+    lines.<span class="fn">append</span>(f<span class="st">"vlan {v}"</span>)
+    lines.<span class="fn">append</span>(f<span class="st">" name DATA_{v}"</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"vlans.cfg"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(<span class="st">"\n"</span>.<span class="fn">join</span>(lines))
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"vlans.cfg"</span>) <span class="kw">as</span> f:
+    <span class="fn">print</span>(f.<span class="fn">read</span>())</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Save and Load JSON Report</div><div class="pt">json.dump and json.load</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Create a list of 3 device result dicts (hostname, ip, status). Save as "results.json" with indent=2. Load it back and print each device's hostname and status.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">import</span> json
+
+<span class="vr">results</span> = [
+    {<span class="st">"hostname"</span>:<span class="st">"R1"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.1"</span>,<span class="st">"status"</span>:<span class="st">"UP"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"R2"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.2"</span>,<span class="st">"status"</span>:<span class="st">"DOWN"</span>},
+    {<span class="st">"hostname"</span>:<span class="st">"SW-01"</span>,<span class="st">"ip"</span>:<span class="st">"10.1.1.10"</span>,<span class="st">"status"</span>:<span class="st">"UP"</span>},
+]
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"results.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(results, f, indent=<span class="nm">2</span>)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"results.json"</span>) <span class="kw">as</span> f:
+    data = json.<span class="fn">load</span>(f)
+<span class="kw">for</span> d <span class="kw">in</span> data:
+    <span class="fn">print</span>(f<span class="st">"{d['hostname']:10} → {d['status']}"</span>)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Read IP List from File</div><div class="pt">readlines, strip, filter blanks</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Create "ips.txt" with 3 IPs (include some blank lines). Read it, strip whitespace, filter blanks, print each IP with "SCANNING..." prefix.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="cm"># Create test file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"ips.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(<span class="st">"10.1.1.1\n10.1.1.2\n\n10.1.1.3\n"</span>)
+
+<span class="cm"># Read, strip, filter blanks</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"ips.txt"</span>) <span class="kw">as</span> f:
+    ips = [line.<span class="fn">strip</span>() <span class="kw">for</span> line <span class="kw">in</span> f <span class="kw">if</span> line.<span class="fn">strip</span>()]
+<span class="kw">for</span> ip <span class="kw">in</span> ips:
+    <span class="fn">print</span>(f<span class="st">"SCANNING... {ip}"</span>)</pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m8-interview">
+<h3>Interview Questions — File Handling</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">Why should you always use the <code>with</code> statement when opening files?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>The <code>with</code> statement is a context manager that guarantees the file is closed when the block exits — even if an exception occurs inside. Without it, if your code throws an exception after opening the file, the file handle stays open, wasting OS resources and potentially corrupting partially-written files. In production automation scripts that run continuously, unclosed handles accumulate and eventually crash the process.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the difference between <code>json.load()</code> and <code>json.loads()</code>?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><code>json.load(f)</code> reads from a file object. <code>json.loads(s)</code> parses from a string (the 's' stands for string). Same pattern for writing: <code>json.dump(data, f)</code> writes to a file, <code>json.dumps(data)</code> returns a JSON string. When working with REST APIs, responses come as strings so you use <code>json.loads(response.text)</code> or <code>response.json()</code>. To save to disk you use <code>json.dump(data, file_object)</code>.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m9-theory">
+<h3>Error Handling — try / except</h3>
+<p>Network operations fail constantly. Devices go offline, SSH times out, APIs return errors, files don't exist. Without error handling, one failure crashes your entire script. With it, you catch failures, log them, and continue with the next device.</p>
+<h4>try / except / else / finally</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">full error handling structure</span></div><pre><span class="kw">try</span>:
+    result = <span class="fn">connect_and_run</span>(device)
+<span class="kw">except</span> ConnectionRefusedError:
+    <span class="fn">print</span>(<span class="st">"SSH refused — check SSH is enabled"</span>)
+<span class="kw">except</span> TimeoutError:
+    <span class="fn">print</span>(<span class="st">"Connection timed out"</span>)
+<span class="kw">except</span> Exception <span class="kw">as</span> e:
+    <span class="fn">print</span>(f<span class="st">"Unexpected: {type(e).__name__}: {e}"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Success!"</span>)     <span class="cm"># runs ONLY if no exception</span>
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="st">"Always runs"</span>)  <span class="cm"># cleanup, closing connections</span></pre></div>
+<h4>Common Network Exceptions</h4>
+<table class="tbl"><thead><tr><th>Exception</th><th>Cause</th><th>Fix</th></tr></thead><tbody>
+<tr><td><code>NetmikoTimeoutException</code></td><td>SSH connection timed out</td><td>Check IP reachability, firewall</td></tr>
+<tr><td><code>NetmikoAuthenticationException</code></td><td>Wrong credentials</td><td>Verify username/password</td></tr>
+<tr><td><code>FileNotFoundError</code></td><td>File path doesn't exist</td><td>Check path, create directory first</td></tr>
+<tr><td><code>KeyError</code></td><td>Dict key missing</td><td>Use <code>.get()</code> instead</td></tr>
+<tr><td><code>requests.ConnectionError</code></td><td>API host unreachable</td><td>Check URL, network, DNS</td></tr>
+<tr><td><code>json.JSONDecodeError</code></td><td>Invalid JSON response</td><td>Print raw response for debugging</td></tr>
+</tbody></table>
+<h4>raise — Your Own Exceptions</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">raising exceptions for validation</span></div><pre><span class="kw">def</span> <span class="fn">validate_vlan</span>(vlan_id):
+    <span class="kw">if not</span> <span class="nm">1</span> <= vlan_id <= <span class="nm">4094</span>:
+        <span class="kw">raise</span> ValueError(f<span class="st">"Invalid VLAN ID: {vlan_id}. Must be 1-4094."</span>)
+    <span class="kw">return</span> vlan_id
+
+<span class="kw">try</span>:
+    <span class="fn">validate_vlan</span>(<span class="nm">5000</span>)
+<span class="kw">except</span> ValueError <span class="kw">as</span> e:
+    <span class="fn">print</span>(f<span class="st">"Error: {e}"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m9-industry">
+<h3>Error Handling in Real Automation</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">robust SSH function + loop with full error tracking</span></div><pre><span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+
+<span class="kw">def</span> <span class="fn">ssh_run</span>(device, command):
+    <span class="st">"""SSH to device, run command. Returns dict with ok/output/error."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**<span class="fn">build_conn</span>(device)) <span class="kw">as</span> net:
+            <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">True</span>, <span class="st">"output"</span>:net.<span class="fn">send_command</span>(command)}
+    <span class="kw">except</span> NetmikoTimeoutException:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"output"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="st">"SSH timeout"</span>}
+    <span class="kw">except</span> NetmikoAuthenticationException:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"output"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="st">"Auth failed"</span>}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> {<span class="st">"ok"</span>:<span class="kw">False</span>, <span class="st">"output"</span>:<span class="kw">None</span>, <span class="st">"error"</span>:<span class="fn">str</span>(e)}
+
+<span class="cm"># Clean caller — never crashes</span>
+<span class="vr">success</span>, <span class="vr">failed</span> = [], []
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    r = <span class="fn">ssh_run</span>(d, <span class="st">"show version"</span>)
+    <span class="kw">if</span> r[<span class="st">"ok"</span>]:
+        success.<span class="fn">append</span>(d[<span class="st">"hostname"</span>])
+    <span class="kw">else</span>:
+        failed.<span class="fn">append</span>({<span class="st">"hostname"</span>:d[<span class="st">"hostname"</span>], <span class="st">"error"</span>:r[<span class="st">"error"</span>]})</pre></div>
+</script>
+<script type="text/x-tmpl" id="m9-practical">
+<h3>Error Handling in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">robust_runner.py</span></div><pre><span class="kw">import</span> yaml, json
+
+<span class="kw">def</span> <span class="fn">load_inventory</span>(path):
+    <span class="st">"""Load YAML inventory with clear error messages."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f:
+            <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+    <span class="kw">except</span> FileNotFoundError:
+        <span class="kw">raise</span> FileNotFoundError(f<span class="st">"Inventory not found: {path}"</span>)
+    <span class="kw">except</span> yaml.YAMLError <span class="kw">as</span> e:
+        <span class="kw">raise</span> ValueError(f<span class="st">"Invalid YAML in {path}: {e}"</span>)
+
+<span class="vr">success</span>, <span class="vr">failed</span> = [], []
+<span class="kw">try</span>:
+    inv = <span class="fn">load_inventory</span>(<span class="st">"inventory.yaml"</span>)
+<span class="kw">except</span> (FileNotFoundError, ValueError) <span class="kw">as</span> e:
+    <span class="fn">print</span>(f<span class="st">"Cannot start: {e}"</span>); exit(<span class="nm">1</span>)
+
+<span class="kw">for</span> device <span class="kw">in</span> inv[<span class="st">"devices"</span>]:
+    <span class="kw">try</span>:
+        <span class="fn">configure_device</span>(device)
+        success.<span class="fn">append</span>(device[<span class="st">"hostname"</span>])
+        <span class="fn">print</span>(f<span class="st">"✓ {device['hostname']}"</span>)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        failed.<span class="fn">append</span>(device[<span class="st">"hostname"</span>])
+        <span class="fn">print</span>(f<span class="st">"✗ {device['hostname']}: {e}"</span>)
+
+<span class="fn">print</span>(f<span class="st">"\nDone: {len(success)} OK | {len(failed)} failed"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m9-practice">
+<h3>Practice — Error Handling</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Safe File Load</div><div class="pt">try/except FileNotFoundError + YAML error</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Write <code>load_yaml(path)</code> that returns the parsed dict on success, or prints a clear error message and returns None if file not found or YAML is invalid.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">import</span> yaml
+
+<span class="kw">def</span> <span class="fn">load_yaml</span>(path):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f:
+            <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+    <span class="kw">except</span> FileNotFoundError:
+        <span class="fn">print</span>(f<span class="st">"File not found: {path}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+    <span class="kw">except</span> yaml.YAMLError <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"Invalid YAML: {e}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+
+data = <span class="fn">load_yaml</span>(<span class="st">"missing.yaml"</span>)
+<span class="fn">print</span>(<span class="st">"Result:"</span>, data)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Robust Device Loop</div><div class="pt">try/except inside a loop with summary</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Loop over 5 device names. Simulate device "R2" failing with TimeoutError and "R4" failing with ValueError. Catch each, continue loop, print summary at end.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="vr">devices</span>          = [<span class="st">"R1"</span>, <span class="st">"R2"</span>, <span class="st">"R3"</span>, <span class="st">"R4"</span>, <span class="st">"R5"</span>]
+<span class="vr">success</span>, <span class="vr">failed</span>  = [], []
+
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="kw">try</span>:
+        <span class="kw">if</span> d == <span class="st">"R2"</span>: <span class="kw">raise</span> TimeoutError(<span class="st">"SSH timeout"</span>)
+        <span class="kw">if</span> d == <span class="st">"R4"</span>: <span class="kw">raise</span> ValueError(<span class="st">"Auth failed"</span>)
+        <span class="fn">print</span>(f<span class="st">"✓ {d} — configured"</span>)
+        success.<span class="fn">append</span>(d)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"✗ {d}: {e}"</span>)
+        failed.<span class="fn">append</span>(d)
+
+<span class="fn">print</span>(f<span class="st">"\n{len(success)} OK | {len(failed)} failed"</span>)
+<span class="fn">print</span>(<span class="st">"Failed:"</span>, failed)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Validate VLAN ID</div><div class="pt">raise ValueError on bad input</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Write <code>validate_vlan(vlan_id)</code> that raises ValueError if vlan_id is not 1–4094. Test with valid (100) and invalid (5000) values.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">def</span> <span class="fn">validate_vlan</span>(vlan_id):
+    <span class="kw">if not</span> <span class="nm">1</span> <= vlan_id <= <span class="nm">4094</span>:
+        <span class="kw">raise</span> ValueError(f<span class="st">"Invalid VLAN ID {vlan_id}: must be 1-4094"</span>)
+    <span class="kw">return</span> vlan_id
+
+<span class="kw">for</span> v <span class="kw">in</span> [<span class="nm">100</span>, <span class="nm">5000</span>]:
+    <span class="kw">try</span>:
+        <span class="fn">print</span>(f<span class="st">"VLAN {validate_vlan(v)} is valid"</span>)
+    <span class="kw">except</span> ValueError <span class="kw">as</span> e:
+        <span class="fn">print</span>(f<span class="st">"Error: {e}"</span>)</pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m9-interview">
+<h3>Interview Questions — Error Handling</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the difference between catching a specific exception and catching bare <code>Exception</code>? Which should you prefer?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Catching specific exceptions (<code>TimeoutError</code>, <code>FileNotFoundError</code>) lets you handle each failure type differently and write clearer code. It also prevents accidentally swallowing bugs — if you catch <code>Exception</code> everywhere, a <code>NameError</code> or <code>AttributeError</code> from your own code gets silently ignored instead of surfacing.</p><p>Use specific exceptions for expected failure modes. Use bare <code>Exception</code> only as a last-resort catch-all in loops where you must not crash, but always log <code>type(e).__name__</code> and <code>str(e)</code> so bugs don't stay hidden.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-s">SCENARIO</span><span class="qa-text">Your script crashes on device 50 with "KeyError: 'platform'". The loop has no try/except. All 49 previous results are lost. How do you fix this?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><strong>Immediate fix:</strong> Wrap the loop body in try/except so results from the other 49 devices are preserved and the issue is logged clearly.</p><p><strong>Root cause fix:</strong> Use <code>device.get("platform", "cisco_ios")</code> with a sensible default, or validate all inventory records when loading the YAML file — before the main loop starts. This is "fail-fast at the boundary" — validate data when you read it, not buried mid-operation.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m10-theory">
+<h3>Modules and Libraries — Reuse the Ecosystem</h3>
+<p>A module is a Python file. A library (package) is a collection of modules. Python's ecosystem has ready-made libraries for everything in network automation — SSH, APIs, YAML, regex. You import what you need.</p>
+<h4>Import Syntax</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">import patterns</span></div><pre><span class="kw">import</span> json                          <span class="cm"># full module</span>
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime        <span class="cm"># specific item</span>
+<span class="kw">import</span> subprocess <span class="kw">as</span> sp             <span class="cm"># with alias</span>
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler   <span class="cm"># third-party</span>
+<span class="kw">from</span> net_toolkit <span class="kw">import</span> ping_ok      <span class="cm"># your own module</span></pre></div>
+<h4>Key Libraries for Network Automation</h4>
+<table class="tbl"><thead><tr><th>Library</th><th>Install</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><strong>netmiko</strong></td><td><code>pip install netmiko</code></td><td>Multi-vendor SSH (Cisco, Juniper, Arista…)</td></tr>
+<tr><td><strong>requests</strong></td><td><code>pip install requests</code></td><td>REST API calls — DNAC, Meraki, RESTCONF</td></tr>
+<tr><td><strong>pyyaml</strong></td><td><code>pip install pyyaml</code></td><td>Read/write YAML inventory files</td></tr>
+<tr><td><strong>napalm</strong></td><td><code>pip install napalm</code></td><td>Unified multi-vendor API — get_facts, configs</td></tr>
+<tr><td><strong>nornir</strong></td><td><code>pip install nornir</code></td><td>Parallel automation framework</td></tr>
+<tr><td><strong>json</strong></td><td>Built-in</td><td>Parse/write JSON</td></tr>
+<tr><td><strong>re</strong></td><td>Built-in</td><td>Regular expressions for CLI parsing</td></tr>
+<tr><td><strong>os / pathlib</strong></td><td>Built-in</td><td>File system operations, directory creation</td></tr>
+<tr><td><strong>subprocess</strong></td><td>Built-in</td><td>Run system commands (ping, traceroute)</td></tr>
+<tr><td><strong>datetime</strong></td><td>Built-in</td><td>Timestamps for logs and report filenames</td></tr>
+</tbody></table>
+<h4>Creating Your Own Module</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">net_toolkit.py → import in other scripts</span></div><pre><span class="cm"># net_toolkit.py</span>
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip): ...
+<span class="kw">def</span> <span class="fn">build_conn</span>(device): ...
+<span class="kw">def</span> <span class="fn">save_report</span>(data, path): ...
+
+<span class="cm"># In any other script:</span>
+<span class="kw">from</span> net_toolkit <span class="kw">import</span> ping_ok, build_conn, save_report
+
+<span class="cm"># __name__ guard — run code only when executed directly</span>
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    <span class="fn">print</span>(<span class="st">"Running tests..."</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m10-industry">
+<h3>Libraries in Real Network Automation</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">netmiko + requests + yaml + datetime together</span></div><pre><span class="kw">import</span> yaml, json, requests, os
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="cm"># Load YAML inventory</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"inventory.yaml"</span>) <span class="kw">as</span> f:
+    inv = yaml.<span class="fn">safe_load</span>(f)
+
+<span class="cm"># SSH to device — netmiko</span>
+<span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn_dict) <span class="kw">as</span> net:
+    output = net.<span class="fn">send_command</span>(<span class="st">"show version"</span>)
+
+<span class="cm"># REST API — requests</span>
+<span class="vr">headers</span> = {<span class="st">"X-Auth-Token"</span>: <span class="st">"your_token"</span>}
+<span class="vr">resp</span>    = requests.<span class="fn">get</span>(<span class="st">"https://dnac/api/v1/network-device"</span>,
+                       headers=headers, verify=<span class="kw">False</span>)
+<span class="vr">devices</span> = resp.<span class="fn">json</span>()[<span class="st">"response"</span>]
+
+<span class="cm"># Create output directory with timestamp</span>
+<span class="vr">ts</span> = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+os.<span class="fn">makedirs</span>(f<span class="st">"outputs/{ts}"</span>, exist_ok=<span class="kw">True</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m10-practical">
+<h3>Modules in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">eve_utils.py — complete toolkit module</span></div><pre><span class="st">"""eve_utils.py — EVE-NG Lab Automation Utilities"""</span>
+<span class="kw">import</span> subprocess, yaml, json, os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip: str, timeout: int = <span class="nm">1</span>) -> bool:
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="fn">str</span>(timeout),ip],
+                        capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">load_inventory</span>(path: str = <span class="st">"inventory.yaml"</span>) -> dict:
+    <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f: <span class="kw">return</span> yaml.<span class="fn">safe_load</span>(f)
+
+<span class="kw">def</span> <span class="fn">build_conn</span>(device: dict) -> dict:
+    <span class="kw">return</span> {<span class="st">"device_type"</span>:device[<span class="st">"platform"</span>], <span class="st">"host"</span>:device[<span class="st">"ip"</span>],
+             <span class="st">"username"</span>:device[<span class="st">"username"</span>], <span class="st">"password"</span>:device[<span class="st">"password"</span>],
+             <span class="st">"timeout"</span>:device.<span class="fn">get</span>(<span class="st">"timeout"</span>, <span class="nm">10</span>)}
+
+<span class="kw">def</span> <span class="fn">save_report</span>(data, name: str = <span class="st">"report"</span>) -> str:
+    ts   = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y%m%d_%H%M"</span>)
+    path = f<span class="st">"{name}_{ts}.json"</span>
+    <span class="kw">with</span> <span class="fn">open</span>(path, <span class="st">"w"</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(data, f, indent=<span class="nm">2</span>)
+    <span class="fn">print</span>(f<span class="st">"Saved: {path}"</span>); <span class="kw">return</span> path
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    <span class="fn">print</span>(<span class="st">"Import this module — don't run directly"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m10-practice">
+<h3>Practice — Modules &amp; Libraries</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Build a Toolkit Module</div><div class="pt">Create and import your own module</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Create "net_utils.py" with three functions: <code>ping_ok(ip)</code>, <code>normalise_hostname(name)</code> (strip/upper/replace hyphens), <code>make_conn(host, user, pwd)</code>. Then write a second script that imports and uses all three.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">net_utils.py</span></div><pre><span class="kw">import</span> subprocess
+
+<span class="kw">def</span> <span class="fn">ping_ok</span>(ip: str) -> bool:
+    r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,ip],capture_output=<span class="kw">True</span>)
+    <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+<span class="kw">def</span> <span class="fn">normalise_hostname</span>(name: str) -> str:
+    <span class="kw">return</span> name.<span class="fn">strip</span>().<span class="fn">upper</span>().<span class="fn">replace</span>(<span class="st">"-"</span>, <span class="st">"_"</span>)
+
+<span class="kw">def</span> <span class="fn">make_conn</span>(host, user=<span class="st">"admin"</span>, pwd=<span class="st">"cisco"</span>):
+    <span class="kw">return</span> {<span class="st">"device_type"</span>:<span class="st">"cisco_ios"</span>,<span class="st">"host"</span>:host,
+             <span class="st">"username"</span>:user,<span class="st">"password"</span>:pwd}</pre></div>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">main_script.py</span></div><pre><span class="kw">from</span> net_utils <span class="kw">import</span> ping_ok, normalise_hostname, make_conn
+
+<span class="fn">print</span>(<span class="fn">normalise_hostname</span>(<span class="st">" sw-core-01 "</span>))  <span class="cm"># SW_CORE_01</span>
+<span class="fn">print</span>(<span class="fn">ping_ok</span>(<span class="st">"8.8.8.8"</span>))                  <span class="cm"># True/False</span>
+<span class="fn">print</span>(<span class="fn">make_conn</span>(<span class="st">"10.1.1.1"</span>))</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Use subprocess and datetime</div><div class="pt">Built-in modules together</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Ping "8.8.8.8" using subprocess. Append the result with a timestamp to "ping_log.txt" in format: <code>[2024-01-01 10:30:00] 8.8.8.8 — UP</code></p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">import</span> subprocess
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="vr">ip</span>     = <span class="st">"8.8.8.8"</span>
+<span class="vr">result</span> = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"2"</span>,ip],capture_output=<span class="kw">True</span>)
+<span class="vr">status</span> = <span class="st">"UP"</span> <span class="kw">if</span> result.returncode == <span class="nm">0</span> <span class="kw">else</span> <span class="st">"DOWN"</span>
+<span class="vr">ts</span>     = datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="st">"%Y-%m-%d %H:%M:%S"</span>)
+<span class="vr">line</span>   = f<span class="st">"[{ts}] {ip} — {status}\n"</span>
+<span class="fn">print</span>(line, end=<span class="st">""</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"ping_log.txt"</span>, <span class="st">"a"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(line)</pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m10-interview">
+<h3>Interview Questions — Modules &amp; Libraries</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What does <code>if __name__ == "__main__":</code> do and why is it important?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>When Python runs a file directly, it sets <code>__name__</code> to <code>"__main__"</code>. When the file is imported as a module, <code>__name__</code> is set to the module name. The guard ensures that code inside it (test runs, print statements, demo usage) only runs when the file is executed directly — not when imported by another script. Without this, importing your toolkit would execute all its demo code. Every reusable module should use this pattern.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is a virtual environment and why should you use one for network automation projects?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>A virtual environment is an isolated Python environment with its own packages, separate from the system Python. Created with <code>python -m venv venv</code>, activated with <code>source venv/bin/activate</code> (Linux/Mac) or <code>venv\Scripts\activate</code> (Windows).</p><p>Different projects need different library versions — netmiko 3.x vs 4.x have different APIs. Without a venv, all projects share the same packages and version conflicts break things. Always use a venv, always maintain <code>requirements.txt</code> (<code>pip freeze &gt; requirements.txt</code>) so colleagues can reproduce your environment exactly.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m11-theory">
+<h3>Regular Expressions — Pattern Matching in CLI Output</h3>
+<p>Regular expressions (regex) match patterns in text. Essential for parsing CLI output that has no clean structure — extracting IP addresses, MAC addresses, version strings, interface names, BGP neighbour states from raw device text.</p>
+<h4>Key Regex Patterns</h4>
+<table class="tbl"><thead><tr><th>Pattern</th><th>Matches</th><th>Example</th></tr></thead><tbody>
+<tr><td><code>\d</code></td><td>Any digit 0-9</td><td><code>\d+</code> = one or more digits</td></tr>
+<tr><td><code>\w</code></td><td>Word char (letter/digit/_)</td><td><code>\w+</code> = a word</td></tr>
+<tr><td><code>\s</code></td><td>Whitespace</td><td><code>\s+</code> = spaces/tabs</td></tr>
+<tr><td><code>.</code></td><td>Any character</td><td><code>.*</code> = anything</td></tr>
+<tr><td><code>^</code></td><td>Start of line</td><td><code>^Interface</code></td></tr>
+<tr><td><code>$</code></td><td>End of line</td><td><code>up$</code></td></tr>
+<tr><td><code>[...]</code></td><td>Character class</td><td><code>[0-9a-f]</code></td></tr>
+<tr><td><code>()</code></td><td>Capture group</td><td><code>(\d+\.\d+\.\d+\.\d+)</code></td></tr>
+<tr><td><code>+</code></td><td>One or more</td><td><code>\d+</code></td></tr>
+<tr><td><code>*</code></td><td>Zero or more</td><td><code>\w*</code></td></tr>
+<tr><td><code>{n,m}</code></td><td>Between n and m times</td><td><code>\d{1,3}</code></td></tr>
+</tbody></table>
+<h4>re Module Functions</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">re module — search, findall, match, sub</span></div><pre><span class="kw">import</span> re
+
+<span class="vr">text</span> = <span class="st">"GigabitEthernet0/0  10.1.1.1  YES  up  up"</span>
+
+<span class="cm"># search — first match anywhere in string</span>
+<span class="vr">m</span> = re.<span class="fn">search</span>(r<span class="st">"(\d+\.\d+\.\d+\.\d+)"</span>, text)
+<span class="kw">if</span> m: <span class="fn">print</span>(<span class="st">"IP:"</span>, m.<span class="fn">group</span>(<span class="nm">1</span>))   <span class="cm"># 10.1.1.1</span>
+
+<span class="cm"># findall — all matches as list</span>
+<span class="vr">ips</span> = re.<span class="fn">findall</span>(r<span class="st">"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"</span>,
+                 <span class="st">"10.1.1.1 and 192.168.1.1"</span>)
+<span class="fn">print</span>(ips)   <span class="cm"># ['10.1.1.1', '192.168.1.1']</span>
+
+<span class="cm"># match — only at start of string</span>
+<span class="vr">m</span> = re.<span class="fn">match</span>(r<span class="st">"GigabitEthernet(\d+/\d+)"</span>, text)
+<span class="kw">if</span> m: <span class="fn">print</span>(<span class="st">"Port:"</span>, m.<span class="fn">group</span>(<span class="nm">1</span>))  <span class="cm"># 0/0</span>
+
+<span class="cm"># sub — replace pattern</span>
+<span class="vr">short</span> = re.<span class="fn">sub</span>(r<span class="st">"GigabitEthernet"</span>, <span class="st">"Gi"</span>, text)
+
+<span class="cm"># compile — reuse pattern for speed</span>
+<span class="vr">ip_re</span> = re.<span class="fn">compile</span>(r<span class="st">"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"</span>)
+<span class="vr">ips</span>   = ip_re.<span class="fn">findall</span>(long_output)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m11-industry">
+<h3>Regex in Real Network Automation</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">parse BGP neighbour info from show output</span></div><pre><span class="kw">import</span> re
+
+<span class="vr">output</span> = <span class="st">"""
+BGP neighbor is 10.0.12.2, remote AS 65002, external link
+  BGP version 4, remote router ID 2.2.2.2
+  BGP state = Established, up for 02:14:33
+  Prefixes received: 5
+"""</span>
+
+<span class="vr">patterns</span> = {
+    <span class="st">"neighbour"</span> : r<span class="st">"BGP neighbor is (\S+)"</span>,
+    <span class="st">"remote_as"</span> : r<span class="st">"remote AS (\d+)"</span>,
+    <span class="st">"router_id"</span> : r<span class="st">"remote router ID (\S+)"</span>,
+    <span class="st">"state"</span>     : r<span class="st">"BGP state = (\w+)"</span>,
+    <span class="st">"prefixes"</span>  : r<span class="st">"Prefixes received: (\d+)"</span>,
+}
+<span class="kw">for</span> key, pattern <span class="kw">in</span> patterns.<span class="fn">items</span>():
+    <span class="vr">m</span> = re.<span class="fn">search</span>(pattern, output)
+    <span class="vr">val</span> = m.<span class="fn">group</span>(<span class="nm">1</span>) <span class="kw">if</span> m <span class="kw">else</span> <span class="st">"not found"</span>
+    <span class="fn">print</span>(f<span class="st">"  {key:12}: {val}"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m11-practical">
+<h3>Regex in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">regex_parser.py</span></div><pre><span class="kw">import</span> re
+
+<span class="cm"># 1. Extract all IP/prefix pairs from routing table</span>
+<span class="vr">rtable</span> = <span class="st">"""O 10.1.1.0/24 [110/2] via 10.0.12.2
+O 192.168.1.0/24 [110/20] via 10.0.12.2
+S 0.0.0.0/0 [1/0] via 10.0.0.1"""</span>
+<span class="vr">networks</span> = re.<span class="fn">findall</span>(r<span class="st">"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d+"</span>, rtable)
+<span class="fn">print</span>(<span class="st">"Networks:"</span>, networks)
+
+<span class="cm"># 2. Parse interface line — capture multiple groups</span>
+<span class="vr">line</span> = <span class="st">"GigabitEthernet0/1   10.2.2.1   YES   up   up"</span>
+<span class="vr">m</span>    = re.<span class="fn">search</span>(r<span class="st">"^(\S+)\s+(\S+)\s+\S+\s+(\w+)\s+(\w+)"</span>, line)
+<span class="kw">if</span> m:
+    iface, ip, line_s, proto = m.<span class="fn">groups</span>()
+    <span class="fn">print</span>(f<span class="st">"{iface}: IP={ip} Line={line_s} Proto={proto}"</span>)
+
+<span class="cm"># 3. Validate IP address format</span>
+<span class="kw">def</span> <span class="fn">is_valid_ip</span>(ip: str) -> bool:
+    <span class="vr">pattern</span> = r<span class="st">"""^(25[0-5]|2[0-4]\d|[01]?\d\d?)\.
+                   (25[0-5]|2[0-4]\d|[01]?\d\d?)\.
+                   (25[0-5]|2[0-4]\d|[01]?\d\d?)\.
+                   (25[0-5]|2[0-4]\d|[01]?\d\d?)$"""</span>
+    <span class="kw">return</span> <span class="fn">bool</span>(re.<span class="fn">match</span>(pattern, ip, re.VERBOSE))
+
+<span class="fn">print</span>(<span class="fn">is_valid_ip</span>(<span class="st">"192.168.1.1"</span>))  <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="fn">is_valid_ip</span>(<span class="st">"999.1.1.1"</span>))    <span class="cm"># False</span></pre></div>
+</script>
+<script type="text/x-tmpl" id="m11-practice">
+<h3>Practice — Regular Expressions</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Extract All IPs</div><div class="pt">findall with IP pattern</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Given a block of routing table text, use <code>re.findall()</code> to extract all IP addresses. Print the unique sorted list.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">import</span> re
+<span class="vr">text</span> = <span class="st">"O 10.1.1.0 via 10.0.12.2\nO 10.2.2.0 via 10.0.12.2\nS 0.0.0.0 via 10.0.0.1"</span>
+<span class="vr">all_ips</span> = re.<span class="fn">findall</span>(r<span class="st">"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"</span>, text)
+<span class="vr">unique</span>  = <span class="fn">sorted</span>(<span class="fn">set</span>(all_ips))
+<span class="fn">print</span>(<span class="st">"All IPs:"</span>, all_ips)
+<span class="fn">print</span>(<span class="st">"Unique: "</span>, unique)</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Extract BGP State and Uptime</div><div class="pt">search with two capture groups</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>From <code>"BGP state = Established, up for 01:23:45"</code>, extract the state and uptime using a single regex with two capture groups.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">import</span> re
+<span class="vr">line</span> = <span class="st">"BGP state = Established, up for 01:23:45"</span>
+<span class="vr">m</span>    = re.<span class="fn">search</span>(r<span class="st">"BGP state = (\w+).+up for (\S+)"</span>, line)
+<span class="kw">if</span> m:
+    <span class="fn">print</span>(f<span class="st">"State : {m.group(1)}"</span>)   <span class="cm"># Established</span>
+    <span class="fn">print</span>(f<span class="st">"Uptime: {m.group(2)}"</span>)   <span class="cm"># 01:23:45</span></pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Normalise Interface Names with re.sub</div><div class="pt">sub() for bulk replacement</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Given a list of interface names with mixed short/long forms, use <code>re.sub()</code> to normalise all "GigabitEthernet" to "Gi" in one pass.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">import</span> re
+<span class="vr">ifaces</span> = [<span class="st">"GigabitEthernet0/0"</span>, <span class="st">"GigabitEthernet0/1"</span>, <span class="st">"Loopback0"</span>]
+<span class="vr">short</span>  = [re.<span class="fn">sub</span>(r<span class="st">"GigabitEthernet"</span>, <span class="st">"Gi"</span>, i) <span class="kw">for</span> i <span class="kw">in</span> ifaces]
+<span class="fn">print</span>(short)
+<span class="cm"># ['Gi0/0', 'Gi0/1', 'Loopback0']</span></pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m11-interview">
+<h3>Interview Questions — Regular Expressions</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the difference between <code>re.search()</code>, <code>re.match()</code>, and <code>re.findall()</code>?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><code>re.match()</code> only matches at the start of the string. <code>re.search()</code> searches anywhere — far more useful for CLI parsing. <code>re.findall()</code> returns a list of all non-overlapping matches (strings if no groups, list of tuples if multiple groups).</p><p>In network automation: use <code>re.search()</code> for finding one specific value, <code>re.findall()</code> for collecting all occurrences (all IPs, all VLANs from a large output).</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">When should you use TextFSM/Genie instead of writing your own regex?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Use TextFSM (via Netmiko's <code>use_textfsm=True</code>) or Genie when the command has an existing template — common Cisco show commands are all covered. These handle all edge cases, IOS version differences, and vendor variations automatically.</p><p>Write your own regex when: the command has no template, you're working with a custom vendor or very old IOS, or you only need one specific value and a full template is overkill. For production multi-vendor environments, always prefer TextFSM/Genie first — regex is for one-off or custom output.</p></div></div>
+</script>
+<script type="text/x-tmpl" id="m12-theory">
+<h3>OOP — Classes and Objects for Network Automation</h3>
+<p>OOP bundles data and functions together into a class. Instead of passing a device dict to every function, you create a Device object that has its own data and methods. This produces clean, reusable, self-contained code — the foundation of frameworks like Nornir and NAPALM.</p>
+<h4>Class Basics</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">class definition and usage</span></div><pre><span class="kw">class</span> <span class="fn">NetworkDevice</span>:
+    <span class="st">"""Represents a network device with SSH capabilities."""</span>
+
+    DEFAULT_TIMEOUT = <span class="nm">10</span>   <span class="cm"># class attribute — shared by all instances</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, hostname, ip, platform=<span class="st">"cisco_ios"</span>):
+        <span class="st">"""Called when creating a new NetworkDevice object."""</span>
+        self.hostname  = hostname          <span class="cm"># instance attributes</span>
+        self.ip        = ip
+        self.platform  = platform
+        self.username  = <span class="kw">None</span>
+        self.password  = <span class="kw">None</span>
+        self._online   = <span class="kw">False</span>            <span class="cm"># _prefix = private by convention</span>
+
+    <span class="kw">def</span> <span class="fn">set_credentials</span>(self, username, password):
+        self.username = username
+        self.password = password
+
+    <span class="kw">def</span> <span class="fn">ping</span>(self) -> bool:
+        <span class="st">"""Return True if device responds to ping."""</span>
+        <span class="kw">import</span> subprocess
+        r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,self.ip],
+                            capture_output=<span class="kw">True</span>)
+        self._online = (r.returncode == <span class="nm">0</span>)
+        <span class="kw">return</span> self._online
+
+    <span class="kw">def</span> <span class="fn">conn_dict</span>(self) -> dict:
+        <span class="st">"""Build Netmiko connection dict."""</span>
+        <span class="kw">return</span> {<span class="st">"device_type"</span>:self.platform, <span class="st">"host"</span>:self.ip,
+                 <span class="st">"username"</span>:self.username, <span class="st">"password"</span>:self.password,
+                 <span class="st">"timeout"</span>:self.DEFAULT_TIMEOUT}
+
+    <span class="kw">def</span> <span class="fn">__repr__</span>(self) -> str:
+        <span class="kw">return</span> f<span class="st">"NetworkDevice({self.hostname}, {self.ip})"</span>
+
+<span class="cm"># Create instances</span>
+<span class="vr">r1</span> = <span class="fn">NetworkDevice</span>(<span class="st">"R1"</span>, <span class="st">"10.1.1.1"</span>)
+<span class="vr">r1</span>.<span class="fn">set_credentials</span>(<span class="st">"admin"</span>, <span class="st">"cisco"</span>)
+<span class="fn">print</span>(r1)                      <span class="cm"># NetworkDevice(R1, 10.1.1.1)</span>
+<span class="fn">print</span>(r1.<span class="fn">ping</span>())               <span class="cm"># True/False</span>
+<span class="fn">print</span>(r1.<span class="fn">conn_dict</span>())</pre></div>
+<h4>Inheritance</h4>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">inherit and extend</span></div><pre><span class="kw">class</span> <span class="fn">CiscoSwitch</span>(NetworkDevice):
+    <span class="st">"""Cisco switch — extends NetworkDevice with VLAN methods."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, hostname, ip):
+        <span class="fn">super</span>().__init__(hostname, ip, platform=<span class="st">"cisco_ios"</span>)
+        self.vlans = []                   <span class="cm"># new attribute</span>
+
+    <span class="kw">def</span> <span class="fn">add_vlan</span>(self, vid, name=<span class="st">""</span>):
+        <span class="kw">if</span> vid <span class="kw">not in</span> [v[<span class="st">"id"</span>] <span class="kw">for</span> v <span class="kw">in</span> self.vlans]:
+            self.vlans.<span class="fn">append</span>({<span class="st">"id"</span>:vid, <span class="st">"name"</span>:name <span class="kw">or</span> f<span class="st">"VLAN_{vid}"</span>})
+
+    <span class="kw">def</span> <span class="fn">vlan_commands</span>(self) -> list:
+        <span class="vr">cmds</span> = []
+        <span class="kw">for</span> v <span class="kw">in</span> self.vlans:
+            cmds.<span class="fn">append</span>(f<span class="st">"vlan {v['id']}"</span>)
+            cmds.<span class="fn">append</span>(f<span class="st">" name {v['name']}"</span>)
+        <span class="kw">return</span> cmds
+
+<span class="vr">sw</span> = <span class="fn">CiscoSwitch</span>(<span class="st">"SW-01"</span>, <span class="st">"10.1.1.10"</span>)
+sw.<span class="fn">add_vlan</span>(<span class="nm">10</span>, <span class="st">"USERS"</span>)
+sw.<span class="fn">add_vlan</span>(<span class="nm">20</span>, <span class="st">"SERVERS"</span>)
+<span class="fn">print</span>(<span class="st">"\n"</span>.<span class="fn">join</span>(sw.<span class="fn">vlan_commands</span>()))</pre></div>
+</script>
+<script type="text/x-tmpl" id="m12-industry">
+<h3>OOP in Real Network Automation</h3>
+<p>Libraries like Nornir and NAPALM are built on OOP. Nornir's <code>Task</code>, <code>Host</code>, <code>Result</code> are all classes. NAPALM wraps each platform in a class with standard methods: <code>get_facts()</code>, <code>get_interfaces()</code>, <code>compare_config()</code>. Understanding OOP lets you use and extend these frameworks confidently.</p>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">LabInventory class — real OOP pattern</span></div><pre><span class="kw">class</span> <span class="fn">LabInventory</span>:
+    <span class="st">"""Manages a collection of network devices from YAML."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, yaml_path):
+        <span class="kw">import</span> yaml
+        <span class="kw">with</span> <span class="fn">open</span>(yaml_path) <span class="kw">as</span> f:
+            data = yaml.<span class="fn">safe_load</span>(f)
+        self.name    = data[<span class="st">"lab_name"</span>]
+        self.devices = [NetworkDevice(**d) <span class="kw">for</span> d <span class="kw">in</span> data[<span class="st">"devices"</span>]]
+
+    <span class="kw">def</span> <span class="fn">reachable</span>(self) -> list:
+        <span class="kw">return</span> [d <span class="kw">for</span> d <span class="kw">in</span> self.devices <span class="kw">if</span> d.<span class="fn">ping</span>()]
+
+    <span class="kw">def</span> <span class="fn">by_platform</span>(self, platform) -> list:
+        <span class="kw">return</span> [d <span class="kw">for</span> d <span class="kw">in</span> self.devices <span class="kw">if</span> d.platform == platform]
+
+    <span class="kw">def</span> <span class="fn">summary</span>(self):
+        <span class="fn">print</span>(f<span class="st">"Lab: {self.name} — {len(self.devices)} devices"</span>)
+        <span class="kw">for</span> d <span class="kw">in</span> self.devices:
+            <span class="fn">print</span>(f<span class="st">"  {d.hostname:15} {d.ip}"</span>)
+
+<span class="cm"># Usage</span>
+<span class="vr">lab</span> = <span class="fn">LabInventory</span>(<span class="st">"inventory.yaml"</span>)
+lab.<span class="fn">summary</span>()
+<span class="fn">print</span>(f<span class="st">"Reachable: {len(lab.reachable())}"</span>)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m12-practical">
+<h3>OOP in Practice</h3>
+<div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">network_device.py — full class with SSH</span></div><pre><span class="kw">import</span> subprocess, json
+<span class="kw">from</span> netmiko <span class="kw">import</span> ConnectHandler
+
+<span class="kw">class</span> <span class="fn">NetworkDevice</span>:
+    <span class="st">"""Network device with ping and SSH automation."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, hostname, ip, platform=<span class="st">"cisco_ios"</span>,
+                 username=<span class="st">"admin"</span>, password=<span class="st">"cisco"</span>):
+        self.hostname = hostname
+        self.ip       = ip
+        self.platform = platform
+        self.username = username
+        self.password = password
+
+    <span class="kw">def</span> <span class="fn">ping</span>(self) -> bool:
+        r = subprocess.<span class="fn">run</span>([<span class="st">"ping"</span>,<span class="st">"-c"</span>,<span class="st">"1"</span>,<span class="st">"-W"</span>,<span class="st">"1"</span>,self.ip],
+                            capture_output=<span class="kw">True</span>)
+        <span class="kw">return</span> r.returncode == <span class="nm">0</span>
+
+    <span class="kw">def</span> <span class="fn">run</span>(self, command: str) -> str:
+        <span class="st">"""SSH and run command. Returns output or error string."""</span>
+        <span class="kw">try</span>:
+            conn = {<span class="st">"device_type"</span>:self.platform,<span class="st">"host"</span>:self.ip,
+                    <span class="st">"username"</span>:self.username,<span class="st">"password"</span>:self.password}
+            <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+                <span class="kw">return</span> net.<span class="fn">send_command</span>(command)
+        <span class="kw">except</span> Exception <span class="kw">as</span> e:
+            <span class="kw">return</span> f<span class="st">"ERROR: {e}"</span>
+
+    <span class="kw">def</span> <span class="fn">configure</span>(self, commands: list) -> bool:
+        <span class="st">"""Push config commands. Returns True on success."""</span>
+        <span class="kw">try</span>:
+            conn = {<span class="st">"device_type"</span>:self.platform,<span class="st">"host"</span>:self.ip,
+                    <span class="st">"username"</span>:self.username,<span class="st">"password"</span>:self.password}
+            <span class="kw">with</span> <span class="fn">ConnectHandler</span>(**conn) <span class="kw">as</span> net:
+                net.<span class="fn">send_config_set</span>(commands); net.<span class="fn">save_config</span>()
+            <span class="kw">return</span> <span class="kw">True</span>
+        <span class="kw">except</span>: <span class="kw">return</span> <span class="kw">False</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(self) -> str:
+        status = <span class="st">"UP"</span> <span class="kw">if</span> self.<span class="fn">ping</span>() <span class="kw">else</span> <span class="st">"DOWN"</span>
+        <span class="kw">return</span> f<span class="st">"{self.hostname} ({self.ip}) [{status}]"</span>
+
+<span class="cm"># Usage</span>
+<span class="vr">r1</span> = <span class="fn">NetworkDevice</span>(<span class="st">"R1"</span>, <span class="st">"192.168.100.1"</span>)
+<span class="fn">print</span>(r1)
+<span class="vr">ok</span> = r1.<span class="fn">configure</span>([<span class="st">"ntp server 8.8.8.8"</span>])
+<span class="fn">print</span>(<span class="st">"Config pushed:"</span>, ok)</pre></div>
+</script>
+<script type="text/x-tmpl" id="m12-practice">
+<h3>Practice — OOP</h3>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 1 — Device Class</div><div class="pt">Build a class with attributes and methods</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Create a <code>Device</code> class with hostname, ip, dtype attributes. Method <code>header()</code> returns <code>"=== R1 (10.1.1.1) [router] ==="</code>. Method <code>is_router()</code> returns True if dtype=="router". Create 3 instances, print headers for routers only.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">class</span> <span class="fn">Device</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, hostname, ip, dtype):
+        self.hostname = hostname
+        self.ip       = ip
+        self.dtype    = dtype
+
+    <span class="kw">def</span> <span class="fn">header</span>(self):
+        <span class="kw">return</span> f<span class="st">"=== {self.hostname} ({self.ip}) [{self.dtype}] ==="</span>
+
+    <span class="kw">def</span> <span class="fn">is_router</span>(self):
+        <span class="kw">return</span> self.dtype == <span class="st">"router"</span>
+
+<span class="vr">devices</span> = [
+    <span class="fn">Device</span>(<span class="st">"R1"</span>,   <span class="st">"10.1.1.1"</span>,  <span class="st">"router"</span>),
+    <span class="fn">Device</span>(<span class="st">"SW-01"</span>,<span class="st">"10.1.1.10"</span>, <span class="st">"switch"</span>),
+    <span class="fn">Device</span>(<span class="st">"R2"</span>,   <span class="st">"10.1.1.2"</span>,  <span class="st">"router"</span>),
+]
+<span class="kw">for</span> d <span class="kw">in</span> devices:
+    <span class="kw">if</span> d.<span class="fn">is_router</span>(): <span class="fn">print</span>(d.<span class="fn">header</span>())</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 2 — Inherited Switch Class</div><div class="pt">Extend base class with VLAN methods</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Create a <code>Switch(Device)</code> class that inherits Device. Add a <code>vlans</code> list, <code>add_vlan(vid)</code> method, and <code>vlan_config()</code> that prints IOS VLAN commands.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">class</span> <span class="fn">Switch</span>(Device):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, hostname, ip):
+        <span class="fn">super</span>().__init__(hostname, ip, <span class="st">"switch"</span>)
+        self.vlans = []
+
+    <span class="kw">def</span> <span class="fn">add_vlan</span>(self, vid):
+        <span class="kw">if</span> vid <span class="kw">not in</span> self.vlans:
+            self.vlans.<span class="fn">append</span>(vid)
+
+    <span class="kw">def</span> <span class="fn">vlan_config</span>(self):
+        <span class="kw">for</span> v <span class="kw">in</span> sorted(self.vlans):
+            <span class="fn">print</span>(f<span class="st">"vlan {v}"</span>)
+            <span class="fn">print</span>(f<span class="st">" name DATA_{v}"</span>)
+
+<span class="vr">sw</span> = <span class="fn">Switch</span>(<span class="st">"SW-01"</span>, <span class="st">"10.1.1.10"</span>)
+sw.<span class="fn">add_vlan</span>(<span class="nm">10</span>); sw.<span class="fn">add_vlan</span>(<span class="nm">20</span>); sw.<span class="fn">add_vlan</span>(<span class="nm">30</span>)
+sw.<span class="fn">vlan_config</span>()</pre></div></div></div></div>
+<div class="pi"><div class="ph" onclick="tP(this)"><div><div class="pn">Exercise 3 — Class Method and Class Attribute</div><div class="pt">Use DEFAULT values and __str__</div></div><span class="chv">▼</span></div>
+<div class="pb" style="display:none"><p>Add a class attribute <code>DEFAULT_TIMEOUT = 10</code> to NetworkDevice. Add a <code>__str__</code> method returning <code>"R1 @ 10.1.1.1 [timeout=10s]"</code>. Create an instance and print it.</p>
+<button class="stb" onclick="tS(this)">▶ Show Solution</button>
+<div class="sb2"><div class="cb"><div class="ch"><span class="lg">Python</span><span class="fn">Solution</span></div><pre><span class="kw">class</span> <span class="fn">NetworkDevice</span>:
+    DEFAULT_TIMEOUT = <span class="nm">10</span>   <span class="cm"># shared by all instances</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, hostname, ip):
+        self.hostname = hostname
+        self.ip       = ip
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(self):
+        <span class="kw">return</span> f<span class="st">"{self.hostname} @ {self.ip} [timeout={self.DEFAULT_TIMEOUT}s]"</span>
+
+<span class="vr">r1</span> = <span class="fn">NetworkDevice</span>(<span class="st">"R1"</span>, <span class="st">"10.1.1.1"</span>)
+<span class="fn">print</span>(r1)   <span class="cm"># R1 @ 10.1.1.1 [timeout=10s]</span>
+
+<span class="cm"># Change class attribute — affects ALL instances</span>
+NetworkDevice.DEFAULT_TIMEOUT = <span class="nm">30</span>
+<span class="fn">print</span>(r1)   <span class="cm"># R1 @ 10.1.1.1 [timeout=30s]</span></pre></div></div></div></div>
+</script>
+<script type="text/x-tmpl" id="m12-interview">
+<h3>Interview Questions — OOP</h3>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What are the four OOP principles and how do they apply to network automation?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><strong>Encapsulation:</strong> Bundle data and methods together. A <code>NetworkDevice</code> class holds its own IP, credentials, and SSH logic. Callers just call <code>device.run("show version")</code> without knowing how SSH works inside.</p><p><strong>Abstraction:</strong> Hide complexity behind simple interfaces. NAPALM exposes <code>get_facts()</code> for all vendors — you don't care whether it's Cisco, Juniper, or Arista underneath.</p><p><strong>Inheritance:</strong> <code>CiscoSwitch</code> inherits from <code>NetworkDevice</code> and adds VLAN methods. Code reuse without duplication.</p><p><strong>Polymorphism:</strong> Both <code>CiscoDevice</code> and <code>JuniperDevice</code> have <code>get_config()</code> — different implementations, same interface. Your loop calls <code>device.get_config()</code> without knowing which vendor it is.</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-q">Q</span><span class="qa-text">What is the difference between a class attribute and an instance attribute?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p><strong>Class attribute:</strong> Defined at class level, shared by all instances. <code>NetworkDevice.DEFAULT_TIMEOUT = 30</code> changes it for every device object.</p><p><strong>Instance attribute:</strong> Set in <code>__init__</code> on <code>self</code>, unique to each object. <code>self.hostname = "R1"</code> belongs only to that specific instance.</p><p>Use class attributes for constants or defaults shared across all instances (timeouts, API versions). Use instance attributes for data unique to each object (hostname, IP, credentials).</p></div></div>
+<div class="qa"><div class="qa-hdr" onclick="tQA(this)"><span class="qbadge qb-s">SCENARIO</span><span class="qa-text">You have 50 device dicts in a list. How would you refactor this into an OOP design and what benefits would you get?</span><span class="qa-chv">▼</span></div><div class="qa-ans"><p>Create a <code>NetworkDevice</code> class and a <code>LabInventory</code> container class:</p><ul><li>Each device dict becomes a <code>NetworkDevice</code> object — methods like <code>ping()</code>, <code>run()</code>, <code>configure()</code> live on the object itself</li><li><code>LabInventory</code> loads devices from YAML, provides <code>reachable()</code>, <code>by_platform()</code>, <code>summary()</code> methods</li><li><strong>Benefits:</strong> no more passing device dict to every function, related logic stays together, easy to subclass for Cisco vs Juniper, testable in isolation, clear interface that teammates can use without reading implementation details</li></ul><p>This is exactly how Nornir structures its inventory — you're essentially building a simplified version of it.</p></div></div>
+</script>
+<script>
+var M=[
+  {id:1,  title:"Variables & Data Types",          level:"basic"},
+  {id:2,  title:"Strings & String Methods",        level:"basic"},
+  {id:3,  title:"Lists & Tuples",                  level:"basic"},
+  {id:4,  title:"Dictionaries & Sets",             level:"basic"},
+  {id:5,  title:"Conditional Statements",          level:"basic"},
+  {id:6,  title:"Loops — for & while",             level:"basic"},
+  {id:7,  title:"Functions & Reusable Code",       level:"intermediate"},
+  {id:8,  title:"File Handling — JSON/YAML/CSV",   level:"intermediate"},
+  {id:9,  title:"Error Handling — try/except",     level:"intermediate"},
+  {id:10, title:"Modules & Libraries",             level:"intermediate"},
+  {id:11, title:"Regular Expressions",             level:"advanced"},
+  {id:12, title:"OOP — Classes & Objects",         level:"advanced"}
+];
+
+var cur=0;
+var TABS=["theory","industry","practical","practice","interview"];
+
+function getSection(id,tab){
+  var el=document.getElementById("m"+id+"-"+tab);
+  return el?el.textContent:"<p style='color:var(--mut);padding:20px'>Loading...</p>";
+}
+
+function lvlClass(lv){return lv==="basic"?"lb-basic":lv==="intermediate"?"lb-intermediate":"lb-advanced";}
+
+function renderSidebar(){
+  var h="";
+  for(var i=0;i<M.length;i++){
+    h+="<div class='ti"+(i===cur?" active":"")+"' onclick='selectTopic("+i+")'>"
+      +"<span class='tn'>"+String(M[i].id).padStart(2,"0")+"</span>"
+      +"<span class='tt'>"+M[i].title+"</span>"
+      +"<span class='lbx "+lvlClass(M[i].level)+"'>"+M[i].level.toUpperCase()+"</span>"
+      +"</div>";
+  }
+  document.getElementById("tlist").innerHTML=h;
+}
+
+function renderContent(){
+  var m=M[cur];
+  document.getElementById("ttl").textContent=m.title;
+  var lb=document.getElementById("tlvl");
+  lb.textContent=m.level.toUpperCase();
+  lb.className="lbx "+lvlClass(m.level);
+  lb.style.display="inline-block";
+  for(var i=0;i<TABS.length;i++){
+    document.getElementById(TABS[i]).innerHTML=getSection(m.id,TABS[i]);
+  }
+  document.getElementById("sft").textContent="Topic "+m.id+" of "+M.length+" · "+m.level;
+}
+
+function selectTopic(i){
+  cur=i;
+  renderSidebar();
+  renderContent();
+  switchTab("theory");
+  document.getElementById("ct").scrollTop=0;
+  closeSidebar();
+}
+
+function switchTab(tab){
+  document.querySelectorAll(".sec").forEach(function(s){s.classList.remove("active");});
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+  document.getElementById(tab).classList.add("active");
+  var idx=TABS.indexOf(tab);
+  if(idx>=0) document.querySelectorAll(".tab")[idx].classList.add("active");
+  document.getElementById("ct").scrollTop=0;
+}
+
+document.querySelectorAll(".tab").forEach(function(el){
+  el.addEventListener("click",function(){switchTab(el.getAttribute("data-tab"));});
+});
+
+function tP(hdr){
+  var body=hdr.nextElementSibling;
+  var chev=hdr.querySelector(".chv");
+  var open=(body.style.display==="block");
+  body.style.display=open?"none":"block";
+  if(chev) chev.classList.toggle("op",!open);
+}
+
+function tS(btn){
+  var box=btn.nextElementSibling;
+  var open=box.classList.contains("open");
+  box.classList.toggle("open",!open);
+  btn.textContent=open?"▶ Show Solution":"▼ Hide Solution";
+}
+
+function tQA(hdr){
+  var ans=hdr.nextElementSibling;
+  var chev=hdr.querySelector(".qa-chv");
+  var open=ans.classList.contains("open");
+  ans.classList.toggle("open",!open);
+  if(chev) chev.classList.toggle("op",!open);
+}
+
+function openSidebar(){
+  document.getElementById("sb").classList.add("open");
+  document.getElementById("ovl").classList.add("open");
+}
+function closeSidebar(){
+  document.getElementById("sb").classList.remove("open");
+  document.getElementById("ovl").classList.remove("open");
+}
+document.getElementById("hbg").addEventListener("click",function(){
+  document.getElementById("sb").classList.contains("open")?closeSidebar():openSidebar();
+});
+document.getElementById("ovl").addEventListener("click",closeSidebar);
+
+renderSidebar();
+renderContent();
+</script>
+</body>
+</html>
